@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.grievancesystem;
+package Entity;
 
+import com.mycompany.grievancesystem.*;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,58 +28,58 @@ import java.util.Collection;
  * @author riya vesuwala
  */
 @Entity
-@Table(name = "ward")
+@Table(name = "zone")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Ward.findAll", query = "SELECT w FROM Ward w"),
-    @NamedQuery(name = "Ward.findByWardId", query = "SELECT w FROM Ward w WHERE w.wardId = :wardId"),
-    @NamedQuery(name = "Ward.findByWardName", query = "SELECT w FROM Ward w WHERE w.wardName = :wardName"),
-    @NamedQuery(name = "Ward.findByStatus", query = "SELECT w FROM Ward w WHERE w.status = :status")})
-public class Ward implements Serializable {
+    @NamedQuery(name = "Zone.findAll", query = "SELECT z FROM Zone z"),
+    @NamedQuery(name = "Zone.findByZoneId", query = "SELECT z FROM Zone z WHERE z.zoneId = :zoneId"),
+    @NamedQuery(name = "Zone.findByZoneName", query = "SELECT z FROM Zone z WHERE z.zoneName = :zoneName"),
+    @NamedQuery(name = "Zone.findByStatus", query = "SELECT z FROM Zone z WHERE z.status = :status")})
+public class Zone implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "ward_id")
-    private Integer wardId;
+    @Column(name = "zone_id")
+    private Integer zoneId;
     @Size(max = 200)
-    @Column(name = "ward_name")
-    private String wardName;
+    @Column(name = "zone_name")
+    private String zoneName;
     @Size(max = 100)
     @Column(name = "status")
     private String status;
-    @JoinColumn(name = "zone_id", referencedColumnName = "zone_id")
-    @ManyToOne
-    private Zone zoneId;
-    @OneToMany(mappedBy = "wardId")
-    private Collection<Society> societyCollection;
-    @OneToMany(mappedBy = "wardId")
+    @OneToMany(mappedBy = "zoneId")
+    private Collection<Ward> wardCollection;
+    @OneToMany(mappedBy = "zoneId")
     private Collection<Complaint> complaintCollection;
-    @OneToMany(mappedBy = "wardId")
+    @JoinColumn(name = "corporation_id", referencedColumnName = "corporation_id")
+    @ManyToOne
+    private Corporation corporationId;
+    @OneToMany(mappedBy = "zoneId")
     private Collection<Officers> officersCollection;
 
-    public Ward() {
+    public Zone() {
     }
 
-    public Ward(Integer wardId) {
-        this.wardId = wardId;
+    public Zone(Integer zoneId) {
+        this.zoneId = zoneId;
     }
 
-    public Integer getWardId() {
-        return wardId;
+    public Integer getZoneId() {
+        return zoneId;
     }
 
-    public void setWardId(Integer wardId) {
-        this.wardId = wardId;
+    public void setZoneId(Integer zoneId) {
+        this.zoneId = zoneId;
     }
 
-    public String getWardName() {
-        return wardName;
+    public String getZoneName() {
+        return zoneName;
     }
 
-    public void setWardName(String wardName) {
-        this.wardName = wardName;
+    public void setZoneName(String zoneName) {
+        this.zoneName = zoneName;
     }
 
     public String getStatus() {
@@ -89,21 +90,13 @@ public class Ward implements Serializable {
         this.status = status;
     }
 
-    public Zone getZoneId() {
-        return zoneId;
-    }
-
-    public void setZoneId(Zone zoneId) {
-        this.zoneId = zoneId;
-    }
-
     @XmlTransient
-    public Collection<Society> getSocietyCollection() {
-        return societyCollection;
+    public Collection<Ward> getWardCollection() {
+        return wardCollection;
     }
 
-    public void setSocietyCollection(Collection<Society> societyCollection) {
-        this.societyCollection = societyCollection;
+    public void setWardCollection(Collection<Ward> wardCollection) {
+        this.wardCollection = wardCollection;
     }
 
     @XmlTransient
@@ -113,6 +106,14 @@ public class Ward implements Serializable {
 
     public void setComplaintCollection(Collection<Complaint> complaintCollection) {
         this.complaintCollection = complaintCollection;
+    }
+
+    public Corporation getCorporationId() {
+        return corporationId;
+    }
+
+    public void setCorporationId(Corporation corporationId) {
+        this.corporationId = corporationId;
     }
 
     @XmlTransient
@@ -127,18 +128,18 @@ public class Ward implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (wardId != null ? wardId.hashCode() : 0);
+        hash += (zoneId != null ? zoneId.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Ward)) {
+        if (!(object instanceof Zone)) {
             return false;
         }
-        Ward other = (Ward) object;
-        if ((this.wardId == null && other.wardId != null) || (this.wardId != null && !this.wardId.equals(other.wardId))) {
+        Zone other = (Zone) object;
+        if ((this.zoneId == null && other.zoneId != null) || (this.zoneId != null && !this.zoneId.equals(other.zoneId))) {
             return false;
         }
         return true;
@@ -146,7 +147,7 @@ public class Ward implements Serializable {
 
     @Override
     public String toString() {
-        return "com.mycompany.grievancesystem.Ward[ wardId=" + wardId + " ]";
+        return "com.mycompany.grievancesystem.Zone[ zoneId=" + zoneId + " ]";
     }
     
 }

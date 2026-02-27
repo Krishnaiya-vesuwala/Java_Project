@@ -29,6 +29,10 @@ import java.util.List;
 /**
  *
  * @author riya vesuwala
+
+/**
+ *
+ * @author krishnaiya
  */
 @WebServlet(name = "Demo", urlPatterns = {"/Demo"})
 public class Demo extends HttpServlet {
@@ -46,6 +50,9 @@ public class Demo extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    @EJB
+    private AdminBeanLocal adminBean;
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -236,6 +243,16 @@ public class Demo extends HttpServlet {
 //        {
 //            System.out.println("Null");
 //        }
+//        processRequest(request, response);
+//          System.out.print(adminBean);
+//          adminBean.createWard(2,"Udhna", "Active");
+//          adminBean.updateWard(1, 1, "ABC", "inactive");
+//          adminBean.deleteWard(1);
+//          adminBean.createOfficer(1, 1, 1,1, "ABC");
+//          adminBean.updateOfficer(1, 0, 0, 0, 0, "JJ");
+            adminBean.deleteOfficer(1);
+            
+
     }
 
     /**
@@ -251,6 +268,7 @@ public class Demo extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
         
+//        processRequest(request, response);
     }
 
     /**

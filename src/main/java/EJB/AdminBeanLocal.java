@@ -37,4 +37,13 @@ public interface AdminBeanLocal {
     public void addCategory(ComplaintCategory category);
     public void updateCategory(Integer id, String name, Integer departmentId);
     public void deleteCategory(Integer id);
+    // Ward Functionalities
+    public void createWard(int zoneId,String wardName,String status);
+    public void updateWard(int wardId,int zoneId,String wardName,String status);
+    public void deleteWard(int wardId);
+    
+    //Officer Functionalities
+    void createOfficer(int userId,int departmentId,int zoneId,int wardId,String designation);
+    void updateOfficer(int officerId,int userId,int departmentId,int zoneId,int wardId,String designation);
+    void deleteOfficer(int officerId);
 }

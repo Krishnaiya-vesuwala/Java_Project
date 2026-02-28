@@ -5,7 +5,9 @@
 package Servlet;
 
 import EJB.AdminBeanLocal;
+import EJB.ComplaintBean;
 import EJB.ComplaintBeanLocal;
+import EJB.OfficerBeanLocal;
 import EJB.UserBeanLocal;
 import Entity.Complaint;
 import Entity.ComplaintCategory;
@@ -24,35 +26,27 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import static java.lang.System.out;
 import java.util.List;
 
 /**
  *
  * @author riya vesuwala
-
-/**
+ *
+ * /**
  *
  * @author krishnaiya
  */
 @WebServlet(name = "Demo", urlPatterns = {"/Demo"})
 public class Demo extends HttpServlet {
 
-    @EJB 
-//    AdminBeanLocal adminBean;
-    ComplaintBeanLocal complaintBean;
-    
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @EJB
     private AdminBeanLocal adminBean;
-    
+    @EJB
+    private ComplaintBeanLocal complaintBean;
+    @EJB
+    private OfficerBeanLocal officerBean;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -96,7 +90,6 @@ public class Demo extends HttpServlet {
 //        adminBean.createZone(zone);
 //        adminBean.updateZone(1, "Udhna Zone Updated", "Active", 1);
 //        adminBean.deleteZone(3);  
-        
 //        Departments dept = new Departments();
 //        dept.setDepartmentName("Water Department");
 //        dept.setDescription("Handles water supply complaints");
@@ -169,7 +162,6 @@ public class Demo extends HttpServlet {
 //        "Senior Officer"
 //        );
 //        adminBean.deleteOfficer(6);
-        
 //        Users user=new Users();
 //        
 //        user.setFullName("ABC");
@@ -180,7 +172,6 @@ public class Demo extends HttpServlet {
 //        user.setRole("Citizen");
 //        
 //        userBean.registerUser(user);
-
 //        Users user=userBean.login("ABC123", "abc123");
 //        Users user=userBean.login("admin", "admin123");
 //        Users user=userBean.login("officer1", "officer123");
@@ -204,7 +195,6 @@ public class Demo extends HttpServlet {
 //        {
 //            System.out.println("Null");
 //        }
-
 //        Complaint complaint=new Complaint();
 //        complaint.setDescription("Water Pipe Leakage");
 //        complaint.setStatus("Pending");
@@ -214,44 +204,38 @@ public class Demo extends HttpServlet {
 //        complaint.setCitizenId(user);
 //        
 //        complaintBean.registerComplaint(complaint);
-
-//        List<Complaint> list=complaintBean.getCitizenComplaints(1);
-//        
-//        if(list!=null)
-//        {   
-//            for(Complaint c:list)
-//            {
-//                System.out.println("Complaint Id : "+c.getComplaintId()+"<br/>");
-//                System.out.println("Description : "+c.getDescription()+"<br/>");
-//                System.out.println("Status : "+c.getStatus()+"<br/>");
-//            }
-//        }
-//        else
-//        {
-//            System.out.println("Null");
-//        }
-
-//        Complaint latest=complaintBean.trackComplaint(1);
-//        
-//        if(latest!=null)
-//        {
-//            System.out.println("Latest Complaint Id : "+latest.getComplaintId()+"<br/>");
-//            System.out.println("Description : "+latest.getDescription()+"<br/>");
-//            System.out.println("Status : "+latest.getStatus()+"<br/>");
-//        }
-//        else
-//        {
-//            System.out.println("Null");
-//        }
-//        processRequest(request, response);
+//       
+//          processRequest(request, response);
 //          System.out.print(adminBean);
 //          adminBean.createWard(2,"Udhna", "Active");
 //          adminBean.updateWard(1, 1, "ABC", "inactive");
 //          adminBean.deleteWard(1);
 //          adminBean.createOfficer(1, 1, 1,1, "ABC");
 //          adminBean.updateOfficer(1, 0, 0, 0, 0, "JJ");
-            adminBean.deleteOfficer(1);
-            
+//          adminBean.deleteOfficer(1);
+//        complaintBean.createComplaint(2, 2, 2, 2, 2, "Garbage remove", "Garbage remove", "ACTIVE");
+//        List<Object[]> complaints = complaintBean.getComplaintByUserId(2);
+//
+//        for (Object[] row : complaints) {
+//            String title = (String) row[0];
+//            String designation = (String) row[1];
+//            String status = (String) row[2];
+//
+//            out.println("Title: " + title);
+//            out.println("Designation: " + designation);
+//            out.println("status: " + status);
+//        }
+
+//        List<Complaint> complaints=officerBean.getAssignedComplaint(3);
+//        for(Complaint c:complaints){
+//            out.println(c.getStatus());
+//            out.println(c.getTitle());
+//        }
+//        officerBean.updateComplaintStatus(4, "Processing");
+       
+        adminBean.addSlaRules(2,2);
+        adminBean.updateSlaRule(1,1);
+        adminBean.deleteSlaRule(1);
 
     }
 
@@ -267,7 +251,7 @@ public class Demo extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-        
+
 //        processRequest(request, response);
     }
 

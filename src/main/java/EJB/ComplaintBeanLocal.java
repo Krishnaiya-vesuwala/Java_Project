@@ -14,7 +14,16 @@ import java.util.List;
  */
 @Local
 public interface ComplaintBeanLocal {
-    public void registerComplaint(Complaint complaint);
-    List<Complaint> getCitizenComplaints(Integer citizenId);
-    Complaint trackComplaint(Integer citizenId);
+   
+     public void createComplaint(Integer userId,
+                            Integer categoryId,
+                            Integer societyId,
+                            Integer wardId,
+                            Integer zoneId,
+                            String title,
+                            String description,
+                            String status);
+    
+    public void assignToWardOfficer(Integer complaintId);
+    public List<Object[]> getComplaintByUserId(Integer userId);
 }

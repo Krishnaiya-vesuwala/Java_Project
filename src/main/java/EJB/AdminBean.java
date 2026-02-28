@@ -8,6 +8,7 @@ import Entity.*;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,16 +19,15 @@ import java.util.logging.Logger;
 @Stateless
 public class AdminBean implements AdminBeanLocal {
 
-    @PersistenceContext(unitName="jpu1")
+    @PersistenceContext(unitName = "jpu1")
     EntityManager em;
-    
+
     @Override
     public void createZone(Zone zone) {
 //        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try{
+        try {
             em.persist(zone);
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -35,17 +35,15 @@ public class AdminBean implements AdminBeanLocal {
     @Override
     public void updateZone(Integer zoneId, String zoneName, String status, Integer corporationId) {
 //        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try{
-            Zone zone=em.find(Zone.class, zoneId);
-            if(zone!=null)
-            {
+        try {
+            Zone zone = em.find(Zone.class, zoneId);
+            if (zone != null) {
                 zone.setZoneName(zoneName);
                 zone.setStatus(status);
-                Corporation corporation=em.find(Corporation.class, corporationId);
+                Corporation corporation = em.find(Corporation.class, corporationId);
                 zone.setCorporationId(corporation);
             }
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -53,15 +51,13 @@ public class AdminBean implements AdminBeanLocal {
     @Override
     public void deleteZone(Integer zoneId) {
 //        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try{
-            Zone zone=em.find(Zone.class, zoneId);
-        
-            if(zone!=null)
-            {
+        try {
+            Zone zone = em.find(Zone.class, zoneId);
+
+            if (zone != null) {
                 em.remove(zone);
             }
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -99,56 +95,6 @@ public class AdminBean implements AdminBeanLocal {
             Departments dept = em.find(Departments.class, id);
             if (dept != null) {
                 em.remove(dept);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void createOfficer(Officers officer) {
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try {
-            em.persist(officer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateOfficer(Integer id, Integer userId, Integer departmentId, Integer wardId, Integer zoneId, String designation) {
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try {
-            Officers officer = em.find(Officers.class, id);
-
-            if (officer != null) {
-
-                Users user = em.find(Users.class, userId);
-                Departments dept = em.find(Departments.class, departmentId);
-                Ward ward = em.find(Ward.class, wardId);
-                Zone zone = em.find(Zone.class, zoneId);
-
-                officer.setUserId(user);
-                officer.setDepartmentId(dept);
-                officer.setWardId(ward);
-                officer.setZoneId(zone);
-                officer.setDesignation(designation);
-
-                em.merge(officer);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void deleteOfficer(Integer id) {
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        try {
-            Officers officer = em.find(Officers.class, id);
-            if (officer != null) {
-                em.remove(officer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,79 +185,75 @@ public class AdminBean implements AdminBeanLocal {
             e.printStackTrace();
         }
     }
-    
-    
+
     @PersistenceContext(unitName = "jpu1")
-    private EntityManager em;
-    
+
     // Ward functionalities
     @Override
-    public void createWard(int zoneId,String wardName,String status) {
-        
-        Zone zone=em.find(Zone.class,zoneId);
-        
-        if(zone==null){
+    public void createWard(int zoneId, String wardName, String status) {
+
+        Zone zone = em.find(Zone.class, zoneId);
+
+        if (zone == null) {
             try {
                 throw new Exception("Zone id not found" + zoneId);
             } catch (Exception ex) {
                 Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        Ward ward=new Ward();
+
+        Ward ward = new Ward();
         ward.setZoneId(zone);
         ward.setStatus(status);
         ward.setWardName(wardName);
-        
+
         em.persist(ward);
     }
+
     @Override
-    public void updateWard(int wardId,int zoneId,String wardName,String status){
-        Ward ward = em.find(Ward.class,wardId);
-        if(ward==null){
+    public void updateWard(int wardId, int zoneId, String wardName, String status) {
+        Ward ward = em.find(Ward.class, wardId);
+        if (ward == null) {
             try {
-                throw new Exception("Ward not Found with id"+ wardId);
+                throw new Exception("Ward not Found with id" + wardId);
             } catch (Exception ex) {
                 Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+            }
         }
-        Zone zone = em.find(Zone.class,zoneId);    
-        if(zone==null){
+        Zone zone = em.find(Zone.class, zoneId);
+        if (zone == null) {
             try {
-                throw new Exception("Zone not Found with id"+ zoneId);
+                throw new Exception("Zone not Found with id" + zoneId);
             } catch (Exception ex) {
                 Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+            }
         }
         ward.setZoneId(zone);
         ward.setStatus(status);
         ward.setWardName(wardName);
-        
+
     }
 
-     
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
-
     @Override
     public void deleteWard(int wardId) {
-        Ward ward=em.find(Ward.class,wardId);
-        
-        if(ward!=null){
+        Ward ward = em.find(Ward.class, wardId);
+
+        if (ward != null) {
             em.remove(ward);
         }
     }
-    
-    // Officer Functionalities
 
+    // Officer Functionalities
     @Override
-    public void createOfficer(int userId, int departmentId, int zoneId,int wardId, String designation) {
-        Users user=em.find(Users.class, userId);
-        Departments department=em.find(Departments.class, departmentId);
-        Zone zone=em.find(Zone.class, zoneId);
-        Ward ward=em.find(Ward.class, wardId);
-        
-        if(user == null || department == null || zone == null){
+    public void createOfficer(int userId, int departmentId, int zoneId, int wardId, String designation) {
+        Users user = em.find(Users.class, userId);
+        Departments department = em.find(Departments.class, departmentId);
+        Zone zone = em.find(Zone.class, zoneId);
+        Ward ward = em.find(Ward.class, wardId);
+
+        if (user == null || department == null || zone == null) {
             try {
                 throw new Exception("Invalid Foreign Key while creating officer");
             } catch (Exception ex) {
@@ -324,7 +266,7 @@ public class AdminBean implements AdminBeanLocal {
         officer.setZoneId(zone);
         officer.setWardId(ward);
         officer.setDesignation(designation);
-        
+
         em.persist(officer);
     }
 
@@ -349,4 +291,48 @@ public class AdminBean implements AdminBeanLocal {
             em.remove(officer);
         }
     }
+
+    @Override
+    public void addSlaRules(Integer categoryId, Integer maxDays) {
+        ComplaintCategory category=em.find(ComplaintCategory.class,categoryId);
+        
+        if(category!=null){
+            List<SlaRules> existing = em.createQuery(
+            "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId=:cid",SlaRules.class
+            ).setParameter("cid", categoryId)
+                    .getResultList();
+            
+            if(existing.isEmpty()){
+                SlaRules sla=new SlaRules();
+                sla.setCategoryId(category);
+                sla.setMaxResolutionDays(maxDays);
+                em.persist(sla);
+            }
+        }
+    }
+
+    @Override
+    public void deleteSlaRule(Integer slaId) {
+       SlaRules sla = em.find(SlaRules.class,slaId);
+       
+       if(sla!=null){
+           em.remove(sla);
+       }
+    }
+
+    @Override
+    public void updateSlaRule(Integer slaId, Integer maxDays) {
+        SlaRules sla=em.find(SlaRules.class,slaId);
+        
+        if(sla!=null){
+            sla.setMaxResolutionDays(maxDays);
+            em.merge(sla);
+        }
+    }
+    @Override
+    public List<SlaRules> getAllSlaRules(){
+        return em.createQuery("SELECT s FROM SlaRules s",SlaRules.class)
+                .getResultList();
+    }
+  
 }

@@ -6,6 +6,7 @@ package EJB;
 
 import Entity.*;
 import jakarta.ejb.Local;
+import java.util.List;
 
 /**
  *
@@ -24,9 +25,6 @@ public interface AdminBeanLocal {
     public void deleteDepartment(Integer id);
      
     //Officer
-    public void createOfficer(Officers officer);
-    public void updateOfficer(Integer id,Integer userId,Integer departmentId,Integer wardId,Integer zoneId,String designation);
-    public void deleteOfficer(Integer id);
     
     //Society
     public void createSociety(Society society);
@@ -42,8 +40,15 @@ public interface AdminBeanLocal {
     public void updateWard(int wardId,int zoneId,String wardName,String status);
     public void deleteWard(int wardId);
     
-    //Officer Functionalities
+//    Officer Functionalities
     void createOfficer(int userId,int departmentId,int zoneId,int wardId,String designation);
     void updateOfficer(int officerId,int userId,int departmentId,int zoneId,int wardId,String designation);
     void deleteOfficer(int officerId);
-}
+    
+    //SLA Functionality
+    void addSlaRules(Integer categoryId,Integer maxDays); 
+    void deleteSlaRule(Integer slaId);
+    void updateSlaRule(Integer SlaId,Integer maxDays);
+    List<SlaRules> getAllSlaRules();
+}   
+

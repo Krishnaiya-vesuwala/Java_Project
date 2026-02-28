@@ -53,8 +53,8 @@ public class Departments implements Serializable {
     private String status;
     @OneToMany(mappedBy = "departmentId")
     private Collection<ComplaintCategory> complaintCategoryCollection;
-    @OneToMany(mappedBy = "departmentId")
-    private Collection<SlaRules> slaRulesCollection;
+//    @OneToMany(mappedBy = "departmentId")
+//    private Collection<SlaRules> slaRulesCollection;
     @OneToMany(mappedBy = "departmentId")
     private Collection<Officers> officersCollection;
 
@@ -104,15 +104,6 @@ public class Departments implements Serializable {
 
     public void setComplaintCategoryCollection(Collection<ComplaintCategory> complaintCategoryCollection) {
         this.complaintCategoryCollection = complaintCategoryCollection;
-    }
-
-    @XmlTransient
-    public Collection<SlaRules> getSlaRulesCollection() {
-        return slaRulesCollection;
-    }
-
-    public void setSlaRulesCollection(Collection<SlaRules> slaRulesCollection) {
-        this.slaRulesCollection = slaRulesCollection;
     }
 
     @XmlTransient

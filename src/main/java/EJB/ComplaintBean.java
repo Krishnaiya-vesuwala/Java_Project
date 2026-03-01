@@ -8,6 +8,7 @@ import Entity.Complaint;
 import Entity.ComplaintCategory;
 import Entity.Departments;
 import Entity.Officers;
+import Entity.SlaRules;
 import Entity.Society;
 import Entity.Users;
 import Entity.Ward;
@@ -15,6 +16,7 @@ import Entity.Zone;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,10 +27,11 @@ import java.util.logging.Logger;
  */
 @Stateless
 public class ComplaintBean implements ComplaintBeanLocal {
-    @PersistenceContext(unitName="jpu1")
+
+    @PersistenceContext(unitName = "jpu1")
     EntityManager em;
-    
-   @Override
+
+    @Override
     public void createComplaint(Integer userId,
             Integer categoryId,
             Integer societyId,
@@ -36,7 +39,8 @@ public class ComplaintBean implements ComplaintBeanLocal {
             Integer zoneId,
             String title,
             String description,
-            String status) {
+            String status,
+            String priority) {
 
         try {
             Users user = em.find(Users.class, userId);
@@ -48,16 +52,35 @@ public class ComplaintBean implements ComplaintBeanLocal {
             if (user == null || category == null || society == null || ward == null || zone == null) {
                 throw new Exception("Invalid foreign key while creating complaint");
             }
+            SlaRules sla = em.createQuery(
+                    "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId=:catId",
+                    SlaRules.class
+            ).setParameter("catId", categoryId)
+                    .setMaxResults(1)
+                    .getSingleResult();
+
+            if (sla == null) {
+                throw new RuntimeException("No SLA rule found for category");
+            }
+
+            // Count the due_date
+            LocalDateTime now=LocalDateTime.now();
+            LocalDateTime dueDate=now.plusHours(sla.getMaxResolutionDays());
+            
             Complaint complaint = new Complaint();
             complaint.setCitizenId(user);
             complaint.setCategoryId(category);
             complaint.setSocietyId(society);
             complaint.setWardId(ward);
             complaint.setZoneId(zone);
+            complaint.setDueDate(dueDate);
+            complaint.setCreatedAt(now);
+            
 
             complaint.setTitle(title);
             complaint.setDescription(description);
             complaint.setStatus(status);
+            complaint.setPriority(priority);
 
 //        complaint.setc(new java.util.Date());
             em.persist(complaint);
@@ -116,10 +139,10 @@ public class ComplaintBean implements ComplaintBeanLocal {
 
     @Override
     public List<Object[]> getComplaintByUserId(Integer userId) {
-        
-        return em.createQuery("SELECT c.title,o.designation,c.status FROM Complaint c LEFT JOIN c.assignedOfficerId o WHERE c.citizenId.userId = :userId",Object[].class)
+
+        return em.createQuery("SELECT c.title,o.designation,c.status FROM Complaint c LEFT JOIN c.assignedOfficerId o WHERE c.citizenId.userId = :userId", Object[].class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
- 
+
 }

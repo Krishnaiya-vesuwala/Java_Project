@@ -34,6 +34,9 @@ public class SlaRules implements Serializable {
     @Column(name = "max_resolution_days")
     private Integer maxResolutionDays;
 
+    @Column(name = "level")
+    private String level;
+
     //  Correct Foreign Key Mapping
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     @ManyToOne
@@ -62,6 +65,14 @@ public class SlaRules implements Serializable {
         this.maxResolutionDays = maxResolutionDays;
     }
 
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
     public ComplaintCategory getCategoryId() {
         return categoryId;
     }
@@ -81,8 +92,8 @@ public class SlaRules implements Serializable {
             return false;
         }
         SlaRules other = (SlaRules) object;
-        return !((this.slaId == null && other.slaId != null) ||
-                 (this.slaId != null && !this.slaId.equals(other.slaId)));
+        return !((this.slaId == null && other.slaId != null)
+                || (this.slaId != null && !this.slaId.equals(other.slaId)));
     }
 
     @Override

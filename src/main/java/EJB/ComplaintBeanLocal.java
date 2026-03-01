@@ -22,7 +22,8 @@ public interface ComplaintBeanLocal {
                             Integer zoneId,
                             String title,
                             String description,
-                            String status);
+                            String status,
+                            String priority);
     
     public void assignToWardOfficer(Integer complaintId);
     public List<Object[]> getComplaintByUserId(Integer userId);

@@ -23,8 +23,6 @@ public interface AdminBeanLocal {
     public void createDepartment(String departmentName,String description,String status);
     public void updateDepartment(Integer id, String name, String desc, String status);
     public void deleteDepartment(Integer id);
-     
-    //Officer
     
     //Society
     public void createSociety(Integer wardId,String societyName,String address,String status);

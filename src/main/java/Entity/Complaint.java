@@ -22,6 +22,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Collection;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -57,6 +58,10 @@ public class Complaint implements Serializable {
     @Size(max = 100)
     @Column(name = "status")
     private String status;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
     @OneToMany(mappedBy = "complaintId")
     private Collection<ComplaintStatusHistory> complaintStatusHistoryCollection;
     @OneToMany(mappedBy = "complaintId")
@@ -129,6 +134,22 @@ public class Complaint implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 
     @XmlTransient

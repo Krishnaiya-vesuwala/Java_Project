@@ -12,6 +12,7 @@ import Entity.Society;
 import Entity.Users;
 import Entity.Ward;
 import Entity.Zone;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -27,6 +28,8 @@ import java.util.logging.Logger;
 public class ComplaintBean implements ComplaintBeanLocal {
     @PersistenceContext(unitName="jpu1")
     EntityManager em;
+    @EJB
+    NotificationBeanLocal notifyBean;
     
    @Override
     public void createComplaint(Integer userId,
@@ -58,14 +61,20 @@ public class ComplaintBean implements ComplaintBeanLocal {
             complaint.setTitle(title);
             complaint.setDescription(description);
             complaint.setStatus(status);
-
+            complaint.setCreatedAt(java.time.LocalDateTime.now());
+            complaint.setDueDate(java.time.LocalDateTime.now().plusDays(3));
+            
 //        complaint.setc(new java.util.Date());
-            em.persist(complaint);
+            em.persist(complaint);           
             em.flush();
 
             Integer generatedId = complaint.getComplaintId();
-            assignToWardOfficer(generatedId);
-
+            Officers officer = assignToWardOfficer(generatedId);
+            
+            notifyBean.sendSMS(user.getMobile(),"Complaint Registered Successfully. ID : "+complaint.getComplaintId());
+            notifyBean.sendSMS(officer.getUserId().getMobile(), "New Complaint Assigned. ID : "+generatedId);
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,7 +82,7 @@ public class ComplaintBean implements ComplaintBeanLocal {
     }
 
     @Override
-    public void assignToWardOfficer(Integer complaintId) {
+    public Officers assignToWardOfficer(Integer complaintId) {
         Complaint complaint = em.find(Complaint.class, complaintId);
 
         if (complaint == null) {
@@ -86,18 +95,16 @@ public class ComplaintBean implements ComplaintBeanLocal {
 
         Ward ward = complaint.getWardId();
         Departments dept = complaint.getCategoryId().getDepartmentId();
-
+       
         List<Officers> officers = em.createQuery(
-                "SELECT o FROM Officers o WHERE o.designation = :designation "
-                + "AND o.wardId = :ward "
-                + "AND o.departmentId = :dept ",
-                Officers.class)
-                .setParameter("designation", "WARD")
-                .setParameter("ward", ward)
-                .setParameter("dept", dept)
-                .setMaxResults(1)
-                .getResultList();
-
+            "SELECT o FROM Officers o WHERE "
+            + "o.wardId = :ward "
+            + "AND o.departmentId = :dept",
+            Officers.class)
+            .setParameter("ward", ward)
+            .setParameter("dept", dept)
+            .getResultList();
+    
         if (officers.isEmpty()) {
             try {
                 throw new Exception("No ward Officer available");
@@ -112,6 +119,8 @@ public class ComplaintBean implements ComplaintBeanLocal {
         complaint.setStatus("ASSIGNED");
 
         em.merge(complaint);
+        
+        return selectedOfficer;
     }
 
     @Override

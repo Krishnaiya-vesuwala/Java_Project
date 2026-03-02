@@ -46,6 +46,8 @@ public class Demo extends HttpServlet {
     private ComplaintBeanLocal complaintBean;
     @EJB
     private OfficerBeanLocal officerBean;
+    @EJB
+    private UserBeanLocal userBean;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -79,23 +81,12 @@ public class Demo extends HttpServlet {
 //        System.out.println(adminBean);
 //        System.out.println(userBean);
 
-//        Zone zone = new Zone();
-//        zone.setZoneName("Udhna");
-//        zone.setStatus("Active");
-//
-//        Corporation corp = new Corporation();
-//        corp.setCorporationId(1);
-//        zone.setCorporationId(corp);
-//
-//        adminBean.createZone(zone);
+//        adminBean.createZone("Udhna Zone","Active",1);
 //        adminBean.updateZone(1, "Udhna Zone Updated", "Active", 1);
-//        adminBean.deleteZone(3);  
-//        Departments dept = new Departments();
-//        dept.setDepartmentName("Water Department");
-//        dept.setDescription("Handles water supply complaints");
-//        dept.setStatus("Active");
-//
-//        adminBean.createDepartment(dept);
+//        adminBean.deleteZone(3);
+
+
+//        adminBean.createDepartment("Water Department","Handles water complaints","Active");
 //        adminBean.updateDepartment(1,
 //        "Water Supply Dept",
 //        "Handles water leakage & supply",
@@ -106,13 +97,9 @@ public class Demo extends HttpServlet {
 //        society.setSocietyName("Green Park Society");
 //        society.setAddress("Udhna Surat");
 //        society.setStatus("Active");
-//
-//        Ward ward = new Ward();
-//        ward.setWardId(2);
-//
-//        society.setWardId(ward);
-//        
-//        adminBean.createSociety(society);
+
+
+//        adminBean.createSociety(2,"Green Park Society","Udhna Surat","Active");
 //        adminBean.updateSociety(4,
 //        "Green Park Residency",
 //        "Udhna Main Road",
@@ -120,39 +107,19 @@ public class Demo extends HttpServlet {
 //        2);
 //        adminBean.deleteSociety(4);
 //        
-//        ComplaintCategory category = new ComplaintCategory();
-//        category.setCategoryName("Water Leakage");
-//
-//        Departments deptRef = new Departments();
-//        deptRef.setDepartmentId(1);
-//
-//        category.setDepartmentId(deptRef);
-//
 //        adminBean.addCategory(category);
+//        adminBean.createCategory("Water Leakage",1);
 //        adminBean.updateCategory(1, "Water Pipe Leakage", 1);
 //        adminBean.deleteCategory(3);
 //
-//        Officers officer = new Officers();
-//
-//        Users user = new Users();
-//        user.setUserId(5);   // existing user id
-//        officer.setUserId(user);
-//
-//        Departments deptRef2 = new Departments();
-//        deptRef2.setDepartmentId(1);
-//        officer.setDepartmentId(deptRef2);
-//
-//        Ward wardRef = new Ward();
-//        wardRef.setWardId(2);
-//        officer.setWardId(wardRef);
-//
-//        Zone zoneRef = new Zone();
-//        zoneRef.setZoneId(3);
-//        officer.setZoneId(zoneRef);
-//
-//        officer.setDesignation("Junior Officer");
-//
-//        adminBean.createOfficer(officer);
+//  
+//        adminBean.createOfficer(
+//                    5,          // existing user_id
+//                    1,          // department_id
+//                    3,          // zone_id
+//                    2,          // ward_id
+//                    "Junior Officer"
+//        );
 //        adminBean.updateOfficer(
 //        1,  // officer id
 //        5,  // user id
@@ -163,11 +130,11 @@ public class Demo extends HttpServlet {
 //        );
 //        adminBean.deleteOfficer(6);
 //        Users user=new Users();
-//        
+//       
 //        user.setFullName("ABC");
 //        user.setUsername("ABC123");
 //        user.setEmail("abc@gmail.com");
-//        user.setMobile("9999999999");
+//        user.setMobile("7383181453");
 //        user.setPassword("abc123");
 //        user.setRole("Citizen");
 //        
@@ -195,15 +162,6 @@ public class Demo extends HttpServlet {
 //        {
 //            System.out.println("Null");
 //        }
-//        Complaint complaint=new Complaint();
-//        complaint.setDescription("Water Pipe Leakage");
-//        complaint.setStatus("Pending");
-//        
-//        Users user=new Users();
-//        user.setUserId(1);
-//        complaint.setCitizenId(user);
-//        
-//        complaintBean.registerComplaint(complaint);
 //       
 //          processRequest(request, response);
 //          System.out.print(adminBean);
@@ -213,7 +171,15 @@ public class Demo extends HttpServlet {
 //          adminBean.createOfficer(1, 1, 1,1, "ABC");
 //          adminBean.updateOfficer(1, 0, 0, 0, 0, "JJ");
 //          adminBean.deleteOfficer(1);
-//        complaintBean.createComplaint(2, 2, 2, 2, 2, "Garbage remove", "Garbage remove", "ACTIVE");
+        complaintBean.createComplaint(
+                6,   // citizen user
+                1,   // category
+                2,   // society
+                2,   // ward
+                2,   // zone
+                "Garbage remove",
+                "Garbage remove",
+                "ACTIVE");
 //        List<Object[]> complaints = complaintBean.getComplaintByUserId(2);
 //
 //        for (Object[] row : complaints) {

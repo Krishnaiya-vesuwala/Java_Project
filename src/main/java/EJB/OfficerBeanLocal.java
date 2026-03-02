@@ -15,5 +15,5 @@ import java.util.List;
 @Local
 public interface OfficerBeanLocal {
     List<Complaint> getAssignedComplaint(int officerId);
-    void updateComplaintStatus(int complaintId,String status);
+    void updateComplaintStatus(int complaintId,String status,int logedInUser);
 }

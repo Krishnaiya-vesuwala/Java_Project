@@ -5,6 +5,8 @@
 package EJB;
 
 import Entity.Complaint;
+import Entity.Users;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,6 +20,9 @@ import java.util.List;
 public class OfficerBean implements OfficerBeanLocal {
  @PersistenceContext(unitName = "jpu1")
  EntityManager em;
+ 
+ @EJB
+ ComplaintBeanLocal complaintBean;
 
     @Override
     public List<Complaint> getAssignedComplaint(int officerId) {
@@ -27,15 +32,19 @@ public class OfficerBean implements OfficerBeanLocal {
     }
 
     @Override
-    public void updateComplaintStatus(int complaintId, String status) {
+    public void updateComplaintStatus(int complaintId, String status,int logenInUser) {
         Complaint c=em.find(Complaint.class, complaintId);
         
+        
         if(c!=null){
-            if(status.equalsIgnoreCase("RESOLVED")){
-                c.setStatus("CLOSED");
-            }else{
-                c.setStatus(status);
-            }
+            String odlStatus=c.getStatus();
+            
+            Users user=em.find(Users.class, logenInUser);
+
+            c.setStatus(status);
+            
+            complaintBean.createComplaintStatusHistory(c, odlStatus, odlStatus, user);
+            
             em.merge(c);
         }
     }

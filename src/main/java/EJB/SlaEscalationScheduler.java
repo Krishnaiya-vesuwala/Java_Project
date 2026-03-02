@@ -6,8 +6,11 @@ package EJB;
 
 import Entity.Complaint;
 import Entity.ComplaintEscalation;
+import Entity.ComplaintStatusHistory;
 import Entity.Officers;
 import Entity.SlaRules;
+import Entity.Users;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Schedule;
@@ -28,6 +31,9 @@ public class SlaEscalationScheduler {
 
     @PersistenceContext(unitName = "jpu1")
     private EntityManager em;
+    
+    @EJB
+    ComplaintBeanLocal complaintBean;
 
     // Run every minute
      @Schedule(hour = "*", minute = "*", second = "0", persistent = false)
@@ -54,19 +60,19 @@ public class SlaEscalationScheduler {
 
     // If no officer assigned yet treat as WARD level
     if (currentOfficer == null) {
-        escalateComplaint(complaint, "ZONE");
+        escalateComplaint(complaint, "ZONE",2);
         continue;
     }
 
     String currentLevel = currentOfficer.getDesignation();
 
     if ("WARD".equals(currentLevel)) {
-        escalateComplaint(complaint, "ZONE");
+        escalateComplaint(complaint, "ZONE",2);
         System.out.println("Escalaed to Zone" + complaint.getComplaintId());
         
 
     } else if ("ZONE".equals(currentLevel)) {
-        escalateComplaint(complaint, "CORPORATION");
+        escalateComplaint(complaint, "CORPORATION",2);
         System.out.println("Escalaed to Zone" + complaint.getComplaintId());
 
     } else if ("CORPORATION".equals(currentLevel)) {
@@ -75,58 +81,64 @@ public class SlaEscalationScheduler {
 }
     }
 
-    private void escalateComplaint(Complaint complaint, String nextLevel) {
+private void escalateComplaint(Complaint complaint, String nextLevel,int logedInUser) {
 
-        LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now();
 
-        //1️Find the officer
-        Officers nextOfficer = getOfficerByLevel(complaint, nextLevel);
-        if (nextOfficer == null) {
-            System.out.println("No officer found for level: " + nextLevel);
-            return;
-        }
-
-        // Next SLA
-        SlaRules nextSla = em.createQuery(
-                "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId = :catId "
-                + "AND s.level = :level",
-                SlaRules.class)
-                .setParameter("catId", complaint.getCategoryId().getCategoryId())
-                .setParameter("level", nextLevel)
-                .setMaxResults(1)
-                .getResultList()
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-        if (nextSla == null) {
-            System.out.println("No SLA found for level: " + nextLevel);
-            return;
-        }
-
-        // Recalculate DueDate
-        LocalDateTime newDueDate = now.plusDays(nextSla.getMaxResolutionDays());
-
-        complaint.setAssignedOfficerId(nextOfficer);
-        complaint.setDueDate(newDueDate);
-        complaint.setStatus("ESCALATED_TO_" + nextLevel);
-
-        em.merge(complaint);
-
-        // save History
-        ComplaintEscalation escalation = new ComplaintEscalation();
-        escalation.setComplaintId(complaint);
-        escalation.setEscalatedTo(nextOfficer);
-        escalation.setReason("SLA Breached - Escalated to " + nextLevel);
-        escalation.setEscalatedAt(now);
-
-        em.persist(escalation);
-
-        System.out.println("Complaint ID "
-                + complaint.getComplaintId()
-                + " escalated to "
-                + nextLevel);
+    // Find the officer
+    Officers nextOfficer = getOfficerByLevel(complaint, nextLevel);
+    if (nextOfficer == null) {
+        System.out.println("No officer found for level: " + nextLevel);
+        return;
     }
+
+    // create new sla rule
+    SlaRules nextSla = em.createQuery(
+            "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId = :catId "
+            + "AND s.level = :level",
+            SlaRules.class)
+            .setParameter("catId", complaint.getCategoryId().getCategoryId())
+            .setParameter("level", nextLevel)
+            .setMaxResults(1)
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
+
+    if (nextSla == null) {
+        System.out.println("No SLA found for level: " + nextLevel);
+        return;
+    }
+
+    // store old and new status for complaint status history
+    String oldStatus = complaint.getStatus();
+    String newStatus = "ESCALATED_TO_" + nextLevel;
+    Users user = em.find(Users.class, logedInUser);
+
+   
+    LocalDateTime newDueDate = now.plusDays(nextSla.getMaxResolutionDays());
+
+    complaint.setAssignedOfficerId(nextOfficer);
+    complaint.setDueDate(newDueDate);
+    complaint.setStatus(newStatus);
+
+    em.merge(complaint);
+    
+    complaintBean.createComplaintStatusHistory(complaint, oldStatus, newStatus, user);
+
+    ComplaintEscalation escalation = new ComplaintEscalation();
+    escalation.setComplaintId(complaint);
+    escalation.setEscalatedTo(nextOfficer);
+    escalation.setReason("SLA Breached - Escalated to " + nextLevel);
+    escalation.setEscalatedAt(now);
+
+    em.persist(escalation);
+
+    System.out.println("Complaint ID "
+            + complaint.getComplaintId()
+            + " escalated to "
+            + nextLevel);
+}
 
     private Officers getOfficerByLevel(Complaint complaint, String level) {
 

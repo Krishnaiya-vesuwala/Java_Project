@@ -238,6 +238,8 @@ public class Demo extends HttpServlet {
 //        adminBean.updateSlaRule(1,1);
 //        adminBean.deleteSlaRule(1);
 
+          officerBean.updateComplaintStatus(9, "RESOLVED",2);
+
     }
 
     /**

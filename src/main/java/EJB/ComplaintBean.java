@@ -6,6 +6,7 @@ package EJB;
 
 import Entity.Complaint;
 import Entity.ComplaintCategory;
+import Entity.ComplaintStatusHistory;
 import Entity.Departments;
 import Entity.Officers;
 import Entity.SlaRules;
@@ -143,6 +144,20 @@ public class ComplaintBean implements ComplaintBeanLocal {
         return em.createQuery("SELECT c.title,o.designation,c.status FROM Complaint c LEFT JOIN c.assignedOfficerId o WHERE c.citizenId.userId = :userId", Object[].class)
                 .setParameter("userId", userId)
                 .getResultList();
+    }
+
+    // Complaint_status_history Functionality
+    
+    @Override
+    public void createComplaintStatusHistory(Complaint complaint, String old_status, String new_status, Users changed_by) {
+        ComplaintStatusHistory history=new ComplaintStatusHistory();
+        history.setComplaintId(complaint);
+        history.setOldStatus(old_status);
+        history.setNewStatus(new_status);
+        history.setChangedBy(changed_by);
+        history.setChangedAt(LocalDateTime.now());
+        
+        em.persist(history);
     }
 
 }

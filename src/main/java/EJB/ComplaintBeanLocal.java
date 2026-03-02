@@ -5,6 +5,7 @@
 package EJB;
 
 import Entity.Complaint;
+import Entity.Users;
 import jakarta.ejb.Local;
 import java.util.List;
 
@@ -27,4 +28,7 @@ public interface ComplaintBeanLocal {
     
     public void assignToWardOfficer(Integer complaintId);
     public List<Object[]> getComplaintByUserId(Integer userId);
+    
+    // Complaint_Status_History Functionality
+    void createComplaintStatusHistory(Complaint complaint,String old_status,String new_status,Users changed_by);
 }

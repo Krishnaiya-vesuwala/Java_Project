@@ -13,7 +13,15 @@ import jakarta.ejb.Local;
  */
 @Local
 public interface UserBeanLocal {
-    void registerUser(Users user);
-    Users login(String username,String password);
+    public Users login(String username,String password);
+    public void registerUser(String fullName,
+                             String email,
+                             String mobile,
+                             String username,
+                             String password,
+                             String role,
+                             Integer societyId);
     Users getUserById(int userId);
+    public Users forgotPassword(String username);
+    public void resetPassword(int userId, String newPassword);
 }

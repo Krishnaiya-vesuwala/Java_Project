@@ -9,7 +9,6 @@ import Entity.Officers;
 import Entity.SlaRules;
 import Entity.Users;
 import jakarta.ejb.EJB;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -29,8 +28,11 @@ import java.util.List;
 public class JakartaEE10Resource {
     @EJB 
     AdminBeanLocal adminBean;
+    @EJB
     ComplaintBeanLocal complaintBean;
+    @EJB
     OfficerBeanLocal officerBean;
+    @EJB
     UserBeanLocal userBean;
     
     //Zone
@@ -310,11 +312,16 @@ public class JakartaEE10Resource {
     }
     
     @POST
-    @Path("registerUser")
-    @Consumes("application/json")
-    public void registerUser(Users user)
-    {
-        userBean.registerUser(user);
+    @Path("registerUser/{fullname}/{email}/{mobile}/{username}/{password}/{role}/{societyId}")
+    public void registerUser(@PathParam("fullname") String fullname,
+                             @PathParam("email") String email,
+                             @PathParam("mobile") String mobile,
+                             @PathParam("username") String username,
+                             @PathParam("password") String password,
+                             @PathParam("role") String role,
+                             @PathParam("societyId") Integer societyId){
+
+        userBean.registerUser(fullname,email,mobile,username,password,role,societyId);
     }
     
     @GET
@@ -323,5 +330,20 @@ public class JakartaEE10Resource {
     public Users getUserById(@PathParam("userId") int userId)
     {
         return userBean.getUserById(userId);
+    }
+    
+    @POST
+    @Path("forgotPassword/{username}")
+    @Produces("application/json")
+    public Users forgotPassword(@PathParam("username") String username){
+        return userBean.forgotPassword(username);
+    }
+    
+    @PUT
+    @Path("resetPassword/{userId}/{newPassword}")
+    public void resetPassword(@PathParam("userId") int userId,
+                              @PathParam("newPassword") String newPassword){
+
+        userBean.resetPassword(userId, newPassword);
     }
 }

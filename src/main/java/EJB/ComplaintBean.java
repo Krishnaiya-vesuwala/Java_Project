@@ -148,24 +148,26 @@ public class ComplaintBean implements ComplaintBeanLocal {
 
             if ((Long) r[1] == minLoad) {
                 leastLoaded.add((Officers) r[0]);
-       
-        List<Officers> officers = em.createQuery(
-            "SELECT o FROM Officers o WHERE "
-            + "o.wardId = :ward "
-            + "AND o.departmentId = :dept",
-            Officers.class)
-            .setParameter("ward", ward)
-            .setParameter("dept", dept)
-            .getResultList();
-    
-        if (officers.isEmpty()) {
-            try {
-                throw new Exception("No ward Officer available");
-            } catch (Exception ex) {
-                Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         }
+       
+//        List<Officers> officers = em.createQuery(
+//            "SELECT o FROM Officers o WHERE "
+//            + "o.wardId = :ward "
+//            + "AND o.departmentId = :dept",
+//            Officers.class)
+//            .setParameter("ward", ward)
+//            .setParameter("dept", dept)
+//            .getResultList();
+//    
+//        if (officers.isEmpty()) {
+//            try {
+//                throw new Exception("No ward Officer available");
+//            } catch (Exception ex) {
+//                Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+
+        
 
         Officers selectedOfficer;
         if (leastLoaded.size() == 1) {
@@ -181,8 +183,10 @@ public class ComplaintBean implements ComplaintBeanLocal {
         
         return selectedOfficer;
     }
-    private static int lastIndex = -1;
+    
 
+    private static int lastIndex = -1;
+            
     private Officers roundRobinSelect(List<Officers> officers) {
 
         if (officers.isEmpty()) {

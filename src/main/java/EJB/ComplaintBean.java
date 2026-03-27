@@ -58,20 +58,20 @@ public class ComplaintBean implements ComplaintBeanLocal {
             if (user == null || category == null || society == null || ward == null || zone == null) {
                 throw new Exception("Invalid foreign key while creating complaint");
             }
+
             SlaRules sla = em.createQuery(
                     "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId=:catId",
                     SlaRules.class
             ).setParameter("catId", categoryId)
-                    .setMaxResults(1)
-                    .getSingleResult();
+             .setMaxResults(1)
+             .getSingleResult();
 
             if (sla == null) {
                 throw new RuntimeException("No SLA rule found for category");
             }
 
-            // Count the due_date
+            // Time calculation (UNCHANGED)
             LocalDateTime now = LocalDateTime.now();
-//            LocalDateTime dueDate = now.plusHours(sla.getMaxResolutionDays());
             LocalDateTime dueDate = now.plusMinutes(sla.getMaxResolutionDays());
 
             Complaint complaint = new Complaint();
@@ -88,35 +88,39 @@ public class ComplaintBean implements ComplaintBeanLocal {
             complaint.setStatus(status);
             complaint.setPriority(priority);
 
-//            complaint.setCreatedAt(java.time.LocalDateTime.now());
-//            complaint.setDueDate(java.time.LocalDateTime.now().plusDays(3));
+            // ✅ Maintain bidirectional relationships (like Ward style)
+            user.getComplaintCollection().add(complaint);
+            category.getComplaintCollection().add(complaint);
+            society.getComplaintCollection().add(complaint);
+            ward.getComplaintCollection().add(complaint);
+            zone.getComplaintCollection().add(complaint);
 
-//        complaint.setc(new java.util.Date());
             em.persist(complaint);
             em.flush();
 
             Integer generatedId = complaint.getComplaintId();
+
             Officers officer = assignToWardOfficer(generatedId);
 
-            notifyBean.sendSMS(user.getMobile(), "Complaint Registered Successfully. ID : " + complaint.getComplaintId());
-            notifyBean.sendSMS(officer.getUserId().getMobile(), "New Complaint Assigned. ID : " + generatedId);
+            // Notifications (UNCHANGED)
+            notifyBean.sendSMS(user.getMobile(),
+                    "Complaint Registered Successfully. ID : " + generatedId);
+
+            notifyBean.sendSMS(officer.getUserId().getMobile(),
+                    "New Complaint Assigned. ID : " + generatedId);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     public Officers assignToWardOfficer(Integer complaintId) {
+
         Complaint complaint = em.find(Complaint.class, complaintId);
 
         if (complaint == null) {
-            try {
-                throw new Exception("Complaint not found");
-            } catch (Exception ex) {
-                Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            throw new RuntimeException("Complaint not found");
         }
 
         Ward ward = complaint.getWardId();
@@ -127,7 +131,7 @@ public class ComplaintBean implements ComplaintBeanLocal {
                 + "LEFT JOIN Complaint c ON c.assignedOfficerId = o "
                 + "AND c.status NOT IN ('RESOLVED','CLOSED') "
                 + "WHERE o.designation = 'WARD_OFFICER' "
-                + "AND o.wardId = :ward "   
+                + "AND o.wardId = :ward "
                 + "AND o.departmentId = :dept "
                 + "GROUP BY o "
                 + "ORDER BY COUNT(c) ASC",
@@ -145,37 +149,33 @@ public class ComplaintBean implements ComplaintBeanLocal {
         List<Officers> leastLoaded = new java.util.ArrayList<>();
 
         for (Object[] r : results) {
-
             if ((Long) r[1] == minLoad) {
                 leastLoaded.add((Officers) r[0]);
             }
         }
 
-//        List<Officers> officers = em.createQuery(
-//            "SELECT o FROM Officers o WHERE "
-//            + "o.wardId = :ward "
-//            + "AND o.departmentId = :dept",
-//            Officers.class)
-//            .setParameter("ward", ward)
-//            .setParameter("dept", dept)
-//            .getResultList();
-//    
-//        if (officers.isEmpty()) {
-//            try {
-//                throw new Exception("No ward Officer available");
-//            } catch (Exception ex) {
-//                Logger.getLogger(AdminBean.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         Officers selectedOfficer;
+
         if (leastLoaded.size() == 1) {
             selectedOfficer = leastLoaded.get(0);
         } else {
             selectedOfficer = roundRobinSelect(leastLoaded);
         }
 
+        // ✅ REMOVE from old officer (if exists)
+        Officers oldOfficer = complaint.getAssignedOfficerId();
+        if (oldOfficer != null) {
+            oldOfficer.getComplaintCollection().remove(complaint);
+        }
+
+        // ✅ SET new officer
         complaint.setAssignedOfficerId(selectedOfficer);
         complaint.setStatus("ASSIGNED");
 
+        // ✅ ADD to new officer collection
+        selectedOfficer.getComplaintCollection().add(complaint);
+
+        em.merge(selectedOfficer);
         em.merge(complaint);
 
         return selectedOfficer;

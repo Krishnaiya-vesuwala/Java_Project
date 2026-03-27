@@ -36,31 +36,42 @@ public class OfficerBean implements OfficerBeanLocal {
     }
 
     @Override
-    public void updateComplaintStatus(int complaintId, String status,int logenInUser) {
-        Complaint c=em.find(Complaint.class, complaintId);
-        
-        
-        if(c!=null){
-            String odlStatus=c.getStatus();
-            
-            Users user=em.find(Users.class, logenInUser);
+    public void updateComplaintStatus(int complaintId, String status, int logenInUser) {
 
+        Complaint c = em.find(Complaint.class, complaintId);
+
+        if (c != null) {
+
+            String oldStatus = c.getStatus();   // FIXED (typo)
+            Users user = em.find(Users.class, logenInUser);
+
+            // ✅ Update status
             c.setStatus(status);
-            
-            complaintBean.createComplaintStatusHistory(c, odlStatus, odlStatus, user);
-            
+
+            // ✅ Maintain history (FIX: old → new)
+            complaintBean.createComplaintStatusHistory(c, oldStatus, status, user);
+
+            // (Optional) maintain bidirectional relation if exists
+            if (c.getComplaintStatusHistoryCollection() != null) {
+                // nothing mandatory, since history is new entity
+            }
+
             em.merge(c);
-            
+
+            // ✅ Notification (better: send to complaint owner, not officer)
             if (status.equalsIgnoreCase("RESOLVED") || status.equalsIgnoreCase("SOLVED")) {
+
+                Users citizen = c.getCitizenId();   // correct user
+
                 notifyBean.sendSMS(
-                        user.getMobile(),
+                        citizen.getMobile(),
                         "Your Complaint ID: " + c.getComplaintId()
                         + " has been resolved. Thank you for using the system."
                 );
             }
         }
     }
-
+    
     @Override
     public Officers getOfficerProfile(int userId) {
         Users user = em.find(Users.class, userId);

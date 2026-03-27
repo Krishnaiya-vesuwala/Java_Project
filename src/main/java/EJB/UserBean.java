@@ -134,7 +134,7 @@ public class UserBean implements UserBeanLocal {
 
         Complaint complaint = em.find(Complaint.class, complaintId);
 
-        if(complaint == null){
+        if (complaint == null) {
             System.out.println("Complaint not found");
             return;
         }
@@ -145,7 +145,11 @@ public class UserBean implements UserBeanLocal {
         feedback.setComments(comments);
         feedback.setSubmittedAt(new java.util.Date());
 
-        em.persist(feedback);
+        // ✅ Maintain bidirectional relationship (Ward style)
+        if (complaint.getFeedbackCollection() != null) {
+            complaint.getFeedbackCollection().add(feedback);
+        }
 
+        em.persist(feedback);
     }
 }

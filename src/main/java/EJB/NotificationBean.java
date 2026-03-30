@@ -4,9 +4,9 @@
  */
 package EJB;
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+//import com.twilio.Twilio;
+//import com.twilio.rest.api.v2010.account.Message;
+//import com.twilio.type.PhoneNumber;
 import jakarta.ejb.Stateless;
 
 /**
@@ -24,20 +24,20 @@ public class NotificationBean implements NotificationBeanLocal {
     public void sendSMS(String mobile, String message) {
        // throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
        
-        try{
-//            System.out.println("SID = " + ACCOUNT_SID);
-//            System.out.println("TOKEN = " + AUTH_TOKEN);
-            Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-            
-            Message MsgObj=Message.creator(
-                new PhoneNumber("whatsapp:+91" + mobile),
-                new PhoneNumber("whatsapp:+14155238886"),
-                message
-            ).create();   
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+//        try{
+////            System.out.println("SID = " + ACCOUNT_SID);
+////            System.out.println("TOKEN = " + AUTH_TOKEN);
+//            Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+//            
+//            Message MsgObj=Message.creator(
+//                new PhoneNumber("whatsapp:+91" + mobile),
+//                new PhoneNumber("whatsapp:+14155238886"),
+//                message
+//            ).create();   
+//        }catch(Exception e)
+//        {
+//            e.printStackTrace();
+//        }
     }
 
 }

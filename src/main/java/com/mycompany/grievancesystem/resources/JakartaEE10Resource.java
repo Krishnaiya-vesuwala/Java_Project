@@ -8,6 +8,7 @@ import Entity.Complaint;
 import Entity.ComplaintStatusHistory;
 import Entity.Officers;
 import Entity.SlaRules;
+import Entity.Society;
 import Entity.Users;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.DELETE;
@@ -235,19 +236,25 @@ public class JakartaEE10Resource {
     }
     
     //Complaint
+    @GET
+    @Path("decodeQRCode/{wardID}")
+    @Produces("application/json")
+    public List<Society> decodeQRCode(@PathParam("wardID") Integer wardID){
+        return complaintBean.decodeQRCode(wardID);
+    }
+    
     @POST
-    @Path("createComplaint/{userId}/{categoryId}/{societyId}/{wardId}/{zoneId}/{title}/{description}/{status}/{priority}")
+    @Path("createComplaint/{userId}/{categoryId}/{societyId}/{wardId}/{title}/{description}/{status}/{priority}")
     public void createComplaint(@PathParam("userId") Integer userId,
                                 @PathParam("categoryId") Integer categoryId,
                                 @PathParam("societyId") Integer societyId,
                                 @PathParam("wardId") Integer wardId,
-                                @PathParam("zoneId") Integer zoneId,
                                 @PathParam("title") String title,
                                 @PathParam("description") String description,
                                 @PathParam("status") String status,
                                 @PathParam("priority") String priority)
     {
-        complaintBean.createComplaint(userId, categoryId, societyId, wardId, zoneId, title, description, status, priority);
+        complaintBean.createComplaint(userId, categoryId, societyId, wardId, title, description, status, priority);
     }
     
     @GET

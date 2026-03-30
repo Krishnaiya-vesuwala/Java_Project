@@ -33,6 +33,7 @@ public interface AdminBeanLocal {
     public void createCategory(String categoryName,Integer departmentId);
     public void updateCategory(Integer id, String name, Integer departmentId);
     public void deleteCategory(Integer id);
+    public List<ComplaintCategory> getAllCategory();
     
     // Ward Functionalities
     public void createWard(Integer zoneId,String wardName,String status);

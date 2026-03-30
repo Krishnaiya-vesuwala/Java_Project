@@ -449,5 +449,10 @@ public class AdminBean implements AdminBeanLocal {
         return em.createQuery("SELECT s FROM SlaRules s",SlaRules.class)
                 .getResultList();
     }
+
+    @Override
+    public List<ComplaintCategory> getAllCategory() {
+        return em.createNamedQuery("ComplaintCategory.findAll",ComplaintCategory.class).getResultList();
+    }
   
 }

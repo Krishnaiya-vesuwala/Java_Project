@@ -5,9 +5,11 @@
 package EJB;
 
 import Entity.Complaint;
+import Entity.ComplaintCategory;
 import Entity.ComplaintStatusHistory;
 import Entity.Users;
 import Entity.Officers;
+import Entity.Society;
 import jakarta.ejb.Local;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,12 +20,13 @@ import java.util.List;
  */
 @Local
 public interface ComplaintBeanLocal {
+    
+    public List<Society> decodeQRCode(Integer wardID);
    
      public void createComplaint(Integer userId,
                             Integer categoryId,
                             Integer societyId,
                             Integer wardId,
-                            Integer zoneId,
                             String title,
                             String description,
                             String status,

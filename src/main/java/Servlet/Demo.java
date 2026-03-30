@@ -8,6 +8,7 @@ import EJB.AdminBeanLocal;
 import EJB.ComplaintBean;
 import EJB.ComplaintBeanLocal;
 import EJB.OfficerBeanLocal;
+import EJB.QRCodeManager;
 import EJB.UserBeanLocal;
 import Entity.Complaint;
 import Entity.ComplaintCategory;
@@ -232,6 +233,9 @@ public class Demo extends HttpServlet {
 //                    System.out.println(c.getComplaintId());            
 //
 //              }
+
+        QRCodeManager qr=new QRCodeManager();
+        qr.qrcode();
     }
 
     /**

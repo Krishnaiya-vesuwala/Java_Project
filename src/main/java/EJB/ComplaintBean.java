@@ -38,11 +38,17 @@ public class ComplaintBean implements ComplaintBeanLocal {
     NotificationBeanLocal notifyBean;
 
     @Override
+    public List<Society> decodeQRCode(Integer wardID) {
+        System.out.println("-----Called" + wardID);
+        return em.createQuery("SELECT s FROM Society s WHERE s.wardId.wardId=:wardID", Society.class)
+                .setParameter("wardID", wardID).getResultList();
+    }
+
+    @Override
     public void createComplaint(Integer userId,
             Integer categoryId,
             Integer societyId,
             Integer wardId,
-            Integer zoneId,
             String title,
             String description,
             String status,
@@ -53,7 +59,10 @@ public class ComplaintBean implements ComplaintBeanLocal {
             ComplaintCategory category = em.find(ComplaintCategory.class, categoryId);
             Society society = em.find(Society.class, societyId);
             Ward ward = em.find(Ward.class, wardId);
-            Zone zone = em.find(Zone.class, zoneId);
+            Zone zone = em.createQuery(
+                    "SELECT w.zoneId FROM Ward w WHERE w.wardId = :wid", Zone.class)
+                    .setParameter("wid",wardId).getSingleResult();
+//            Zone zone = em.find(Zone.class, zoneId);
 
             if (user == null || category == null || society == null || ward == null || zone == null) {
                 throw new Exception("Invalid foreign key while creating complaint");
@@ -63,8 +72,8 @@ public class ComplaintBean implements ComplaintBeanLocal {
                     "SELECT s FROM SlaRules s WHERE s.categoryId.categoryId=:catId",
                     SlaRules.class
             ).setParameter("catId", categoryId)
-             .setMaxResults(1)
-             .getSingleResult();
+                    .setMaxResults(1)
+                    .getSingleResult();
 
             if (sla == null) {
                 throw new RuntimeException("No SLA rule found for category");
@@ -229,15 +238,15 @@ public class ComplaintBean implements ComplaintBeanLocal {
         em.persist(reply);
         System.out.println(reply);
     }
-    
+
     @Override
     public List<ComplaintStatusHistory> getComplaintStatusHistory(int complaintId) {
 
         return em.createQuery(
-            "SELECT c FROM ComplaintStatusHistory c WHERE c.complaintId.complaintId = :cid ORDER BY c.changedAt DESC",
-            ComplaintStatusHistory.class)
-            .setParameter("cid", complaintId)
-            .getResultList();
+                "SELECT c FROM ComplaintStatusHistory c WHERE c.complaintId.complaintId = :cid ORDER BY c.changedAt DESC",
+                ComplaintStatusHistory.class)
+                .setParameter("cid", complaintId)
+                .getResultList();
     }
 
 }

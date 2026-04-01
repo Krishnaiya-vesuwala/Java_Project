@@ -121,20 +121,23 @@ public class SlaEscalationScheduler {
         LocalDateTime newDueDate = now.plusMinutes(nextSla.getMaxResolutionDays());
 
         complaint.setAssignedOfficerId(nextOfficer);
+        nextOfficer.getComplaintCollection().add(complaint);
         complaint.setDueDate(newDueDate);
         complaint.setStatus(newStatus);
 
         em.merge(complaint);
 
-        complaintBean.createComplaintStatusHistory(complaint, oldStatus, newStatus, user);
+        complaintBean.createComplaintStatusHistory(complaint.getComplaintId(), oldStatus, newStatus, user);
+        
 
         ComplaintEscalation escalation = new ComplaintEscalation();
         escalation.setComplaintId(complaint);
         escalation.setEscalatedTo(nextOfficer);
         escalation.setReason("SLA Breached - Escalated to " + nextLevel);
         escalation.setEscalatedAt(now);
+        complaint.getComplaintEscalationCollection().add(escalation);
         
-        em.merge(escalation);
+        em.persist(escalation);
 
         notifyBean.sendSMS(
                 user.getMobile(),

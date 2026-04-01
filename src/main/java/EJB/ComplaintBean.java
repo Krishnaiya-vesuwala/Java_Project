@@ -51,7 +51,6 @@ public class ComplaintBean implements ComplaintBeanLocal {
             Integer wardId,
             String title,
             String description,
-            String status,
             String priority) {
 
         try {
@@ -61,7 +60,7 @@ public class ComplaintBean implements ComplaintBeanLocal {
             Ward ward = em.find(Ward.class, wardId);
             Zone zone = em.createQuery(
                     "SELECT w.zoneId FROM Ward w WHERE w.wardId = :wid", Zone.class)
-                    .setParameter("wid",wardId).getSingleResult();
+                    .setParameter("wid", wardId).getSingleResult();
 //            Zone zone = em.find(Zone.class, zoneId);
 
             if (user == null || category == null || society == null || ward == null || zone == null) {
@@ -94,10 +93,9 @@ public class ComplaintBean implements ComplaintBeanLocal {
 
             complaint.setTitle(title);
             complaint.setDescription(description);
-            complaint.setStatus(status);
+            complaint.setStatus("ACTIVE");
             complaint.setPriority(priority);
 
-            // ✅ Maintain bidirectional relationships (like Ward style)
             user.getComplaintCollection().add(complaint);
             category.getComplaintCollection().add(complaint);
             society.getComplaintCollection().add(complaint);
@@ -150,7 +148,21 @@ public class ComplaintBean implements ComplaintBeanLocal {
                 .getResultList();
 
         if (results.isEmpty()) {
-            throw new RuntimeException("No ward officers available");
+            if (results.isEmpty()) {
+
+                // fallback query (ignore department)
+                results = em.createQuery(
+                        "SELECT o, COUNT(c) FROM Officers o "
+                        + "LEFT JOIN Complaint c ON c.assignedOfficerId = o "
+                        + "AND c.status NOT IN ('RESOLVED','CLOSED') "
+                        + "WHERE o.designation = 'WARD_OFFICER' "
+                        + "AND o.wardId = :ward "
+                        + "GROUP BY o "
+                        + "ORDER BY COUNT(c) ASC",
+                        Object[].class)
+                        .setParameter("ward", ward)
+                        .getResultList();
+            }
         }
 
         long minLoad = (Long) results.get(0)[1];
@@ -171,17 +183,17 @@ public class ComplaintBean implements ComplaintBeanLocal {
             selectedOfficer = roundRobinSelect(leastLoaded);
         }
 
-        // ✅ REMOVE from old officer (if exists)
+        //  REMOVE from old officer (if exists)
         Officers oldOfficer = complaint.getAssignedOfficerId();
         if (oldOfficer != null) {
             oldOfficer.getComplaintCollection().remove(complaint);
         }
 
-        // ✅ SET new officer
+        // SET new officer
         complaint.setAssignedOfficerId(selectedOfficer);
         complaint.setStatus("ASSIGNED");
 
-        // ✅ ADD to new officer collection
+        //  ADD to new officer collection
         selectedOfficer.getComplaintCollection().add(complaint);
 
         em.merge(selectedOfficer);
@@ -213,8 +225,10 @@ public class ComplaintBean implements ComplaintBeanLocal {
 
     // Complaint_status_history Functionality
     @Override
-    public void createComplaintStatusHistory(Complaint complaint, String old_status, String new_status, Users changed_by) {
+    public void createComplaintStatusHistory(int complaintId, String old_status, String new_status, Users changed_by) {
         ComplaintStatusHistory history = new ComplaintStatusHistory();
+        Complaint complaint = em.find(Complaint.class, complaintId);
+        complaint.getComplaintStatusHistoryCollection().add(history);
         history.setComplaintId(complaint);
         history.setOldStatus(old_status);
         history.setNewStatus(new_status);
@@ -234,6 +248,7 @@ public class ComplaintBean implements ComplaintBeanLocal {
         reply.setRepliedBy(user);
         reply.setMessage(message);
         reply.setRepliedAt(LocalDateTime.now());
+        complaint.getComplaintReplyCollection().add(reply);
 
         em.persist(reply);
         System.out.println(reply);

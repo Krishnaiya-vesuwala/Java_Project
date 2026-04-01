@@ -34,7 +34,7 @@ public class AdminBean implements AdminBeanLocal {
 
             if (corp != null) {
                 zone.setCorporationId(corp);
-                corp.getZoneCollection().add(zone); // keep your logic
+                corp.getZoneCollection().add(zone); 
             }
 
             em.persist(zone);

@@ -67,15 +67,7 @@ public class Demo extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+   
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -174,15 +166,7 @@ public class Demo extends HttpServlet {
 //          adminBean.updateOfficer(1, 0, 0, 0, 0, "JJ");
 //          adminBean.deleteOfficer(1);
 //        complaintBean.createComplaint(2, 2, 2, 3, 1, "Garbage remove", "Garbage remove", "ACTIVE","High");
-//        complaintBean.createComplaint(
-//                6,   // citizen user
-//                1,   // category
-//                2,   // society
-//                2,   // ward
-//                2,   // zone
-//                "Garbage remove",
-//                "Garbage remove",
-//                "ACTIVE");
+        complaintBean.createComplaint(1, 1, 1, 1, "Water related Issues", "Water leakage", "HIGH");
 //        List<Object[]> complaints = complaintBean.getComplaintByUserId(2);
 //
 //        for (Object[] row : complaints) {

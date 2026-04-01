@@ -29,14 +29,13 @@ public interface ComplaintBeanLocal {
                             Integer wardId,
                             String title,
                             String description,
-                            String status,
                             String priority);
     
     public Officers assignToWardOfficer(Integer complaintId);
     public List<Object[]> getComplaintByUserId(Integer userId);
     
     // Complaint_Status_History Functionality
-    void createComplaintStatusHistory(Complaint complaint,String old_status,String new_status,Users changed_by);
+    void createComplaintStatusHistory(int complaint,String old_status,String new_status,Users changed_by);
     
     //complaint reply
     void createComplaintReply(int complaint_id,int replied_by,String message);

@@ -254,7 +254,7 @@ public class JakartaEE10Resource {
                                 @PathParam("status") String status,
                                 @PathParam("priority") String priority)
     {
-        complaintBean.createComplaint(userId, categoryId, societyId, wardId, title, description, status, priority);
+        complaintBean.createComplaint(userId, categoryId, societyId, wardId, title, description, priority);
     }
     
     @GET

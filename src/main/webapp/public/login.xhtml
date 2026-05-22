@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Login</title>
+
+    <h:outputStylesheet library="css" name="style.css"/>
+</h:head>
+
+<h:body>
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="auth-title">
+            Citizen Login
+        </div>
+
+        <h:form>
+
+            <p:growl id="msg"/>
+
+            <span class="field-label">Username</span>
+
+            <p:inputText
+                    value="#{loginBean.username}"
+                    required="true"/>
+
+            <span class="field-label">Password</span>
+
+            <p:password
+                    value="#{loginBean.password}"
+                    toggleMask="true"
+                    feedback="false"
+                    required="true"/>
+
+            <br/><br/>
+
+            <p:commandButton
+                    value="Login"
+                    action="#{loginBean.login()}"
+                    update="msg"
+                    styleClass="gold-btn"/>
+
+            <div class="auth-links">
+
+                <h:link outcome="/public/register.xhtml"
+                        value="Create Account"/>
+
+            </div>
+
+        </h:form>
+
+    </div>
+
+</div>
+
+</h:body>
+</html>

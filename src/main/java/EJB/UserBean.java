@@ -41,7 +41,6 @@ public class UserBean implements UserBeanLocal {
             
             Users user = users.get(0);
             
-//             check hashed password
             if(BCrypt.checkpw(password, user.getPassword())) {
                 return user;
             }
@@ -59,35 +58,66 @@ public class UserBean implements UserBeanLocal {
                              String mobile,
                              String username,
                              String password,
-                             String role,
                              Integer societyId) {
 
         try {
 
+            Long usernameCount = em.createQuery(
+                    "SELECT COUNT(u) FROM Users u WHERE u.username = :username",
+                    Long.class)
+                    .setParameter("username", username)
+                    .getSingleResult();
+
+            if (usernameCount > 0) {
+                throw new RuntimeException("Username already exists");
+            }
+
+            Long emailCount = em.createQuery(
+                    "SELECT COUNT(u) FROM Users u WHERE u.email = :email",
+                    Long.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            if (emailCount > 0) {
+                throw new RuntimeException("Email already exists");
+            }
+
             Users user = new Users();
 
-            user.setFullName(fullName);
-            user.setEmail(email);   
-            user.setMobile(mobile);
-            user.setUsername(username);
+            user.setFullName(fullName.trim());
+            user.setEmail(email.trim().toLowerCase());
+            user.setMobile(mobile.trim());
+            user.setUsername(username.trim());
 
-            // Hashed password
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             user.setPassword(hashedPassword);
 
-            user.setRole(role);
+            user.setRole("Citizen");
+
             user.setStatus("Active");
+
             user.setCreatedAt(new Date());
 
-            if(societyId != null){
-                Society s = em.find(Society.class, societyId);
-                user.setSocietyId(s);
+            if (societyId != null) {
+
+                Society society = em.find(Society.class, societyId);
+
+                if (society == null) {
+                    throw new RuntimeException("Invalid Society");
+                }
+
+                user.setSocietyId(society);
             }
 
             em.persist(user);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
+
             e.printStackTrace();
+
+            throw new RuntimeException(
+                    "User Registration Failed : " + e.getMessage()
+            );
         }
     }
 

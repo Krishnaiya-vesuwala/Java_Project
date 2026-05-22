@@ -19,7 +19,6 @@ public interface UserBeanLocal {
                              String mobile,
                              String username,
                              String password,
-                             String role,
                              Integer societyId);
     Users getUserById(int userId);
     public Users forgotPassword(String username);

@@ -5,12 +5,16 @@ import EJB.ComplaintBeanLocal;
 import EJB.OfficerBeanLocal;
 import EJB.UserBeanLocal;
 import Entity.Complaint;
+import Entity.ComplaintCategory;
 import Entity.ComplaintStatusHistory;
 import Entity.Officers;
 import Entity.SlaRules;
 import Entity.Society;
 import Entity.Users;
+import JWT.JwtUtil;
+import JWT.Secured;
 import jakarta.ejb.EJB;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -18,6 +22,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -40,12 +45,14 @@ public class JakartaEE10Resource {
     //Zone
     @POST
     @Path("createZone/{zoneName}/{status}/{corporationId}")
+    @Secured(roles = {"Admin"})
     public void createZone(@PathParam ("zoneName") String zoneName, @PathParam ("status") String status,@PathParam ("corporationId") Integer corporationId){
         adminBean.createZone(zoneName, status, corporationId);
     }
     
     @PUT
     @Path("updateZone/{zoneId}/{zoneName}/{status}/{corporationId}")
+    @Secured(roles = {"Admin"})
     public void updateZone(@PathParam ("zoneId") Integer zoneId, @PathParam ("zoneName") String zoneName, @PathParam ("status") String status,@PathParam ("corporationId") Integer corporationId)
     {
         adminBean.updateZone(zoneId, zoneName, status, corporationId);
@@ -53,6 +60,7 @@ public class JakartaEE10Resource {
     
     @DELETE
     @Path("deleteZone/{zoneId}/{zoneName}/{status}/{corporationId}")
+    @Secured(roles = {"Admin"})
     public void deleteZone(@PathParam ("zoneId") Integer zoneId)
     {
         adminBean.deleteZone(zoneId);
@@ -62,6 +70,7 @@ public class JakartaEE10Resource {
 
     @POST
     @Path("createDepartment/{departmentName}/{description}/{status}")
+    @Secured(roles = {"Admin"})
     public void createDepartment(@PathParam("departmentName") String departmentName,
                                  @PathParam("description") String description,
                                  @PathParam("status") String status)
@@ -71,6 +80,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateDepartment/{id}/{name}/{desc}/{status}")
+    @Secured(roles = {"Admin"})
     public void updateDepartment(@PathParam("id") Integer id,
                                  @PathParam("name") String name,
                                  @PathParam("desc") String desc,
@@ -81,6 +91,7 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteDepartment/{id}")
+    @Secured(roles = {"Admin"})
     public void deleteDepartment(@PathParam("id") Integer id)
     {
         adminBean.deleteDepartment(id);
@@ -90,6 +101,7 @@ public class JakartaEE10Resource {
 
     @POST
     @Path("createSociety/{wardId}/{societyName}/{address}/{status}")
+    @Secured(roles = {"Admin"})
     public void createSociety(@PathParam("wardId") Integer wardId,
                               @PathParam("societyName") String societyName,
                               @PathParam("address") String address,
@@ -100,6 +112,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateSociety/{id}/{name}/{address}/{status}/{wardId}")
+    @Secured(roles = {"Admin"})
     public void updateSociety(@PathParam("id") Integer id,
                               @PathParam("name") String name,
                               @PathParam("address") String address,
@@ -111,15 +124,24 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteSociety/{id}")
+    @Secured(roles = {"Admin"})
     public void deleteSociety(@PathParam("id") Integer id)
     {
         adminBean.deleteSociety(id);
+    }
+    
+    @GET
+    @Path("getSocietiesByWard/{wardId}")
+    @Produces("application/json")
+    public List<Society> getAllSocities(@PathParam("wardId") int wardId) {
+        return adminBean.getAllSocities(wardId);
     }
 
     //Category
 
     @POST
     @Path("createCategory/{categoryName}/{departmentId}")
+    @Secured(roles = {"Admin"})
     public void createCategory(@PathParam("categoryName") String categoryName,
                                @PathParam("departmentId") Integer departmentId)
     {
@@ -128,6 +150,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateCategory/{id}/{name}/{departmentId}")
+    @Secured(roles = {"Admin"})
     public void updateCategory(@PathParam("id") Integer id,
                                @PathParam("name") String name,
                                @PathParam("departmentId") Integer departmentId)
@@ -137,15 +160,25 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteCategory/{id}")
+    @Secured(roles = {"Admin"})
     public void deleteCategory(@PathParam("id") Integer id)
     {
         adminBean.deleteCategory(id);
+    }
+    
+    @GET
+    @Path("getAllCategories")
+    @Produces("application/json")
+    @Secured(roles = {"Admin", "Officer", "Citizen"})
+    public List<ComplaintCategory> getAllCategories() {
+        return adminBean.getAllCategory();
     }
 
     //Ward
 
     @POST
     @Path("createWard/{zoneId}/{wardName}/{status}")
+    @Secured(roles = {"Admin"})
     public void createWard(@PathParam("zoneId") Integer zoneId,
                            @PathParam("wardName") String wardName,
                            @PathParam("status") String status)
@@ -155,6 +188,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateWard/{wardId}/{zoneId}/{wardName}/{status}")
+    @Secured(roles = {"Admin"})
     public void updateWard(@PathParam("wardId") int wardId,
                            @PathParam("zoneId") int zoneId,
                            @PathParam("wardName") String wardName,
@@ -165,6 +199,7 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteWard/{wardId}")
+    @Secured(roles = {"Admin"})
     public void deleteWard(@PathParam("wardId") int wardId)
     {
         adminBean.deleteWard(wardId);
@@ -174,6 +209,7 @@ public class JakartaEE10Resource {
 
     @POST
     @Path("createOfficer/{userId}/{departmentId}/{zoneId}/{wardId}/{designation}")
+    @Secured(roles = {"Admin"})
     public void createOfficer(@PathParam("userId") Integer userId,
                               @PathParam("departmentId") Integer departmentId,
                               @PathParam("zoneId") Integer zoneId,
@@ -185,6 +221,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateOfficer/{officerId}/{userId}/{departmentId}/{zoneId}/{wardId}/{designation}")
+    @Secured(roles = {"Admin"})
     public void updateOfficer(@PathParam("officerId") int officerId,
                               @PathParam("userId") int userId,
                               @PathParam("departmentId") int departmentId,
@@ -197,6 +234,7 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteOfficer/{officerId}")
+    @Secured(roles = {"Admin"})
     public void deleteOfficer(@PathParam("officerId") int officerId)
     {
         adminBean.deleteOfficer(officerId);
@@ -206,6 +244,7 @@ public class JakartaEE10Resource {
 
     @POST
     @Path("addSlaRule/{categoryId}/{maxDays}")
+    @Secured(roles = {"Admin"})
     public void addSlaRule(@PathParam("categoryId") Integer categoryId,
                            @PathParam("maxDays") Integer maxDays)
     {
@@ -214,6 +253,7 @@ public class JakartaEE10Resource {
 
     @PUT
     @Path("updateSlaRule/{slaId}/{maxDays}")
+    @Secured(roles = {"Admin"})
     public void updateSlaRule(@PathParam("slaId") Integer slaId,
                               @PathParam("maxDays") Integer maxDays)
     {
@@ -222,6 +262,7 @@ public class JakartaEE10Resource {
 
     @DELETE
     @Path("deleteSlaRule/{slaId}")
+    @Secured(roles = {"Admin"})
     public void deleteSlaRule(@PathParam("slaId") Integer slaId)
     {
         adminBean.deleteSlaRule(slaId);
@@ -230,6 +271,7 @@ public class JakartaEE10Resource {
     @GET
     @Path("getAllSlaRules")
     @Produces("application/json")
+    @Secured(roles = {"Admin"})
     public List<SlaRules> getAllSlaRules()
     {
         return adminBean.getAllSlaRules();
@@ -239,12 +281,14 @@ public class JakartaEE10Resource {
     @GET
     @Path("decodeQRCode/{wardID}")
     @Produces("application/json")
+    @Secured(roles = {"Citizen"})
     public List<Society> decodeQRCode(@PathParam("wardID") Integer wardID){
         return complaintBean.decodeQRCode(wardID);
     }
     
     @POST
     @Path("createComplaint/{userId}/{categoryId}/{societyId}/{wardId}/{title}/{description}/{status}/{priority}")
+    @Secured(roles = {"Citizen"})
     public void createComplaint(@PathParam("userId") Integer userId,
                                 @PathParam("categoryId") Integer categoryId,
                                 @PathParam("societyId") Integer societyId,
@@ -260,13 +304,16 @@ public class JakartaEE10Resource {
     @GET
     @Path("getComplaintByUser/{userId}")
     @Produces("application/json")
+    @Secured(roles = {"Citizen"})
     public List<Object[]> getComplaintByUser(@PathParam("userId") Integer userId)
     {
         return complaintBean.getComplaintByUserId(userId);
     }
     
+    //Role pending
     @POST
     @Path("createComplaintReply/{complaintId}/{repliedBy}/{message}")
+    @Secured(roles = {"Citizen"})
     public void createComplaintReply(@PathParam("complaintId") int complaintId,
                                      @PathParam("repliedBy") int repliedBy,
                                      @PathParam("message") String message)
@@ -277,6 +324,7 @@ public class JakartaEE10Resource {
     @GET
     @Path("complaintHistory/{complaintId}")
     @Produces("application/json")
+    @Secured(roles = {"Citizen"})
     public List<ComplaintStatusHistory> getHistory(@PathParam("complaintId") int complaintId){
         return complaintBean.getComplaintStatusHistory(complaintId);
     }
@@ -286,6 +334,7 @@ public class JakartaEE10Resource {
     @GET
     @Path("getAssignedComplaint/{officerId}")
     @Produces("application/json")
+    @Secured(roles = {"Officer"})
     public List<Complaint> getAssignedComplaint(@PathParam("officerId") int officerId)
     {
         return officerBean.getAssignedComplaint(officerId);
@@ -293,6 +342,7 @@ public class JakartaEE10Resource {
     
     @PUT
     @Path("updateComplaintStatus/{complaintId}/{status}/{loggedInUser}")
+    @Secured(roles = {"Officer"})
     public void updateComplaintStatus(@PathParam("complaintId") int complaintId,
                                       @PathParam("status") String status,
                                       @PathParam("loggedInUser") int loggedInUser)
@@ -303,6 +353,7 @@ public class JakartaEE10Resource {
     @GET
     @Path("getOfficerProfile/{userId}")
     @Produces("application/json")
+    @Secured(roles = {"Officer"})
     public Officers getOfficerProfile(@PathParam("userId") int userId)
     {
         return officerBean.getOfficerProfile(userId);
@@ -311,37 +362,67 @@ public class JakartaEE10Resource {
     @GET
     @Path("getComplaintByOfficer/{officerId}")
     @Produces("application/json")
+    @Secured(roles = {"Officer"})
     public List<Complaint> getComplaintByOfficer(@PathParam("officerId") int officerId)
     {
         return officerBean.getComplaintByOfficer(officerId);
     }
     
     //User
-    @GET
-    @Path("login/{username}/{password}")
+//    @GET
+//    @Path("login/{username}/{password}")
+//    @Produces("application/json")
+//    public Users login(@PathParam("username") String username,
+//                       @PathParam("password") String password)
+//    {
+//        return userBean.login(username, password);
+//    }
+    @POST
+    @Path("login")
+    @Consumes("application/json")
     @Produces("application/json")
-    public Users login(@PathParam("username") String username,
-                       @PathParam("password") String password)
-    {
-        return userBean.login(username, password);
+    public Response login(Users requestUser) {
+
+        Users user = userBean.login(
+                requestUser.getUsername(),
+                requestUser.getPassword()
+        );
+
+        if (user != null) {
+
+            // generate JWT
+            String token = JwtUtil.generateToken(user.getUsername(),user.getRole());
+
+            return Response.ok()
+        .entity("{"
+                + "\"token\":\"" + token + "\","
+                + "\"role\":\"" + user.getRole() + "\","
+                + "\"username\":\"" + user.getUsername() + "\""
+                + "}")
+        .build();
+        }
+
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity("Invalid username or password")
+                .build();
     }
     
     @POST
-    @Path("registerUser/{fullname}/{email}/{mobile}/{username}/{password}/{role}/{societyId}")
+    @Path("registerUser/{fullname}/{email}/{mobile}/{username}/{password}/{societyId}")
     public void registerUser(@PathParam("fullname") String fullname,
                              @PathParam("email") String email,
                              @PathParam("mobile") String mobile,
                              @PathParam("username") String username,
                              @PathParam("password") String password,
-                             @PathParam("role") String role,
                              @PathParam("societyId") Integer societyId){
 
-        userBean.registerUser(fullname,email,mobile,username,password,role,societyId);
+        userBean.registerUser(fullname,email,mobile,username,password,societyId);
     }
     
     @GET
     @Path("getUserById/{userId}")
     @Produces("application/json")
+    @Secured(roles = {"Admin", "Officer", "Citizen"})
     public Users getUserById(@PathParam("userId") int userId)
     {
         return userBean.getUserById(userId);
@@ -361,8 +442,10 @@ public class JakartaEE10Resource {
 
         userBean.resetPassword(userId, newPassword);
     }
+    
     @POST
     @Path("submitFeedback/{complaintId}/{rating}/{comments}")
+    @Secured(roles = {"Citizen"})
     public void submitFeedback(@PathParam("complaintId") int complaintId,
                                @PathParam("rating") String rating,
                                @PathParam("comments") String comments){

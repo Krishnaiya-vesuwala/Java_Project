@@ -122,16 +122,8 @@ public class Demo extends HttpServlet {
 //        "Senior Officer"
 //        );
 //        adminBean.deleteOfficer(6);
-//        Users user=new Users();
-//       
-//        user.setFullName("ABC");
-//        user.setUsername("ABC123");
-//        user.setEmail("abc@gmail.com");
-//        user.setMobile("7383181453");
-//        user.setPassword("abc123");
-//        user.setRole("Citizen");
-//        
-//        userBean.registerUser(user);
+        
+        userBean.registerUser("officier","officier1@gmail.com","7895678890","officier123","1234",1);
 //        Users user=userBean.login("ABC123", "abc123");
 //        Users user=userBean.login("admin", "admin123");
 //        Users user=userBean.login("officer1", "officer123");

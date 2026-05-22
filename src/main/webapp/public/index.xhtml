@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Government Grievance Redressal System</title>
+
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link rel="stylesheet"
+          href="https://primefaces.org/primeicons/primeicons.css"/>
+</h:head>
+
+<h:body>
+
+    <!-- Topbar -->
+    <div class="topbar">
+
+        <div class="logo-title">
+
+            <img src="#{resource['images:government.png']}" />
+
+            <h2>Government Grievance Redressal System</h2>
+
+        </div>
+
+        <div class="nav-links">
+
+            <h:link outcome="/public/index.xhtml" value="Home"/>
+            <h:link outcome="/public/login.xhtml" value="Login"/>
+            <h:link outcome="/public/register.xhtml" value="Register"/>
+
+        </div>
+
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+
+        <div class="hero-title">
+            Transparent Public Complaint Management
+        </div>
+
+        <div class="hero-subtitle">
+            Register complaints online and track grievance resolution efficiently.
+        </div>
+
+        <h:link outcome="/public/register.xhtml">
+            <p:commandButton value="Register Complaint"
+                             type="button"
+                             styleClass="gold-btn"/>
+        </h:link>
+
+    </div>
+
+    <!-- Features -->
+    <div class="card-container">
+
+        <div class="feature-card">
+            <i class="pi pi-file-edit"></i>
+            <h3>Online Complaint</h3>
+            <p>Submit grievances digitally without paperwork.</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="pi pi-sync"></i>
+            <h3>Track Status</h3>
+            <p>Monitor complaint progress in real-time.</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="pi pi-users"></i>
+            <h3>Officer Management</h3>
+            <p>Efficient complaint assignment and resolution.</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="pi pi-star"></i>
+            <h3>Citizen Feedback</h3>
+            <p>Provide feedback after grievance resolution.</p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2026 Government Grievance Redressal System
+    </div>
+
+</h:body>
+</html>

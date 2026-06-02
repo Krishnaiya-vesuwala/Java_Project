@@ -117,10 +117,12 @@ body {
 
 .auth-container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding: 30px 0;
+    box-sizing: border-box;
 }
 
 .auth-card {
@@ -130,6 +132,7 @@ body {
     border-radius: 16px;
     border-top: 5px solid #D4AF37;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin: 20px 0;
 }
 
 .auth-title {
@@ -141,6 +144,7 @@ body {
 
 .field-label {
     margin-top: 15px;
+    margin-bottom: 5px;
     display: block;
     font-weight: 600;
 }
@@ -151,6 +155,44 @@ body {
     border-radius: 8px !important;
     border: 1px solid #B0B0B0 !important;
     margin-top: 5px;
+}
+
+.ui-message-error,
+.ui-message {
+    display: block;
+    margin-top: 4px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.ui-selectonemenu {
+    width: 100% !important;
+    margin-top: 5px;
+}
+
+.ui-selectonemenu .ui-selectonemenu-label {
+    padding: 12px !important;
+    border-radius: 8px !important;
+    min-height: 22px;
+    line-height: 22px;
+}
+
+.ui-selectonemenu-trigger {
+    width: 40px !important;
+}
+
+.ui-selectonemenu-panel {
+    border-radius: 8px !important;
+}
+
+.ui-selectonemenu-item {
+    padding: 10px !important;
+}
+
+.ui-selectonemenu {
+    border: 1px solid #B0B0B0 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
 }
 
 .auth-links {

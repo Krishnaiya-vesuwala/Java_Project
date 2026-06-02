@@ -258,5 +258,65 @@ public class ComplaintBean implements ComplaintBeanLocal {
                 .setParameter("cid", complaintId)
                 .getResultList();
     }
+    
+    @Override
+    public Long getTotalComplaintsByUser(Integer userId) {
+
+        return em.createQuery(
+                "SELECT COUNT(c) FROM Complaint c " +
+                "WHERE c.citizenId.userId = :uid",
+                Long.class)
+                .setParameter("uid", userId)
+                .getSingleResult();
+    }
+    
+    @Override
+    public Long getAssignedComplaintsByUser(Integer userId) {
+
+        return em.createQuery(
+                "SELECT COUNT(c) FROM Complaint c " +
+                "WHERE c.citizenId.userId = :uid " +
+                "AND c.status = 'ASSIGNED'",
+                Long.class)
+                .setParameter("uid", userId)
+                .getSingleResult();
+    }
+
+    @Override
+    public Long getResolvedComplaintsByUser(Integer userId) {
+
+        return em.createQuery(
+                "SELECT COUNT(c) FROM Complaint c " +
+                "WHERE c.citizenId.userId = :uid " +
+                "AND c.status = 'RESOLVED'",
+                Long.class)
+                .setParameter("uid", userId)
+                .getSingleResult();
+    }
+
+    @Override
+    public Long getRejectedComplaintsByUser(Integer userId) {
+
+        return em.createQuery(
+                "SELECT COUNT(c) FROM Complaint c " +
+                "WHERE c.citizenId.userId = :uid " +
+                "AND c.status = 'REJECTED'",
+                Long.class)
+                .setParameter("uid", userId)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Complaint> getRecentComplaintsByUser(Integer userId) {
+
+        return em.createQuery(
+                "SELECT c FROM Complaint c " +
+                "WHERE c.citizenId.userId = :uid " +
+                "ORDER BY c.createdAt DESC",
+                Complaint.class)
+                .setParameter("uid", userId)
+                .setMaxResults(5)
+                .getResultList();
+    }
 
 }

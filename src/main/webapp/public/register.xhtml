@@ -23,72 +23,110 @@
 
         <h:form>
 
-            <p:growl id="msg" showDetail="true" life="4000"/>
-
             <span class="field-label">Full Name</span>
 
-            <p:inputText id="fullname" value="#{registerBean.fullname}"
+            <p:inputText id="fullname"
+                         value="#{registerBean.fullname}"
                          required="true"
-                         requiredMessage="Full Name is required">
+                         requiredMessage="Please enter your full name."
+                         validatorMessage="Full Name should contain only letters and spaces (3-50 characters).">
 
                 <f:validateRegex pattern="^[A-Za-z ]{3,50}$"/>
 
+                <p:ajax event="blur"
+                        update="fullnameMsg"/>
+
             </p:inputText>
 
-            <p:message for="@previous"/>
+            <p:message id="fullnameMsg"
+                       for="fullname"
+                       display="text"/>
+
+
 
             <span class="field-label">Email</span>
 
-            <p:inputText id="email" value="#{registerBean.email}"
+            <p:inputText id="email"
+                         value="#{registerBean.email}"
                          required="true"
-                         requiredMessage="Email is required">
+                         requiredMessage="Please enter your email address."
+                         validatorMessage="Please enter a valid email address.">
 
-                <f:validateRegex
-                    pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"/>
+                <f:validateRegex pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"/>
+
+                <p:ajax event="blur"
+                        update="emailMsg"/>
 
             </p:inputText>
 
-            <p:message for="@previous"/>
+            <p:message id="emailMsg"
+                       for="email"
+                       display="text"/>
 
-            <span class="field-label">Mobile</span>
 
-            <p:inputText id="mobile" value="#{registerBean.mobile}"
+                  <span class="field-label">Username</span>
+
+            <p:inputText id="username"
+                         value="#{registerBean.username}"
                          required="true"
-                         requiredMessage="Mobile Number is required">
-
-                <f:validateRegex pattern="^[0-9]{10}$"/>
-
-            </p:inputText>
-
-            <p:message for="@previous"/>
-
-            <span class="field-label">Username</span>
-
-            <p:inputText id="username" value="#{registerBean.username}"
-                         required="true"
-                         requiredMessage="Username is required">
+                         requiredMessage="Please enter a username."
+                         validatorMessage="Username must be between 4 and 20 characters.">
 
                 <f:validateLength minimum="4"
                                   maximum="20"/>
 
+                <p:ajax event="blur"
+                        update="usernameMsg"/>
+
             </p:inputText>
 
-            <p:message for="@previous"/>
+            <p:message id="usernameMsg"
+                       for="username"
+                       display="text"/>
+
+
+            <span class="field-label">Mobile</span>
+
+            <p:inputText id="mobile"
+                         value="#{registerBean.mobile}"
+                         required="true"
+                         requiredMessage="Please enter your mobile number."
+                         validatorMessage="Mobile number must contain exactly 10 digits.">
+
+                <f:validateRegex pattern="^[0-9]{10}$"/>
+
+                <p:ajax event="blur"
+                        update="mobileMsg"/>
+
+            </p:inputText>
+
+            <p:message id="mobileMsg"
+                       for="mobile"
+                       display="text"/>
+
 
             <span class="field-label">Password</span>
 
-            <p:password id="password" value="#{registerBean.password}"
+            <p:password id="password"
+                        value="#{registerBean.password}"
                         toggleMask="true"
                         feedback="true"
                         required="true"
-                        requiredMessage="Password is required">
+                        requiredMessage="Please enter a password."
+                        validatorMessage="Password must contain at least one uppercase letter, one lowercase letter, one number and be at least 8 characters long.">
 
                 <f:validateRegex
                     pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"/>
 
+                <p:ajax event="blur"
+                        update="passwordMsg"/>
+
             </p:password>
 
-            <p:message for="@previous"/>
+            <p:message id="passwordMsg"
+                       for="password"
+                       display="text"/>
+
 
             <span class="field-label">Confirm Password</span>
 
@@ -97,33 +135,50 @@
                         toggleMask="true"
                         feedback="false"
                         required="true"
-                        requiredMessage="Confirm Password is required"/>
+                        requiredMessage="Please confirm your password.">
 
-            <p:message for="confirmPassword"/>
+                <p:ajax event="blur"
+                        update="confirmPasswordMsg"/>
 
-            <p:selectOneMenu id="society" value="#{registerBean.societyId}"
-                 required="true"
-                 requiredMessage="Please select a society">
+            </p:password>
 
-            <f:selectItem itemLabel="Select Society"
-                          itemValue="#{null}"
-                          noSelectionOption="true"/>
+            <p:message id="confirmPasswordMsg"
+                       for="confirmPassword"
+                       display="text"/>
 
-            <f:selectItems value="#{registerBean.societies}"
-                           var="s"
-                           itemLabel="#{s.societyName}"
-                           itemValue="#{s.societyId}"/>
+         
+            
+            <span class="field-label">Select Society</span>
+
+            <p:selectOneMenu id="society"
+                             value="#{registerBean.societyId}"
+                             required="true"
+                             requiredMessage="Please select your society.">
+
+                <p:ajax event="change"
+                        update="societyMsg"/>
+
+                <f:selectItem itemLabel="Select Society"
+                              itemValue="#{null}"
+                              noSelectionOption="true"/>
+
+                <f:selectItems value="#{registerBean.societies}"
+                               var="s"
+                               itemLabel="#{s.societyName}"
+                               itemValue="#{s.societyId}"/>
 
             </p:selectOneMenu>
 
-            <p:message for="society"/>
+            <p:message id="societyMsg"
+                       for="society"
+                       display="text"/>
 
             <br/><br/>
 
             <p:commandButton
                     value="Register"
-                    action="#{registerBean.register()}"
-                    update="msg"
+                    action="#{registerBean.register}"
+                    update="@form"
                     styleClass="gold-btn"/>
 
             <div class="auth-links">

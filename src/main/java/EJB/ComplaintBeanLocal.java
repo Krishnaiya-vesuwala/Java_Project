@@ -41,4 +41,14 @@ public interface ComplaintBeanLocal {
     void createComplaintReply(int complaint_id,int replied_by,String message);
     
     List<ComplaintStatusHistory> getComplaintStatusHistory(int complaintId);
+    
+    Long getTotalComplaintsByUser(Integer userId);
+
+    Long getAssignedComplaintsByUser(Integer userId);
+
+    Long getResolvedComplaintsByUser(Integer userId);
+
+    Long getRejectedComplaintsByUser(Integer userId);
+
+    List<Complaint> getRecentComplaintsByUser(Integer userId);
 }

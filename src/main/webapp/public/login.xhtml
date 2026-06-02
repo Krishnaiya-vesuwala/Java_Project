@@ -22,38 +22,62 @@
         </div>
 
         <h:form>
-
             <p:growl id="msg" showDetail="true"/>
+            
+            <span class="field-label">Username</span>
 
-        <span class="field-label">Username</span>
+            <p:inputText id="username"
+                         value="#{loginBean.username}"
+                         required="true"
+                         requiredMessage="Please enter your username."
+                         validatorMessage="Username must be at least 4 characters long.">
 
-        <p:inputText id="username"
-             value="#{loginBean.username}"
-             required="true"
-             requiredMessage="Username is required"/>
+                <f:validateLength minimum="4"/>
 
-<p:message for="username"/>
+                <p:ajax event="keyup"
+                        update="usernameMsg"/>
 
-        <span class="field-label">Password</span>
+            </p:inputText>
 
-        <p:password id="password"
-            value="#{loginBean.password}"
-            required="true"
-            requiredMessage="Password is required"
-            toggleMask="true"
-            feedback="false"/>
+            <p:message id="usernameMsg"
+                       for="username"
+                       display="text"/>
 
-<p:message for="password"/>
+            <span class="field-label">Password</span>
 
-        <p:message for="password"/>
+            <p:password id="password"
+                        value="#{loginBean.password}"
+                        required="true"
+                        requiredMessage="Please enter your password."
+                        validatorMessage="Password must contain uppercase, lowercase, number and minimum 8 characters."
+                        toggleMask="true"
+                        feedback="false">
 
-        <br/><br/>
+                <f:validateRegex
+                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"/>
 
-<p:commandButton value="Login"
+                <p:ajax event="keyup"
+                        update="passwordMsg"/>
+
+            </p:password>
+
+            <p:message id="passwordMsg"
+                       for="password"
+                       display="text"/>
+
+            <br/><br/>            
+
+            <p:commandButton value="Login"
                  action="#{loginBean.login}"
-                 update="msg"
+                 update="@form msg"
                  styleClass="gold-btn"/>
 
+            <div class="auth-links">
+
+                <h:link outcome="/public/register.xhtml"
+                        value="Don't have an account?"/>
+
+            </div>
         </h:form>
 
     </div>

@@ -55,87 +55,19 @@ public class RegisterBean implements Serializable {
 
         try {
 
-            // Full Name Validation
-            if (fullname == null || fullname.trim().isEmpty()) {
-                addError("Full Name is required");
-                return;
-            }
-
-            if (!fullname.matches("^[A-Za-z ]{3,50}$")) {
-                addError("Full Name must contain only letters and spaces");
-                return;
-            }
-
-            // Email Validation
-            if (email == null || email.trim().isEmpty()) {
-                addError("Email is required");
-                return;
-            }
-
-            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-                addError("Invalid Email Address");
-                return;
-            }
-
-            // Mobile Validation
-            if (mobile == null || mobile.trim().isEmpty()) {
-                addError("Mobile Number is required");
-                return;
-            }
-
-            if (!mobile.matches("\\d{10}")) {
-                addError("Mobile Number must be exactly 10 digits");
-                return;
-            }
-
-            // Username Validation
-            if (username == null || username.trim().isEmpty()) {
-                addError("Username is required");
-                return;
-            }
-
-            if (username.length() < 4) {
-                addError("Username must be at least 4 characters");
-                return;
-            }
-
-            // Password Validation
-            if (password == null || password.trim().isEmpty()) {
-                addError("Password is required");
-                return;
-            }
-
-            if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")) {
-                addError("Password must contain Uppercase, Lowercase, Number and be 8+ characters");
-                return;
-            }
-
-            // Confirm Password Validation
-            if (confirmPassword == null || confirmPassword.isEmpty()) {
-                addError("Confirm Password is required");
-                return;
-            }
-
             if (!password.equals(confirmPassword)) {
+
                 addError("Password and Confirm Password do not match");
                 return;
             }
 
-            // Society Validation
-            if (societyId == null) {
-                addError("Please select a Society");
-                return;
-            }
-
-            // Register User
             Response response = rl.registerUser(
                     fullname,
                     email,
                     mobile,
                     username,
                     password,
-                    String.valueOf(societyId)
-            );
+                    String.valueOf(societyId));
 
             if (response.getStatus() == 200) {
 
@@ -143,33 +75,19 @@ public class RegisterBean implements Serializable {
                         null,
                         new FacesMessage(
                                 FacesMessage.SEVERITY_INFO,
-                                "Registration Successful",
-                                "Citizen account created successfully."
-                        )
-                );
+                                "Success",
+                                "Registration completed successfully."));
+
                 clearForm();
 
             } else {
 
-                String errorMessage = response.readEntity(String.class);
-
-                FacesContext.getCurrentInstance().addMessage(
-                        null,
-                        new FacesMessage(
-                                FacesMessage.SEVERITY_ERROR,
-                                "Registration Failed",
-                                errorMessage
-                        )
-                );
-
-                return;
+                addError(response.readEntity(String.class));
             }
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-
-            addError("Email or Username already exists");
+            addError("Email or Username already exists.");
         }
     }
 

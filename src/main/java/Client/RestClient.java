@@ -124,6 +124,91 @@ public class RestClient {
         resource = resource.path(java.text.MessageFormat.format("getComplaintByUser/{0}", new Object[]{userId}));
         return resource.request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     }
+    
+    public <T> T getTotalComplaints(
+        Class<T> responseType,
+        String userId)
+        throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path(
+                java.text.MessageFormat.format(
+                        "totalComplaints/{0}",
+                        userId));
+
+        return resource.request(
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .get(responseType);
+    }
+    
+    public <T> T getAssignedComplaints(
+        Class<T> responseType,
+        String userId)
+        throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path(
+                java.text.MessageFormat.format(
+                        "assignedComplaints/{0}",
+                        userId));
+
+        return resource.request(
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .get(responseType);
+    }
+    
+    public <T> T getResolvedComplaints(
+        Class<T> responseType,
+        String userId)
+        throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path(
+                java.text.MessageFormat.format(
+                        "resolvedComplaints/{0}",
+                        userId));
+
+        return resource.request(
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .get(responseType);
+    }
+    
+    public <T> T getRejectedComplaints(
+        Class<T> responseType,
+        String userId)
+        throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path(
+                java.text.MessageFormat.format(
+                        "rejectedComplaints/{0}",
+                        userId));
+
+        return resource.request(
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .get(responseType);
+    }
+    
+    public <T> T getRecentComplaints(
+        Class<T> responseType,
+        String userId)
+        throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path(
+                java.text.MessageFormat.format(
+                        "recentComplaints/{0}",
+                        userId));
+
+        return resource.request(
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON)
+                .get(responseType);
+    }
 
     public void createCategory(String categoryName, String departmentId) throws ClientErrorException {
         webTarget.path(java.text.MessageFormat.format("createCategory/{0}/{1}", new Object[]{categoryName, departmentId})).request().post(null);

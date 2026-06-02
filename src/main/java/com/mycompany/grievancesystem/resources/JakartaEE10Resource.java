@@ -329,6 +329,51 @@ public class JakartaEE10Resource {
         return complaintBean.getComplaintStatusHistory(complaintId);
     }
     
+    @GET
+    @Path("totalComplaints/{userId}")
+    @Produces("application/json")
+    public Long totalComplaints(
+            @PathParam("userId") Integer userId) {
+
+        return complaintBean.getTotalComplaintsByUser(userId);
+    }
+
+    @GET
+    @Path("assignedComplaints/{userId}")
+    @Produces("application/json")
+    public Long assignedComplaints(
+            @PathParam("userId") Integer userId) {
+
+        return complaintBean.getAssignedComplaintsByUser(userId);
+    }
+
+    @GET
+    @Path("resolvedComplaints/{userId}")
+    @Produces("application/json")
+    public Long resolvedComplaints(
+            @PathParam("userId") Integer userId) {
+
+        return complaintBean.getResolvedComplaintsByUser(userId);
+    }
+
+    @GET
+    @Path("rejectedComplaints/{userId}")
+    @Produces("application/json")
+    public Long rejectedComplaints(
+            @PathParam("userId") Integer userId) {
+
+        return complaintBean.getRejectedComplaintsByUser(userId);
+    }
+
+    @GET
+    @Path("recentComplaints/{userId}")
+    @Produces("application/json")
+    public List<Complaint> recentComplaints(
+            @PathParam("userId") Integer userId) {
+
+        return complaintBean.getRecentComplaintsByUser(userId);
+    }
+    
     //OfficerBean
     
     @GET
@@ -393,13 +438,7 @@ public class JakartaEE10Resource {
             // generate JWT
             String token = JwtUtil.generateToken(user.getUsername(),user.getRole());
 
-            return Response.ok()
-        .entity("{"
-                + "\"token\":\"" + token + "\","
-                + "\"role\":\"" + user.getRole() + "\","
-                + "\"username\":\"" + user.getUsername() + "\""
-                + "}")
-        .build();
+            return Response.ok(user).build();
         }
 
         return Response.status(Response.Status.UNAUTHORIZED)

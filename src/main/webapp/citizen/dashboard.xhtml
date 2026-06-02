@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    
+<f:metadata>
+    <f:viewAction action="#{authBean.checkCitizenAccess}" />
+</f:metadata>
+
+<h:head>
+    <title>Citizen Dashboard</title>
+
+    <h:outputStylesheet library="css"
+                        name="dashboard.css"/>
+</h:head>
+
+<h:body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo-section">
+
+            <img src="#{resource['images:government.png']}"
+                 class="logo"/>
+
+            <div class="logo-text">
+                Government Grievance
+                <br/>
+                Redressal System
+            </div>
+
+        </div>
+
+        <div class="menu">
+
+            <a href="#" class="menu-item active">
+                <i class="pi pi-home"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="raiseComplaint.xhtml" class="menu-item">
+                <i class="pi pi-plus-circle"></i>
+                <span>Raise Grievance</span>
+            </a>
+
+            <a href="myComplaints.xhtml" class="menu-item">
+                <i class="pi pi-file"></i>
+                <span>My Grievances</span>
+            </a>
+
+            <a href="notifications.xhtml" class="menu-item">
+                <i class="pi pi-bell"></i>
+                <span>Notifications</span>
+            </a>
+
+            <a href="profile.xhtml" class="menu-item">
+                <i class="pi pi-user"></i>
+                <span>Profile</span>
+            </a>
+
+            <a href="changePassword.xhtml" class="menu-item">
+                <i class="pi pi-lock"></i>
+                <span>Change Password</span>
+            </a>
+
+            <a href="faq.xhtml" class="menu-item">
+                <i class="pi pi-question-circle"></i>
+                <span>FAQs</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Top Bar -->
+        <div class="topbar">
+
+            <h2>Citizen Dashboard</h2>
+
+            <div class="user-info">
+
+                <i class="pi pi-user"></i>
+
+                <span>
+                    #{loginBean.loggedInUser.fullName}
+                </span>
+
+                <h:form style="display:inline">
+
+                    <p:commandButton
+                            value="Logout"
+                            icon="pi pi-sign-out"
+                            action="#{loginBean.logout}"
+                            styleClass="logout-btn"/>
+
+                </h:form>
+
+            </div>
+
+        </div>
+
+        <div class="welcome-card">
+
+            <h1>
+                Hello,
+                #{loginBean.loggedInUser.fullName}
+            </h1>
+
+            <p>
+                Welcome to the Government Grievance Redressal System.
+            </p>
+
+            <br/>
+
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <i class="pi pi-file"></i>
+                <h3>
+                    #{citizenDashboardBean.totalComplaints}
+                </h3>
+                <span>Total Complaints</span>
+            </div>
+
+            <div class="stat-card success">
+                <i class="pi pi-check-circle"></i>
+                <h3>
+                    #{citizenDashboardBean.resolvedComplaints}
+                </h3>
+                <span>Resolved</span>
+            </div>
+
+            <div class="stat-card warning">
+                <i class="pi pi-clock"></i>
+                <h3>
+                    #{citizenDashboardBean.pendingComplaints}
+                </h3>
+                <span>In Progress</span>
+            </div>
+
+            <div class="stat-card danger">
+                <i class="pi pi-times-circle"></i>
+                <h3>
+                    #{citizenDashboardBean.rejectedComplaints}
+                </h3>
+                <span>Rejected</span>
+            </div>
+
+        </div>
+
+        <!-- Complaints -->
+        <div class="table-card">
+
+            <div class="card-header">
+
+                <h3>My Recent Grievances</h3>
+
+                <a href="myComplaints.xhtml">
+                    View All
+                </a>
+
+            </div>
+
+            <p:dataTable value="#{citizenDashboardBean.recentComplaints}"
+             var="c"
+             paginator="true"
+             rows="5">
+
+                <p:column headerText="Title">
+                    #{c[0]}
+                </p:column>
+
+                <p:column headerText="Assigned Officer">
+                    #{c[1]}
+                </p:column>
+
+                <p:column headerText="Status">
+                    #{c[2]}
+                </p:column>
+
+            </p:dataTable>
+
+        </div>
+
+        <!-- Support -->
+        <div class="support-card">
+
+            <div>
+
+                <h3>Need Help &amp; Support?</h3>
+
+                <p>
+                    Facing issues while raising or tracking grievances?
+                    Contact our support team for assistance.
+                </p>
+
+            </div>
+
+            <div>
+
+                <p:button
+                        value="Contact Support"
+                        icon="pi pi-phone"
+                        outcome="contact.xhtml"/>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</h:body>
+</html>

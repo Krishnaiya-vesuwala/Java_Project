@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Named(value = "registerBean")
 @SessionScoped
@@ -38,11 +39,12 @@ public class RegisterBean implements Serializable {
 
         try {
 
-            Response rs = rl.getAllSocities(Response.class, "1");
-
+            Response rs = rl.getAllSocities(Response.class);
+            
             societies = rs.readEntity(
                     new GenericType<Collection<Society>>() {
                     });
+
 
         } catch (Exception e) {
 

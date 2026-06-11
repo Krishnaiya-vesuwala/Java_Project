@@ -24,8 +24,8 @@ public class JwtFilter implements ContainerRequestFilter {
 
         String path = requestContext.getUriInfo().getPath();
 
-        // ✅ Public endpoints
-        if (path.contains("login") || path.contains("registerUser") || path.contains("forgotPassword") || path.contains("resetPassword") || path.contains("getSocietiesByWard")) {
+        if (path.contains("login") || path.contains("registerUser") || path.contains("forgotPassword") || path.contains("resetPassword") || path.contains("getSocietiesByWard") 
+            || path.contains("getAllSocieties")) {
             return;
         }
 
@@ -39,17 +39,15 @@ public class JwtFilter implements ContainerRequestFilter {
         String token = authHeader.substring("Bearer ".length());
 
         try {
-            // ✅ Validate token
+            
             Claims claims = JwtUtil.validateToken(token);
 
             String role = (String) claims.get("role");
             String username = claims.getSubject();
 
-            // store if needed later
             requestContext.setProperty("role", role);
             requestContext.setProperty("username", username);
 
-            // 🔐 Get method annotation
             Method method = resourceInfo.getResourceMethod();
 
             if (method != null && method.isAnnotationPresent(Secured.class)) {

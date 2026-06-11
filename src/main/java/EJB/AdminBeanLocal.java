@@ -29,6 +29,7 @@ public interface AdminBeanLocal {
     public void updateSociety(Integer id, String name, String address, String status, Integer wardId);
     public void deleteSociety(Integer id);
     public List<Society> getAllSocities(int wardid);
+    public List<Society> getAllSocities();
     
     //Complaint Category
     public void createCategory(String categoryName,Integer departmentId);

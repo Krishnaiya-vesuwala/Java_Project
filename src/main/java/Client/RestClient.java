@@ -349,6 +349,16 @@ public class RestClient {
         resource = resource.path(java.text.MessageFormat.format("getSocietiesByWard/{0}", new Object[]{wardId}));
         return resource.request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     }
+    
+    public <T> T getAllSocities(Class<T> responseType)
+            throws ClientErrorException {
+
+        WebTarget resource = webTarget;
+
+        resource = resource.path("getAllSocieties");
+
+        return resource.request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
+    }
 
     public void updateOfficer(String officerId, String userId, String departmentId, String zoneId, String wardId, String designation) throws ClientErrorException {
         webTarget.path(java.text.MessageFormat.format("updateOfficer/{0}/{1}/{2}/{3}/{4}/{5}", new Object[]{officerId, userId, departmentId, zoneId, wardId, designation})).request().put(null);

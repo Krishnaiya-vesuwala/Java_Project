@@ -461,5 +461,14 @@ public class AdminBean implements AdminBeanLocal {
                 .setParameter("wid", wardid)
                 .getResultList();
     }
+    
+    @Override
+    public List<Society> getAllSocities() {
+
+        return em.createQuery(
+                "SELECT s FROM Society s",
+                Society.class)
+                .getResultList();
+    }
 
 }

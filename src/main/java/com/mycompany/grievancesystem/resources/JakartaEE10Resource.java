@@ -136,6 +136,14 @@ public class JakartaEE10Resource {
     public List<Society> getAllSocities(@PathParam("wardId") int wardId) {
         return adminBean.getAllSocities(wardId);
     }
+    
+    @GET
+    @Path("getAllSocieties")
+    @Produces("application/json")
+    public List<Society> getAllSocities() {
+
+        return adminBean.getAllSocities();
+    }
 
     //Category
 

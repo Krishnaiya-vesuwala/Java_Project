@@ -356,6 +356,8 @@ public class RestClient {
         WebTarget resource = webTarget;
 
         resource = resource.path("getAllSocieties");
+        System.out.println("URL = " + resource.getUri());
+
 
         return resource.request(jakarta.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     }

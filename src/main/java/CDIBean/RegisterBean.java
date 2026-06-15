@@ -34,24 +34,26 @@ public class RegisterBean implements Serializable {
     public RegisterBean() {
     }
 
-    @PostConstruct
-    public void init() {
-
-        try {
-
-            Response rs = rl.getAllSocities(Response.class);
-            
+   @PostConstruct
+public void init() {
+    try {
+        Response rs = rl.getAllSocities(Response.class); 
+            System.out.println("...............Hello");
+        if (rs.getStatus() == 200) {
+            System.out.println("...............Hello");
             societies = rs.readEntity(
-                    new GenericType<Collection<Society>>() {
-                    });
-
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
+                new GenericType<Collection<Society>>() {});
+            System.out.println("...............Hello"+societies);
+        } else {
+            System.err.println("..............Failed to fetch societies. Status: " + rs.getStatus());
             societies = new ArrayList<>();
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        societies = new ArrayList<>();
     }
+}
 
     public void register() {
 

@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Officer Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
+          rel="stylesheet"/>
+    <style>
+        /* ═══════════════════════════════════════
+           DESIGN TOKENS
+        ═══════════════════════════════════════ */
+        :root {
+            --gold:            #C9A84C;
+            --gold-hover:      #B8962E;
+            --gold-dim:        #9A7A28;
+            --gold-bg:         rgba(201,168,76,.07);
+            --gold-bg2:        rgba(201,168,76,.13);
+            --gold-border:     rgba(201,168,76,.28);
+
+            --sidebar-bg:      #161618;
+            --surface:         #FFFFFF;
+            --surface-2:       #F8F8FA;
+            --bg:              #F2F3F6;
+            --text-primary:    #16161A;
+            --text-secondary:  #52525B;
+            --text-muted:      #8A8A96;
+            --border:          #E4E4E8;
+            --border-subtle:   #EFEFEF;
+
+            --success-bg:      #EEF6F1;
+            --success-text:    #1F6E3A;
+            --success-border:  rgba(31,110,58,.18);
+            --success-hover:   #E0F0E6;
+
+            --danger-bg:       #FDF1F1;
+            --danger-text:     #9B2424;
+            --danger-border:   rgba(155,36,36,.18);
+            --danger-hover:    #FAEAEA;
+
+            --warning-bg:      #FDF5E8;
+            --warning-text:    #7A5214;
+            --warning-border:  rgba(122,82,20,.18);
+            --warning-hover:   #FAF0DA;
+
+            --info-bg:         #EEF3FF;
+            --info-text:       #3A5BD9;
+            --info-border:     rgba(58,91,217,.18);
+
+            --dept-bg:         #F0F7FF;
+            --dept-text:       #1565C0;
+            --dept-border:     rgba(21,101,192,.20);
+
+            --purple-bg:       #EDE7F6;
+            --purple-text:     #4527A0;
+            --purple-border:   rgba(69,39,160,.20);
+
+            --orange-bg:       #FFF4E0;
+            --orange-text:     #B85C00;
+            --orange-border:   rgba(184,92,0,.20);
+
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --radius-xl:  20px;
+
+            --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+            --shadow-lg:  0 8px 40px rgba(0,0,0,.13);
+
+            --transition: all .18s ease;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════
+           MAIN LAYOUT
+        ═══════════════════════════════════════ */
+        .main {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ═══════════════════════════════════════
+           TOPBAR
+        ═══════════════════════════════════════ */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-xs);
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-bg);
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            letter-spacing: .01em;
+        }
+
+        .back-btn i {
+            font-size: 12px;
+            color: var(--gold);
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            background: var(--gold-bg2);
+            border-color: rgba(201,168,76,.44);
+            color: var(--gold-hover);
+            box-shadow: 0 2px 10px rgba(201,168,76,.18);
+            transform: translateX(-2px);
+        }
+
+        .back-btn:hover i { color: var(--gold-hover); }
+
+        .topbar-sep {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: -.01em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+            border-color: #D0D0D6;
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-logout i {
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+            color: var(--danger-text);
+        }
+
+        .btn-logout:hover i { color: var(--danger-text); }
+
+        /* ═══════════════════════════════════════
+           CONTENT
+        ═══════════════════════════════════════ */
+        .content {
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            flex: 1;
+            max-width: 1500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: var(--sidebar-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            right: -40px; top: -40px;
+            width: 190px; height: 190px;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(201,168,76,.09) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            left: -20px; bottom: -55px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(201,168,76,.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header-left { position: relative; z-index: 1; }
+
+        .page-header-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .page-header-eyebrow::before {
+            content: '';
+            display: block;
+            width: 16px; height: 1.5px;
+            background: var(--gold);
+            opacity: .6;
+        }
+
+        .page-header-eyebrow span {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: rgba(255,255,255,.36);
+        }
+
+        .page-header-actions { position: relative; z-index: 1; }
+
+        /* Add Button */
+        .add-btn-wrap .ui-button.ui-widget {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-md) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            padding: 12px 22px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.32) !important;
+            letter-spacing: .01em !important;
+        }
+
+        .add-btn-wrap .ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 6px 22px rgba(201,168,76,.42) !important;
+            transform: translateY(-1px);
+        }
+
+        .add-btn-wrap .ui-button .ui-button-icon-left {
+            color: inherit !important;
+            font-size: 14px !important;
+        }
+
+        /* ═══════════════════════════════════════
+           TABLE CARD
+        ═══════════════════════════════════════ */
+        .table-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-card-head {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -.01em;
+        }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--gold-bg);
+            border: 1px solid var(--gold-border);
+            color: var(--gold-dim);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .count-badge i { font-size: 10px; }
+
+        /* DataTable */
+        .custom-table .ui-datatable,
+        .custom-table .ui-datatable table {
+            border: none !important;
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+
+        .custom-table .ui-datatable .ui-datatable-header {
+            display: none !important;
+        }
+
+        .custom-table .ui-datatable thead th,
+        .custom-table .ui-datatable thead .ui-state-default {
+            background: var(--surface-2) !important;
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 11px 20px !important;
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            color: var(--text-muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .09em !important;
+            font-family: 'DM Sans', sans-serif !important;
+            white-space: nowrap !important;
+        }
+
+        .custom-table .ui-datatable tbody td {
+            border: none !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            padding: 13px 20px !important;
+            font-size: 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            color: var(--text-primary) !important;
+            vertical-align: middle !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:hover td {
+            background: #FAFAFA !important;
+        }
+
+        /* Paginator */
+        .custom-table .ui-paginator {
+            border: none !important;
+            border-top: 1px solid var(--border-subtle) !important;
+            background: var(--surface) !important;
+            padding: 11px 20px !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page,
+        .custom-table .ui-paginator .ui-paginator-next,
+        .custom-table .ui-paginator .ui-paginator-prev,
+        .custom-table .ui-paginator .ui-paginator-first,
+        .custom-table .ui-paginator .ui-paginator-last {
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            min-width: 30px !important;
+            height: 30px !important;
+            margin: 0 1px !important;
+            transition: var(--transition) !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page:hover,
+        .custom-table .ui-paginator .ui-paginator-next:hover,
+        .custom-table .ui-paginator .ui-paginator-prev:hover {
+            background: var(--surface-2) !important;
+            border-color: #D0D0D6 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .custom-table .ui-paginator .ui-state-active {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1400 !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+        }
+
+        /* ═══════════════════════════════════════
+           OFFICER CELL
+        ═══════════════════════════════════════ */
+        .officer-cell {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .officer-initials {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-dim);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .officer-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .officer-email {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .pill i { font-size: 10px; }
+
+        .pill-zone {
+            background: var(--gold-bg);
+            color: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+        }
+
+        .pill-ward {
+            background: var(--info-bg);
+            color: var(--info-text);
+            border: 1px solid var(--info-border);
+        }
+
+        .pill-dept {
+            background: var(--dept-bg);
+            color: var(--dept-text);
+            border: 1px solid var(--dept-border);
+        }
+
+        /* Designation badges */
+        .desig-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .03em;
+        }
+
+        .desig-badge i { font-size: 10px; }
+
+        .desig-ward {
+            background: var(--orange-bg);
+            color: var(--orange-text);
+            border: 1px solid var(--orange-border);
+        }
+
+        .desig-zone {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+
+        .desig-corporate {
+            background: var(--purple-bg);
+            color: var(--purple-text);
+            border: 1px solid var(--purple-border);
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .03em;
+        }
+
+        .badge::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .badge-active {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+
+        .badge-inactive {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-border);
+        }
+
+        /* ═══════════════════════════════════════
+           ACTION BUTTONS
+        ═══════════════════════════════════════ */
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .action-group .ui-button.ui-widget {
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            padding: 5px 11px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+            letter-spacing: .01em !important;
+        }
+
+        .btn-edit-wrap .ui-button.ui-widget {
+            background: var(--gold-bg) !important;
+            border: 1px solid var(--gold-border) !important;
+            color: var(--gold-dim) !important;
+        }
+
+        .btn-edit-wrap .ui-button.ui-widget:hover {
+            background: var(--gold-bg2) !important;
+            border-color: rgba(201,168,76,.44) !important;
+            color: var(--gold-hover) !important;
+        }
+
+        .btn-edit-wrap .ui-button .ui-button-icon-left { color: inherit !important; }
+
+        .btn-deactivate-wrap .ui-button.ui-widget {
+            background: var(--warning-bg) !important;
+            border: 1px solid var(--warning-border) !important;
+            color: var(--warning-text) !important;
+        }
+
+        .btn-deactivate-wrap .ui-button.ui-widget:hover {
+            background: var(--warning-hover) !important;
+            border-color: rgba(122,82,20,.28) !important;
+        }
+
+        .btn-deactivate-wrap .ui-button .ui-button-icon-left { color: inherit !important; }
+
+        .btn-activate-wrap .ui-button.ui-widget {
+            background: var(--success-bg) !important;
+            border: 1px solid var(--success-border) !important;
+            color: var(--success-text) !important;
+        }
+
+        .btn-activate-wrap .ui-button.ui-widget:hover {
+            background: var(--success-hover) !important;
+            border-color: rgba(31,110,58,.28) !important;
+        }
+
+        .btn-activate-wrap .ui-button .ui-button-icon-left { color: inherit !important; }
+
+        /* ═══════════════════════════════════════
+           DIALOGS — CLEAN APPROACH
+           Do NOT use flex on .ui-dialog itself.
+           PrimeFaces manages the dialog wrapper.
+           Only control the content area scroll.
+        ═══════════════════════════════════════ */
+
+        /* Dialog shell */
+        .ui-dialog.ui-widget {
+            border-radius: var(--radius-xl) !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: var(--shadow-lg) !important;
+            overflow: hidden !important;
+            font-family: 'DM Sans', sans-serif !important;
+            /* DO NOT add display:flex here — breaks PrimeFaces layout */
+        }
+
+        /* Titlebar — dark header */
+        .ui-dialog .ui-dialog-titlebar {
+            background: var(--sidebar-bg) !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(255,255,255,.06) !important;
+            padding: 17px 22px !important;
+        }
+
+        .ui-dialog .ui-dialog-title {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 15.5px !important;
+            font-weight: 600 !important;
+            color: var(--gold) !important;
+            letter-spacing: .01em !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar-close {
+            color: rgba(255,255,255,.36) !important;
+            border-radius: 6px !important;
+            transition: var(--transition) !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar-close:hover {
+            color: rgba(255,255,255,.76) !important;
+            background: rgba(255,255,255,.08) !important;
+        }
+
+        /* ── KEY FIX: scrollable content area ── */
+        .ui-dialog .ui-dialog-content {
+            background: var(--surface) !important;
+            padding: 0 !important;
+            /* Allow the content + footer inside to scroll */
+            max-height: 75vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Thin gold scrollbar */
+        .ui-dialog .ui-dialog-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .ui-dialog .ui-dialog-content::-webkit-scrollbar-track {
+            background: var(--surface-2);
+        }
+
+        .ui-dialog .ui-dialog-content::-webkit-scrollbar-thumb {
+            background: var(--gold-border);
+            border-radius: 10px;
+        }
+
+        .ui-dialog .ui-dialog-content::-webkit-scrollbar-thumb:hover {
+            background: var(--gold);
+        }
+
+        /* ── Dialog inner wrapper ── */
+        /* 
+           The dlg-body + dlg-footer live INSIDE ui-dialog-content.
+           We use a wrapper div (.dlg-wrap) so the footer sticks
+           to the bottom of the visible scroll area.
+        */
+        .dlg-wrap {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .dlg-body {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        /* ── Inline field error ── */
+        .field-error .ui-message-error,
+        .field-error .ui-message {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 5px;
+            background: transparent !important;
+            border: none !important;
+            color: var(--danger-text) !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            padding: 2px 0 0 0 !important;
+            margin: 0 !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        .field-error .ui-message-error-icon,
+        .field-error .ui-message-error-detail {
+            color: var(--danger-text) !important;
+        }
+
+        /* ── Inputs inside dialog ── */
+        .dlg-body .ui-inputtext,
+        .dlg-body .ui-selectonemenu.ui-widget,
+        .dlg-body .ui-inputtextarea {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 9px 12px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .dlg-body .ui-inputtext:focus,
+        .dlg-body .ui-inputtextarea:focus {
+            border-color: var(--gold) !important;
+            background: var(--surface) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .dlg-body .ui-selectonemenu.ui-widget.ui-state-focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .dlg-body .ui-selectonemenu .ui-selectonemenu-label {
+            background: transparent !important;
+            border: none !important;
+            padding: 9px 12px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+        }
+
+        .dlg-body .ui-selectonemenu .ui-selectonemenu-trigger {
+            background: transparent !important;
+            border: none !important;
+            color: var(--text-muted) !important;
+            width: 30px !important;
+        }
+
+        /* Invalid field highlight */
+        .dlg-body .ui-state-error {
+            border-color: var(--danger-text) !important;
+            background: #FFF5F5 !important;
+            box-shadow: 0 0 0 3px rgba(155,36,36,.08) !important;
+        }
+
+        /* Read-only officer box */
+        .officer-readonly-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--gold-bg);
+            border: 1.5px solid var(--gold-border);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 13.5px;
+        }
+
+        .officer-readonly-box i {
+            color: var(--gold-dim);
+            font-size: 13px;
+        }
+
+        /* ── Dialog footer ── */
+        .dlg-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 22px;
+            border-top: 1px solid var(--border-subtle);
+            background: var(--surface-2);
+            /* Sticks below the body content */
+            position: sticky;
+            bottom: 0;
+        }
+
+        /* Cancel button */
+        .btn-cancel-wrap .ui-button.ui-widget {
+            background: transparent !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-secondary) !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            padding: 8px 17px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-cancel-wrap .ui-button.ui-widget:hover {
+            background: var(--surface-2) !important;
+            border-color: #C8C8D0 !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Save button */
+        .btn-save-wrap .ui-button.ui-widget {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            padding: 8px 20px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+        }
+
+        .btn-save-wrap .ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 14px rgba(201,168,76,.34) !important;
+        }
+
+        .btn-save-wrap .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 1080px) {
+            .content { padding: 20px; }
+            .topbar  { padding: 0 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .topbar         { padding: 0 14px; height: 56px; }
+            .content        { padding: 14px; }
+            .topbar-title   { display: none; }
+            .topbar-sep     { display: none; }
+
+            .back-btn {
+                padding: 7px 12px;
+                font-size: 12px;
+            }
+
+            .back-btn span { display: none; }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .page-header-actions { width: 100%; }
+            .dlg-body { min-width: unset; width: 100%; }
+
+            /* More height on small screens */
+            .ui-dialog .ui-dialog-content {
+                max-height: 80vh !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .action-group { gap: 4px; }
+            .action-group .ui-button.ui-widget {
+                font-size: 11px !important;
+                padding: 5px 8px !important;
+            }
+
+            .btn-logout span { display: none; }
+        }
+    </style>
+</h:head>
+
+<h:body>
+
+    <div class="main">
+
+        <h:form id="officerForm">
+
+            <p:growl id="msg" showDetail="true" life="4000"/>
+
+            <!-- ══════════════════════════════════
+                 TOPBAR
+            ══════════════════════════════════ -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <a href="adminDashboard.jsf" class="back-btn">
+                        <i class="fa fa-arrow-left"></i>
+                        <span>Back to Dashboard</span>
+                    </a>
+                    <div class="topbar-sep"></div>
+                    <span class="topbar-title">Officer Management</span>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="icon-btn" type="button" aria-label="Search">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button class="icon-btn" type="button"
+                            aria-label="Notifications"
+                            style="position:relative;">
+                        <i class="fa fa-bell"></i>
+                        <span class="notif-dot"></span>
+                    </button>
+                    <a href="#" class="btn-logout">
+                        <i class="fa fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- ══════════════════════════════════
+                 CONTENT
+            ══════════════════════════════════ -->
+            <div class="content">
+
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <div class="page-header-eyebrow">
+                            <span>Operations</span>
+                        </div>
+                        <h2>Officer Management</h2>
+                        <p>Assign, edit and manage officers across zones and wards.</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <div class="add-btn-wrap">
+                            <p:commandButton
+                                value="Add Officer"
+                                icon="pi pi-plus"
+                                process="@this"
+                                action="#{officerManagementCDI.prepareCreate}"
+                                update=":officerForm:addOfficerDlg"
+                                oncomplete="PF('addOfficerDialog').show()"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLE CARD -->
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title-group">
+                            <span class="table-card-title">All Officers</span>
+                            <span class="count-badge">
+                                <i class="fa fa-user-shield"></i>
+                                Officer Records
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="custom-table">
+                        <p:dataTable
+                            id="officerTable"
+                            value="#{officerManagementCDI.officers}"
+                            var="o"
+                            paginator="true"
+                            rows="10"
+                            paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                            emptyMessage="No officers found."
+                            rowHover="true"
+                            style="width:100%">
+
+                            <p:column headerText="Officer">
+                                <div class="officer-cell">
+                                    <div class="officer-initials">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="officer-name">
+                                            <h:outputText value="#{o.userId.fullName}"/>
+                                        </div>
+                                        <div class="officer-email">
+                                            <h:outputText value="#{o.userId.email}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p:column>
+
+                            <p:column headerText="Mobile" width="130">
+                                <h:outputText value="#{o.userId.mobile}"/>
+                            </p:column>
+
+                            <p:column headerText="Designation" width="175">
+                                <span class="desig-badge
+                                    #{o.designation eq 'WARD_OFFICER'
+                                      ? 'desig-ward'
+                                      : o.designation eq 'ZONE_OFFICER'
+                                        ? 'desig-zone'
+                                        : 'desig-corporate'}">
+                                    <i class="fa fa-id-badge"></i>
+                                    <h:outputText value="#{o.designation}"/>
+                                </span>
+                            </p:column>
+
+                            <p:column headerText="Department">
+                                <span class="pill pill-dept">
+                                    <i class="fa fa-briefcase"></i>
+                                    <h:outputText value="#{o.departmentId.departmentName}"/>
+                                </span>
+                            </p:column>
+
+                            <p:column headerText="Zone" width="130">
+                                <span class="pill pill-zone">
+                                    <i class="fa fa-map-marker-alt"></i>
+                                    <h:outputText value="#{o.zoneId.zoneName}"/>
+                                </span>
+                            </p:column>
+
+                            <p:column headerText="Ward" width="120">
+                                <span class="pill pill-ward">
+                                    <i class="fa fa-th"></i>
+                                    <h:outputText value="#{o.wardId.wardName}"/>
+                                </span>
+                            </p:column>
+
+                            <p:column headerText="Status" width="110">
+                                <span class="badge
+                                    #{o.status eq 'ACTIVE'
+                                      ? 'badge-active'
+                                      : 'badge-inactive'}">
+                                    <h:outputText value="#{o.status}"/>
+                                </span>
+                            </p:column>
+
+                            <p:column headerText="Actions" width="240">
+                                <div class="action-group">
+
+                                    <div class="btn-edit-wrap">
+                                        <p:commandButton
+                                            value="Edit"
+                                            icon="pi pi-pencil"
+                                            process="@this"
+                                            action="#{officerManagementCDI.editOfficer(o)}"
+                                            update=":officerForm:editDlg"
+                                            oncomplete="PF('editDialog').show()"/>
+                                    </div>
+
+                                    <div class="btn-deactivate-wrap">
+                                        <p:commandButton
+                                            value="Deactivate"
+                                            icon="pi pi-ban"
+                                             process="@this"
+                                                immediate="true"
+                                                resetValues="true"
+                                            rendered="#{o.status eq 'ACTIVE'}"
+                                            action="#{officerManagementCDI.deactivate(o.officerId)}"
+                                            update="@form"/>
+                                    </div>
+
+                                    <div class="btn-activate-wrap">
+                                        <p:commandButton
+                                            value="Activate"
+                                             process="@this"
+                                                immediate="true"
+                                                resetValues="true"
+                                            icon="pi pi-check-circle"
+                                            rendered="#{o.status eq 'INACTIVE'}"
+                                            action="#{officerManagementCDI.activate(o.officerId)}"
+                                            update="@form"/>
+                                    </div>
+
+                                </div>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /content -->
+
+            <!-- ══════════════════════════════════
+                 ADD OFFICER DIALOG
+                 NOTE: NO fitViewport attribute.
+                 The CSS max-height on ui-dialog-content
+                 handles the viewport capping instead.
+            ══════════════════════════════════ -->
+            <p:dialog
+                id="addOfficerDlg"
+                widgetVar="addOfficerDialog"
+                header="Create New Officer"
+                modal="true"
+                width="500"
+                resizable="false"
+                closable="true"
+                responsive="true">
+
+                <!--
+                    IMPORTANT: dlg-wrap, dlg-body AND dlg-footer
+                    are ALL inside ui-dialog-content.
+                    The footer uses position:sticky; bottom:0
+                    so it stays visible while the body scrolls.
+                -->
+                <div class="dlg-wrap">
+
+                    <div class="dlg-body">
+
+                        <!-- User -->
+                        <div class="form-row">
+                            <label class="form-label" for="addUser">User</label>
+                            <p:selectOneMenu
+                                id="addUser"
+                                value="#{officerManagementCDI.selectedUserId}"
+                                required="true"
+                                requiredMessage="Please select a User.">
+                                <f:selectItem
+                                    itemLabel="Select User"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{officerManagementCDI.availableUsers}"
+                                    var="u"
+                                    itemLabel="#{u.fullName}"
+                                    itemValue="#{u.userId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addUser" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="form-row">
+                            <label class="form-label" for="addDesignation">Designation</label>
+                            <p:selectOneMenu
+                                id="addDesignation"
+                                value="#{officerManagementCDI.designation}"
+                                required="true"
+                                requiredMessage="Please select a Designation.">
+                                <f:selectItem
+                                    itemLabel="Select Designation"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItem itemLabel="Ward Officer"      itemValue="WARD"/>
+                                <f:selectItem itemLabel="Zone Officer"      itemValue="ZONE"/>
+                                <f:selectItem itemLabel="Corporate Officer" itemValue="CORPORATE"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addDesignation" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="form-row">
+                            <label class="form-label" for="addDepartment">Department</label>
+                            <p:selectOneMenu
+                                id="addDepartment"
+                                value="#{officerManagementCDI.departmentId}"
+                                required="true"
+                                requiredMessage="Please select a Department.">
+                                <f:selectItem
+                                    itemLabel="Select Department"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{officerManagementCDI.departments}"
+                                    var="d"
+                                    itemLabel="#{d.departmentName}"
+                                    itemValue="#{d.departmentId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addDepartment" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Zone -->
+                        <div class="form-row">
+                            <label class="form-label" for="addZone">Zone</label>
+                            <p:selectOneMenu
+                                id="addZone"
+                                value="#{officerManagementCDI.zoneId}"
+                                required="true"
+                                requiredMessage="Please select a Zone.">
+                                <f:selectItem
+                                    itemLabel="Select Zone"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{officerManagementCDI.zones}"
+                                    var="z"
+                                    itemLabel="#{z.zoneName}"
+                                    itemValue="#{z.zoneId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addZone" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Ward -->
+                        <div class="form-row">
+                            <label class="form-label" for="addWard">Ward</label>
+                            <p:selectOneMenu
+                                id="addWard"
+                                value="#{officerManagementCDI.wardId}"
+                                required="true"
+                                requiredMessage="Please select a Ward.">
+                                <f:selectItem
+                                    itemLabel="Select Ward"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{officerManagementCDI.wards}"
+                                    var="w"
+                                    itemLabel="#{w.wardName}"
+                                    itemValue="#{w.wardId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addWard" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-row">
+                            <label class="form-label" for="addStatus">Status</label>
+                            <p:selectOneMenu
+                                id="addStatus"
+                                value="#{officerManagementCDI.status}"
+                                required="true"
+                                requiredMessage="Status is required.">
+                                <f:selectItem itemLabel="Active"   itemValue="ACTIVE"/>
+                                <f:selectItem itemLabel="Inactive" itemValue="INACTIVE"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addStatus" display="text"/>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /dlg-body -->
+
+                    <!-- Footer INSIDE dlg-wrap so it scrolls with content
+                         but position:sticky keeps it at bottom of viewport -->
+                    <div class="dlg-footer">
+                        <div class="btn-cancel-wrap">
+                            <p:commandButton
+                                value="Cancel"
+                                type="button"
+                                onclick="PF('addOfficerDialog').hide()"/>
+                        </div>
+                        <div class="btn-save-wrap">
+                            <p:commandButton
+                                value="Save Officer"
+                                icon="pi pi-check"
+                                process="addOfficerDlg"
+                                action="#{officerManagementCDI.createOfficer}"
+                                update="addOfficerDlg :officerForm:officerTable :officerForm:msg"
+                                oncomplete="if(!args.validationFailed) PF('addOfficerDialog').hide()"/>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /dlg-wrap -->
+
+            </p:dialog>
+
+            <!-- ══════════════════════════════════
+                 EDIT OFFICER DIALOG
+            ══════════════════════════════════ -->
+            <p:dialog
+                id="editDlg"
+                widgetVar="editDialog"
+                header="Edit Officer"
+                modal="true"
+                width="460"
+                resizable="false"
+                closable="true"
+                responsive="true">
+
+                <div class="dlg-wrap">
+
+                    <div class="dlg-body">
+
+                        <!-- Officer read-only -->
+                        <div class="form-row">
+                            <label class="form-label">Officer</label>
+                            <div class="officer-readonly-box">
+                                <i class="fa fa-user"></i>
+                                <h:outputText
+                                    value="#{officerManagementCDI.selectedOfficer.userId.fullName}"/>
+                            </div>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="form-row">
+                            <label class="form-label" for="editDesignation">Designation</label>
+                            <p:selectOneMenu
+                                id="editDesignation"
+                                value="#{officerManagementCDI.newDesignation}"
+                                required="true"
+                                requiredMessage="Please select a Designation.">
+                                <f:selectItem itemLabel="Ward Officer"      itemValue="WARD_OFFICER"/>
+                                <f:selectItem itemLabel="Zone Officer"      itemValue="ZONE_OFFICER"/>
+                                <f:selectItem itemLabel="Zone Admin"        itemValue="ZONE_ADMIN"/>
+                                <f:selectItem itemLabel="Ward Admin"        itemValue="WARD_ADMIN"/>
+                                <f:selectItem itemLabel="Corporate Officer" itemValue="CORPORATE_OFFICER"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="editDesignation" display="text"/>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /dlg-body -->
+
+                    <div class="dlg-footer">
+                        <div class="btn-cancel-wrap">
+                            <p:commandButton
+                                value="Cancel"
+                                type="button"
+                                onclick="PF('editDialog').hide()"/>
+                        </div>
+                        <div class="btn-save-wrap">
+                            <p:commandButton
+                                value="Update Officer"
+                                icon="pi pi-check"
+                                process="editDlg"
+                                action="#{officerManagementCDI.saveOfficer}"
+                                update="editDlg :officerForm:officerTable :officerForm:msg"
+                                oncomplete="if(!args.validationFailed) PF('editDialog').hide()"/>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /dlg-wrap -->
+
+            </p:dialog>
+
+        </h:form>
+
+    </div>
+
+</h:body>
+</html>

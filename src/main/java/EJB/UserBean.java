@@ -203,4 +203,60 @@ public class UserBean implements UserBeanLocal {
 
         em.persist(feedback);
     }
+     @Override
+    public List<Users> getAllUsers() {
+        return em.createQuery(
+                "SELECT u FROM Users u", Users.class)       
+                .getResultList();
+    }
+
+    @Override
+    public Users createUser(Users user) {
+         em.persist(user);
+        em.flush();
+
+        return user;
+    }
+    @Override
+public Users getAdminProfile(Integer userId) {
+
+    return em.find(Users.class, userId);
+}
+@Override
+public void updateUser(Integer userId,
+                       String fullName,
+                       String email,
+                       String mobile,
+                       String username,
+                       String role,
+                       String status,
+                       Integer societyId) {
+
+    Users user = em.find(Users.class, userId);
+
+    if (user == null) {
+        throw new RuntimeException("User not found");
+    }
+
+    user.setFullName(fullName);
+    user.setEmail(email);
+    user.setMobile(mobile);
+    user.setUsername(username);
+    user.setRole(role);
+    user.setStatus(status);
+
+    if (societyId != null) {
+        Society society = em.find(Society.class, societyId);
+
+        if (society == null) {
+            throw new RuntimeException("Society not found");
+        }
+
+        user.setSocietyId(society);
+    } else {
+        user.setSocietyId(null);
+    }
+    System.out.println(user);
+    em.merge(user);
+}
 }

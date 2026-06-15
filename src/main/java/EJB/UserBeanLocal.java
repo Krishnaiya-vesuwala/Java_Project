@@ -6,6 +6,7 @@ package EJB;
 
 import Entity.Users;
 import jakarta.ejb.Local;
+import java.util.List;
 
 /**
  *
@@ -29,4 +30,15 @@ public interface UserBeanLocal {
     public Users forgotPassword(String username);
     public void resetPassword(int userId, String newPassword);
     public void submitFeedback(int complaintId,String rating,String comments);
+    public List<Users> getAllUsers();
+    public Users createUser(Users user);
+    public Users getAdminProfile(Integer userId);
+    public void updateUser(Integer userId,
+                       String fullName,
+                       String email,
+                       String mobile,
+                       String username,
+                       String role,
+                       String status,
+                       Integer societyId);
 }

@@ -61,6 +61,8 @@ public class Officers implements Serializable {
     @JoinColumn(name = "zone_id", referencedColumnName = "zone_id")
     @ManyToOne
     private Zone zoneId;
+    @Column(name = "status")
+    private String status;
 
     public Officers() {
     }
@@ -68,6 +70,15 @@ public class Officers implements Serializable {
     public Officers(Integer officerId) {
         this.officerId = officerId;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
 
     public Integer getOfficerId() {
         return officerId;

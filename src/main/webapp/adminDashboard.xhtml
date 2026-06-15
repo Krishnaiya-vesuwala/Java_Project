@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Admin Dashboard</title>
+      <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=Playfair+Display:wght@600&amp;display=swap"/>
+    <style>
+        
+
+        :root {
+            --gold:        #D4AF37;
+            --gold-light:  #F0D060;
+            --gold-dim:    #A88B20;
+            --gold-bg:     rgba(212,175,55,.08);
+            --gold-bg2:    rgba(212,175,55,.14);
+            --sidebar:     #1A1A1A;
+            --surface:     #FFFFFF;
+            --bg:          #F4F5F8;
+            --text:        #1C1C1E;
+            --muted:       #6B7080;
+            --border:      #E8E9EE;
+            --radius:      14px;
+            --shadow:      0 2px 16px rgba(0,0,0,.07);
+            --shadow-card: 0 4px 24px rgba(0,0,0,.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ── LAYOUT ── */
+        .wrapper { display: flex; min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 268px;
+            min-width: 268px;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 2px solid var(--gold-dim);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .brand-logo img {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 13.5px;
+            color: var(--gold);
+            line-height: 1.5;
+            letter-spacing: .02em;
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,.3);
+            margin-top: 5px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        /* NAV */
+        .sidebar-nav { padding: 20px 14px; flex: 1; }
+
+        .nav-label {
+            font-size: 10px;
+            color: rgba(255,255,255,.3);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin: 18px 8px 8px;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 400;
+            margin-bottom: 2px;
+            transition: all .2s;
+        }
+
+        .sidebar-nav a i { font-size: 15px; flex-shrink: 0; width: 18px; }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--gold-bg2);
+            color: var(--gold);
+        }
+
+        .sidebar-nav a.active { font-weight: 500; }
+
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid rgba(255,255,255,.07);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-dim);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .admin-name {
+    font-size: 13px;
+    color: #FFFFFF !important;
+    font-weight: 600;
+}
+        .admin-role { font-size: 11px; color: rgba(255,255,255,.3); }
+
+        /* ── MAIN ── */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        /* TOPBAR */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 20px;
+            padding: 4px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--text);
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all .2s;
+            position: relative;
+        }
+
+        .icon-btn:hover { background: var(--bg); color: var(--text); }
+
+        .notif-dot {
+            position: absolute;
+            top: 7px; right: 7px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        /* PrimeFaces logout button override */
+        .logout-btn-wrap .ui-button {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1A1A !important;
+            border-radius: 10px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            padding: 8px 18px !important;
+            transition: all .2s !important;
+        }
+
+        .logout-btn-wrap .ui-button:hover {
+            background: var(--gold-light) !important;
+            border-color: var(--gold-light) !important;
+        }
+
+        /* ── CONTENT ── */
+        .content { padding: 28px 32px; display: flex; flex-direction: column; gap: 28px; }
+
+        /* WELCOME */
+        .welcome-banner {
+            background: var(--sidebar);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute; right: -40px; top: -40px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(212,175,55,.06);
+        }
+
+        .welcome-banner::after {
+            content: '';
+            position: absolute; right: 60px; bottom: -60px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: rgba(212,175,55,.04);
+        }
+
+        .welcome-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .welcome-text p { font-size: 14px; color: rgba(255,255,255,.45); line-height: 1.6; }
+
+        .welcome-badge {
+            background: var(--gold-bg2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 14px 22px;
+            text-align: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .wb-val { font-size: 28px; font-weight: 600; color: var(--gold); line-height: 1; }
+        .wb-lbl { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; }
+
+        /* STAT CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform .2s, box-shadow .2s;
+            cursor: default;
+        }
+
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
+
+        .stat-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--gold-bg);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        .stat-icon i { font-size: 16px; color: var(--gold); }
+        .stat-val { font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1; }
+        .stat-lbl { font-size: 12.5px; color: var(--muted); }
+
+        /* QUICK NAV */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text); }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .quick-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .25s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .quick-card:hover {
+            background: var(--sidebar);
+            border-color: var(--gold-dim);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .quick-card:hover .qc-icon  { background: var(--gold-bg2); }
+        .quick-card:hover .qc-icon i { color: var(--gold-light); }
+        .quick-card:hover .qc-label  { color: rgba(255,255,255,.8); }
+
+        .qc-icon {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            background: var(--gold-bg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px;
+            transition: all .25s;
+        }
+
+        .qc-icon i   { font-size: 20px; color: var(--gold); transition: color .25s; }
+        .qc-label    { font-size: 12.5px; font-weight: 500; color: var(--text); transition: color .25s; }
+
+        /* TABLE SECTION */
+        .table-wrap {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table-head {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-head-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+        /* PrimeFaces DataTable overrides */
+        .custom-table .ui-datatable             { border: none !important; }
+        .custom-table .ui-datatable-header      { display: none; }
+
+        .custom-table .ui-datatable thead th {
+            background:     #FAFAFA !important;
+            border-bottom:  1px solid var(--border) !important;
+            border-top:     none !important;
+            border-left:    none !important;
+            border-right:   none !important;
+            padding:        11px 20px !important;
+            font-size:      12px !important;
+            font-weight:    600 !important;
+            color:          var(--muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .05em !important;
+            font-family:    'DM Sans', sans-serif !important;
+        }
+
+        .custom-table .ui-datatable tbody td {
+            border-bottom:  1px solid var(--border) !important;
+            border-top:     none !important;
+            border-left:    none !important;
+            border-right:   none !important;
+            padding:        13px 20px !important;
+            font-size:      13.5px !important;
+            font-family:    'DM Sans', sans-serif !important;
+            vertical-align: middle !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:last-child td { border-bottom: none !important; }
+        .custom-table .ui-datatable tbody tr:hover    td   { background: #FAFBFF !important; }
+
+        /* PrimeFaces paginator */
+        .custom-table .ui-paginator {
+            border-top:    1px solid var(--border) !important;
+            border-bottom: none !important;
+            border-left:   none !important;
+            border-right:  none !important;
+            background:    var(--surface) !important;
+            padding:       12px 20px !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page,
+        .custom-table .ui-paginator .ui-paginator-next,
+        .custom-table .ui-paginator .ui-paginator-prev,
+        .custom-table .ui-paginator .ui-paginator-first,
+        .custom-table .ui-paginator .ui-paginator-last {
+            border-radius: 8px !important;
+            border:        1px solid var(--border) !important;
+            background:    transparent !important;
+            color:         var(--muted) !important;
+            font-family:   'DM Sans', sans-serif !important;
+            font-size:     13px !important;
+            min-width:     32px !important;
+            height:        32px !important;
+            margin:        0 2px !important;
+            transition:    all .2s !important;
+        }
+
+        .custom-table .ui-paginator .ui-state-active {
+            background:   var(--gold) !important;
+            border-color: var(--gold) !important;
+            color:        #1A1A1A !important;
+            font-weight:  600 !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page:hover:not(.ui-state-active),
+        .custom-table .ui-paginator .ui-paginator-next:hover,
+        .custom-table .ui-paginator .ui-paginator-prev:hover {
+            background: var(--bg) !important;
+            color:      var(--text) !important;
+        }
+
+        /* Complaint ID */
+        .complaint-id { font-weight: 600; color: var(--gold); }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px; font-weight: 500;
+        }
+
+        .badge-pending  { background: #FFF8E0; color: #B8860B; }
+        .badge-resolved { background: #E8F8EE; color: #1A8040; }
+        .badge-open     { background: #FFF0F0; color: #C0392B; }
+        .badge-progress { background: #EAF2FF; color: #1A5BA6; }
+        .badge-default  { background: #F1F1F1; color: #555;    }
+
+        /* Mobile overlay */
+        .overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 199;
+        }
+        .overlay.show { display: block; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .sidebar  { width: 220px; min-width: 220px; }
+            .content  { padding: 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed; left: -268px; top: 0;
+                height: 100vh; z-index: 200;
+                width: 268px; min-width: 268px;
+                transition: left .3s ease;
+            }
+            .sidebar.open  { left: 0; }
+            .hamburger     { display: flex; }
+            .topbar        { padding: 0 16px; }
+            .content       { padding: 16px; }
+            .welcome-banner { flex-direction: column; align-items: flex-start; }
+            .welcome-badge  { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .stats-grid    { grid-template-columns: repeat(2, 1fr); }
+            .quick-grid    { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .quick-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .profile-link{
+    text-decoration:none;
+    cursor:pointer;
+    transition:all .3s ease;
+    
+}
+
+.profile-link:hover{
+    background: rgba(212,175,55,.08);
+}
+    </style>
+</h:head>
+
+<h:body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<h:form>
+<div class="wrapper">
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">
+                <img src="#{request.contextPath}/resources/images/logo.png" alt="Logo"/>
+            </div>
+            <div class="brand-title">Government Grievance<br/>Redressal System</div>
+            <div class="brand-sub">Admin Portal</div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-label">Main</div>
+
+            <a href="adminDashboard.jsf" class="active">
+                <i class="pi pi-th-large"></i> Dashboard
+            </a>
+
+            <a href="zone.jsf">
+                <i class="pi pi-map-marker"></i> Zone Management
+            </a>
+
+            <a href="ward.jsf">
+                <i class="pi pi-building"></i> Ward Management
+            </a>
+
+            <a href="society.jsf">
+                <i class="pi pi-home"></i> Society Management
+            </a>
+
+            <div class="nav-label">Operations</div>
+
+            <a href="departments.jsf">
+                <i class="pi pi-briefcase"></i> Department Management
+            </a>
+
+            <a href="Category.jsf">
+                <i class="pi pi-tag"></i> Category Management
+            </a>
+
+            <a href="sla.jsf">
+                <i class="pi pi-clock"></i> SLA Management
+            </a>
+
+            <a href="officers.jsf">
+                <i class="pi pi-users"></i> Officer Management
+            </a>
+
+            <div class="nav-label">Grievances</div>
+
+            <a href="corporateDashboard.jsf">
+                <i class="pi pi-file"></i> Complaints
+            </a>
+
+        </nav>
+
+      <a href="adminProfile.jsf" class="sidebar-footer profile-link">
+    <div class="admin-avatar">
+        #{adminDashboardCDI.initials}
+    </div>
+    <div>
+        <div class="admin-name">
+            #{adminDashboardCDI.admin.fullName}
+        </div>
+        <div class="admin-role">
+            #{adminDashboardCDI.admin.role}
+        </div>
+    </div>
+</a>
+
+    </aside>
+
+    <!-- ══ MAIN ══ -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()" type="button" aria-label="Toggle menu">
+                    <i class="pi pi-bars"></i>
+                </button>
+                <span class="page-title">Admin Dashboard</span>
+            </div>
+            <div class="topbar-right">
+               
+                <button class="icon-btn" type="button" aria-label="Notifications" style="position:relative;">
+                    <i class="pi pi-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+<!--                <div class="logout-btn-wrap">
+                    <p:commandButton
+                        value="Logout"
+                        icon="pi pi-sign-out"
+                        styleClass="ui-button-warning"/>
+                </div>-->
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- WELCOME BANNER -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h1>Welcome back, Administrator</h1>
+                    <p>Monitor grievances, departments, officers and SLA performance.<br/>
+                       Stay on top of all complaints in real time.</p>
+                </div>
+                <div class="welcome-badge">
+                    <div class="wb-val">#{adminDashboardCDI.totalComplaints}</div>
+                    <div class="wb-lbl">Total Complaints</div>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="pi pi-map-marker"></i></div>
+                    <div class="stat-val">#{adminDashboardCDI.totalZones}</div>
+                    <div class="stat-lbl">Total Zones</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="pi pi-building"></i></div>
+                    <div class="stat-val">#{adminDashboardCDI.totalWards}</div>
+                    <div class="stat-lbl">Total Wards</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="pi pi-home"></i></div>
+                    <div class="stat-val">#{adminDashboardCDI.totalSocieties}</div>
+                    <div class="stat-lbl">Total Societies</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="pi pi-briefcase"></i></div>
+                    <div class="stat-val">#{adminDashboardCDI.totalDepartments}</div>
+                    <div class="stat-lbl">Total Departments</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="pi pi-users"></i></div>
+                    <div class="stat-val">#{adminDashboardCDI.totalOfficers}</div>
+                    <div class="stat-lbl">Total Officers</div>
+                </div>
+
+            </div>
+
+            <!-- QUICK NAVIGATION -->
+            <div>
+                <div class="section-header">
+                    <span class="section-title">Quick Navigation</span>
+                </div>
+                <div class="quick-grid">
+
+                    <a href="zone.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-map-marker"></i></div>
+                        <div class="qc-label">Zones</div>
+                    </a>
+
+                    <a href="ward.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-building"></i></div>
+                        <div class="qc-label">Wards</div>
+                    </a>
+
+                    <a href="society.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-home"></i></div>
+                        <div class="qc-label">Societies</div>
+                    </a>
+
+                    <a href="departments.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-briefcase"></i></div>
+                        <div class="qc-label">Departments</div>
+                    </a>
+
+                    <a href="Category.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-tag"></i></div>
+                        <div class="qc-label">Categories</div>
+                    </a>
+
+                    <a href="sla.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-clock"></i></div>
+                        <div class="qc-label">SLA Rules</div>
+                    </a>
+
+                    <a href="officers.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-users"></i></div>
+                        <div class="qc-label">Officers</div>
+                    </a>
+
+                    <a href="corporateDashboard.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-file"></i></div>
+                        <div class="qc-label">Complaints</div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- RECENT COMPLAINTS TABLE -->
+            <div>
+<!--                <div class="section-header">-->
+<!--                    <span class="section-title">Recent Complaints</span>
+                </div>
+                <div class="table-wrap">
+                    <div class="table-head">
+                        <div class="table-head-title">Complaint Records</div>
+                    </div>
+                    <div class="custom-table">
+                        <p:dataTable
+                            value="#{adminDashboardCDI.recentComplaints}"
+                            var="c"
+                            paginator="true"
+                            rows="5"
+                            paginatorPosition="bottom">
+
+                            <p:column headerText="Complaint ID">
+                                <span class="complaint-id">#GRS-#{c.complaintId}</span>
+                            </p:column>
+
+                            <p:column headerText="Citizen">
+                                #{c.userId.name}
+                            </p:column>
+
+                            <p:column headerText="Category">
+                                #{c.categoryId.categoryName}
+                            </p:column>
+
+                            <p:column headerText="Status">
+                                <span class="badge
+                                    #{c.status == 'Pending'     ? 'badge-pending'  :
+                                      c.status == 'Resolved'    ? 'badge-resolved' :
+                                      c.status == 'Open'        ? 'badge-open'     :
+                                      c.status == 'In Progress' ? 'badge-progress' :
+                                      'badge-default'}">
+                                    #{c.status}
+                                </span>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>-->
+<!--                </div>-->
+            </div>
+
+        </div>
+        <!-- /content -->
+
+    </div>
+    <!-- /main -->
+
+</div>
+<!-- /wrapper -->
+</h:form>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('show');
+    }
+    function closeSidebar() {   
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('overlay').classList.remove('show');
+    }
+</script>
+
+</h:body>
+</html>

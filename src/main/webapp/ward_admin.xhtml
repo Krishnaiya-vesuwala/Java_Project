@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Ward Admin Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=Playfair+Display:wght@600&amp;display=swap"/>
+        <style>
+            :root {
+                --gold:        #D4AF37;
+                --gold-light:  #F0D060;
+                --gold-dim:    #A88B20;
+                --gold-bg:     rgba(212,175,55,.08);
+                --gold-bg2:    rgba(212,175,55,.14);
+                --gold-border: rgba(212,175,55,.28);
+                --sidebar:     #1A1A1A;
+                --surface:     #FFFFFF;
+                --bg:          #F4F5F8;
+                --text:        #1C1C1E;
+                --muted:       #6B7080;
+                --border:      #E8E9EE;
+                --border-subtle: #EFEFEF;
+                --surface-2:   #F8F8FA;
+                --radius:      14px;
+                --radius-sm:   8px;
+                --shadow:      0 2px 16px rgba(0,0,0,.07);
+                --shadow-card: 0 4px 24px rgba(0,0,0,.08);
+                --shadow-lg:   0 8px 40px rgba(0,0,0,.13);
+                --transition:  all .18s ease;
+
+                --success-bg:     #EEF6F1;
+                --success-text:   #1F6E3A;
+                --success-border: rgba(31,110,58,.18);
+                --success-hover:  #E0F0E6;
+                --danger-bg:      #FDF1F1;
+                --danger-text:    #9B2424;
+                --danger-border:  rgba(155,36,36,.18);
+                --danger-hover:   #FAEAEA;
+                --warning-bg:     #FDF5E8;
+                --warning-text:   #7A5214;
+                --warning-border: rgba(122,82,20,.18);
+                --warning-hover:  #FAF0DA;
+                --info-bg:        #EAF2FF;
+                --info-text:      #1A5BA6;
+                --info-border:    rgba(26,91,166,.18);
+                --info-hover:     #D8EAFF;
+            }
+
+            *, *::before, *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'DM Sans', 'Segoe UI', sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* ── SIDEBAR ── */
+            .sidebar {
+                width: 268px;
+                min-width: 268px;
+                background: var(--sidebar);
+                display: flex;
+                flex-direction: column;
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            .brand {
+                padding: 28px 24px 20px;
+                border-bottom: 1px solid rgba(255,255,255,.07);
+                text-align: center;
+            }
+            .brand-logo {
+                width: 58px;
+                height: 58px;
+                border-radius: 50%;
+                background: var(--gold-bg2);
+                border: 2px solid var(--gold-dim);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 12px;
+            }
+            .brand-logo img {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            .brand-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 13.5px;
+                color: var(--gold);
+                line-height: 1.5;
+                letter-spacing: .02em;
+            }
+            .brand-sub {
+                font-size: 10px;
+                color: rgba(255,255,255,.3);
+                margin-top: 5px;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+            }
+            .sidebar-nav {
+                padding: 20px 14px;
+                flex: 1;
+            }
+            .nav-label {
+                font-size: 10px;
+                color: rgba(255,255,255,.3);
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                margin: 18px 8px 8px;
+                font-weight: 500;
+            }
+            .sidebar-nav a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 13px;
+                border-radius: 10px;
+                color: rgba(255,255,255,.6);
+                text-decoration: none;
+                font-size: 13.5px;
+                font-weight: 400;
+                margin-bottom: 2px;
+                transition: all .2s;
+            }
+            .sidebar-nav a i {
+                font-size: 15px;
+                flex-shrink: 0;
+                width: 18px;
+            }
+            .sidebar-nav a:hover,
+            .sidebar-nav a.active {
+                background: var(--gold-bg2);
+                color: var(--gold);
+            }
+            .sidebar-nav a.active  {
+                font-weight: 500;
+            }
+            .sidebar-footer {
+                padding: 14px 18px;
+                border-top: 1px solid rgba(255,255,255,.07);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+                cursor: pointer;
+                transition: all .3s ease;
+            }
+            .sidebar-footer:hover {
+                background: var(--gold-bg);
+            }
+            .admin-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--gold-bg2);
+                border: 1.5px solid var(--gold-dim);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--gold);
+                flex-shrink: 0;
+            }
+            .admin-name {
+                font-size: 13px;
+                color: #FFFFFF;
+                font-weight: 600;
+            }
+            .admin-role {
+                font-size: 11px;
+                color: rgba(255,255,255,.3);
+            }
+
+            /* ── MAIN ── */
+            .main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+            }
+
+            /* TOPBAR */
+            .topbar {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 0 32px;
+                height: 66px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            .topbar-left  {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .hamburger {
+                display: none;
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--text);
+                font-size: 20px;
+                padding: 4px;
+            }
+            .page-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 22px;
+                color: var(--text);
+            }
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                background: transparent;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: var(--muted);
+                transition: all .2s;
+                position: relative;
+            }
+            .icon-btn:hover {
+                background: var(--bg);
+                color: var(--text);
+            }
+            .notif-dot {
+                position: absolute;
+                top: 7px;
+                right: 7px;
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--gold);
+                border: 1.5px solid var(--surface);
+            }
+            .refresh-btn-wrap .ui-button {
+                background: var(--gold) !important;
+                border-color: var(--gold) !important;
+                color: #1A1A1A !important;
+                border-radius: 10px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13.5px !important;
+                font-weight: 600 !important;
+                padding: 8px 18px !important;
+                transition: all .2s !important;
+            }
+            .refresh-btn-wrap .ui-button:hover {
+                background: var(--gold-light) !important;
+                border-color: var(--gold-light) !important;
+            }
+
+            /* ── CONTENT ── */
+            .content {
+                padding: 28px 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 28px;
+            }
+
+            /* WELCOME BANNER */
+            .welcome-banner {
+                background: var(--sidebar);
+                border-radius: var(--radius);
+                padding: 28px 32px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                position: relative;
+                overflow: hidden;
+            }
+            .welcome-banner::before {
+                content: '';
+                position: absolute;
+                right: -40px;
+                top: -40px;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background: rgba(212,175,55,.06);
+            }
+            .welcome-banner::after {
+                content: '';
+                position: absolute;
+                right: 60px;
+                bottom: -60px;
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                background: rgba(212,175,55,.04);
+            }
+            .welcome-text h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 24px;
+                color: #fff;
+                margin-bottom: 6px;
+            }
+            .welcome-text p {
+                font-size: 14px;
+                color: rgba(255,255,255,.45);
+                line-height: 1.6;
+            }
+            .welcome-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-shrink: 0;
+                z-index: 1;
+            }
+            .welcome-badge {
+                background: var(--gold-bg2);
+                border: 1px solid var(--gold-dim);
+                border-radius: 10px;
+                padding: 14px 22px;
+                text-align: center;
+                flex-shrink: 0;
+                z-index: 1;
+            }
+            .wb-val {
+                font-size: 28px;
+                font-weight: 600;
+                color: var(--gold);
+                line-height: 1;
+            }
+            .wb-lbl {
+                font-size: 11px;
+                color: rgba(255,255,255,.4);
+                margin-top: 4px;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+            }
+
+            /* STAT CARDS */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 16px;
+            }
+            .stat-card {
+                background: var(--surface);
+                border-radius: var(--radius);
+                padding: 22px 20px;
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                transition: transform .2s, box-shadow .2s;
+                cursor: default;
+            }
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-card);
+            }
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                background: var(--gold-bg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 4px;
+            }
+            .stat-icon i               {
+                font-size: 16px;
+                color: var(--gold);
+            }
+            .stat-icon.pending-icon    {
+                background: #FFF8E0;
+            }
+            .stat-icon.pending-icon i  {
+                color: #B8860B;
+            }
+            .stat-icon.resolved-icon   {
+                background: #E8F8EE;
+            }
+            .stat-icon.resolved-icon i {
+                color: #1A8040;
+            }
+            .stat-icon.rejected-icon   {
+                background: #FFF0F0;
+            }
+            .stat-icon.rejected-icon i {
+                color: #C0392B;
+            }
+            .stat-val              {
+                font-size: 30px;
+                font-weight: 600;
+                color: var(--gold);
+                line-height: 1;
+            }
+            .stat-val.pending-val  {
+                color: #B8860B;
+            }
+            .stat-val.resolved-val {
+                color: #1A8040;
+            }
+            .stat-val.rejected-val {
+                color: #C0392B;
+            }
+            .stat-lbl              {
+                font-size: 12.5px;
+                color: var(--muted);
+            }
+
+            /* SECTION HEADER */
+            .section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+            }
+            .section-title {
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--text);
+            }
+
+            /* ── TAB WRAP ── */
+            .tab-wrap {
+                background: var(--surface);
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                box-shadow: var(--shadow);
+            }
+            .tab-nav-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+                padding-right: 16px;
+            }
+            .tab-nav {
+                display: flex;
+                align-items: center;
+                padding: 0 20px;
+                gap: 2px;
+                overflow-x: auto;
+                scrollbar-width: none;
+                flex: 1;
+            }
+            .tab-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .tab-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 16px 14px;
+                border: none;
+                background: transparent;
+                color: var(--muted);
+                font-family: 'DM Sans', sans-serif;
+                font-size: 13.5px;
+                font-weight: 500;
+                cursor: pointer;
+                border-bottom: 2px solid transparent;
+                transition: all .2s;
+                white-space: nowrap;
+                position: relative;
+                top: 1px;
+                outline: none;
+            }
+            .tab-btn i {
+                font-size: 14px;
+            }
+            .tab-btn:hover {
+                color: var(--text);
+            }
+            .tab-btn.active {
+                color: var(--gold);
+                border-bottom-color: var(--gold);
+                font-weight: 600;
+            }
+            .tab-count {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 20px;
+                height: 18px;
+                padding: 0 6px;
+                border-radius: 20px;
+                background: var(--bg);
+                color: var(--muted);
+                font-size: 11px;
+                font-weight: 600;
+            }
+            .tab-btn.active .tab-count {
+                background: var(--gold-bg);
+                color: var(--gold-dim);
+            }
+
+            /* ADD SOCIETY BUTTON */
+            .tab-add-btn-wrap .ui-button.ui-widget {
+                background: var(--gold) !important;
+                border: 1px solid var(--gold) !important;
+                color: #1A1A1A !important;
+                border-radius: 10px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                padding: 8px 16px !important;
+                transition: all .2s !important;
+                box-shadow: 0 2px 10px rgba(212,175,55,.25) !important;
+            }
+            .tab-add-btn-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-light) !important;
+                border-color: var(--gold-light) !important;
+            }
+            .tab-add-btn-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+                font-size: 13px !important;
+            }
+
+            /* ── DATATABLE ── */
+            .custom-table .ui-datatable,
+            .custom-table .ui-datatable table {
+                border: none !important;
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            .custom-table .ui-datatable .ui-datatable-header {
+                display: none !important;
+            }
+            .custom-table .ui-datatable thead th,
+            .custom-table .ui-datatable thead .ui-state-default {
+                background: #FAFAFA !important;
+                border-bottom: 1px solid var(--border) !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: none !important;
+                padding: 11px 20px !important;
+                font-size: 10.5px !important;
+                font-weight: 700 !important;
+                color: var(--muted) !important;
+                text-transform: uppercase !important;
+                letter-spacing: .09em !important;
+                font-family: 'DM Sans', sans-serif !important;
+                white-space: nowrap !important;
+            }
+            .custom-table .ui-datatable tbody td {
+                border: none !important;
+                border-bottom: 1px solid var(--border-subtle) !important;
+                padding: 13px 20px !important;
+                font-size: 13px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                color: var(--text) !important;
+                vertical-align: middle !important;
+            }
+            .custom-table .ui-datatable tbody tr:last-child td {
+                border-bottom: none !important;
+            }
+            .custom-table .ui-datatable tbody tr:hover td      {
+                background: #FAFAFA !important;
+            }
+            .custom-table .ui-paginator {
+                border: none !important;
+                border-top: 1px solid var(--border-subtle) !important;
+                background: var(--surface) !important;
+                padding: 11px 20px !important;
+            }
+            .custom-table .ui-paginator .ui-paginator-page,
+            .custom-table .ui-paginator .ui-paginator-next,
+            .custom-table .ui-paginator .ui-paginator-prev,
+            .custom-table .ui-paginator .ui-paginator-first,
+            .custom-table .ui-paginator .ui-paginator-last {
+                border-radius: var(--radius-sm) !important;
+                border: 1px solid var(--border) !important;
+                background: transparent !important;
+                color: var(--muted) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12px !important;
+                font-weight: 500 !important;
+                min-width: 30px !important;
+                height: 30px !important;
+                margin: 0 1px !important;
+                transition: var(--transition) !important;
+            }
+            .custom-table .ui-paginator .ui-state-active {
+                background: var(--gold) !important;
+                border-color: var(--gold) !important;
+                color: #1A1400 !important;
+                font-weight: 700 !important;
+                box-shadow: 0 2px 8px rgba(212,175,55,.26) !important;
+            }
+
+            /* ── CELL ELEMENTS ── */
+            .complaint-id {
+                font-weight: 600;
+                color: var(--gold);
+                font-size: 12px;
+                background: var(--gold-bg);
+                padding: 3px 9px;
+                border-radius: 6px;
+                display: inline-block;
+            }
+            .society-id {
+                font-weight: 700;
+                color: var(--gold-dim);
+                font-size: 12px;
+                background: var(--gold-bg);
+                padding: 3px 9px;
+                border-radius: 6px;
+                border: 1px solid var(--gold-border);
+                display: inline-block;
+            }
+            .ward-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 10px;
+                border-radius: 20px;
+                background: var(--gold-bg);
+                border: 1px solid var(--gold-border);
+                color: var(--gold-dim);
+                font-size: 12px;
+                font-weight: 500;
+            }
+            .ward-pill i {
+                font-size: 10px;
+            }
+            .address-text {
+                font-size: 12.5px;
+                color: var(--muted);
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+            }
+            .desc-text {
+                display: block;
+                max-width: 320px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: var(--muted);
+                font-size: 13px;
+            }
+            .user-name {
+                font-weight: 500;
+                color: var(--text);
+            }
+
+            /* Officer avatar cell */
+            .officer-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .officer-avatar {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: var(--info-bg);
+                border: 1.5px solid var(--info-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--info-text);
+                flex-shrink: 0;
+                text-transform: uppercase;
+            }
+            .officer-detail {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            .officer-name   {
+                font-weight: 600;
+                color: var(--text);
+                font-size: 13px;
+            }
+            .officer-sub    {
+                font-size: 11.5px;
+                color: var(--muted);
+            }
+
+            /* BADGES */
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 10px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: .03em;
+            }
+            .badge::before {
+                content: '';
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: currentColor;
+                flex-shrink: 0;
+            }
+            .badge-pending   {
+                background: #FFF8E0;
+                color: #B8860B;
+            }
+            .badge-resolved  {
+                background: #E8F8EE;
+                color: #1A8040;
+            }
+            .badge-rejected  {
+                background: #FFF0F0;
+                color: #C0392B;
+            }
+            .badge-progress  {
+                background: #EAF2FF;
+                color: #1A5BA6;
+            }
+            .badge-escalated {
+                background: #F3EEFB;
+                color: #5B3A9B;
+            }
+            .badge-high      {
+                background: #FFF0F0;
+                color: #C0392B;
+            }
+            .badge-medium    {
+                background: #FFF8E0;
+                color: #B8860B;
+            }
+            .badge-low       {
+                background: #E8F8EE;
+                color: #1A8040;
+            }
+            .badge-active  {
+                background: var(--success-bg);
+                color: var(--success-text);
+                border: 1px solid var(--success-border);
+            }
+            .badge-inactive{
+                background: var(--danger-bg);
+                color: var(--danger-text);
+                border: 1px solid var(--danger-border);
+            }
+            .badge-default {
+                background: #F1F1F1;
+                color: #555;
+            }
+
+            /* ── ACTION BUTTONS ── */
+            .action-group {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .action-group .ui-button.ui-widget {
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+                padding: 5px 11px !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+                letter-spacing: .01em !important;
+            }
+
+            /* View */
+            .btn-view-wrap .ui-button.ui-widget {
+                background: var(--gold-bg) !important;
+                border: 1px solid var(--gold-border) !important;
+                color: var(--gold-dim) !important;
+            }
+            .btn-view-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-bg2) !important;
+                border-color: rgba(212,175,55,.44) !important;
+            }
+            .btn-view-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* Edit */
+            .btn-edit-wrap .ui-button.ui-widget {
+                background: var(--gold-bg) !important;
+                border: 1px solid var(--gold-border) !important;
+                color: var(--gold-dim) !important;
+            }
+            .btn-edit-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-bg2) !important;
+                border-color: rgba(212,175,55,.44) !important;
+            }
+            .btn-edit-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* Transfer Ward */
+            .btn-transfer-wrap .ui-button.ui-widget {
+                background: var(--info-bg) !important;
+                border: 1px solid var(--info-border) !important;
+                color: var(--info-text) !important;
+            }
+            .btn-transfer-wrap .ui-button.ui-widget:hover {
+                background: var(--info-hover) !important;
+                border-color: rgba(26,91,166,.30) !important;
+            }
+            .btn-transfer-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* Deactivate */
+            .btn-deactivate-wrap .ui-button.ui-widget {
+                background: var(--warning-bg) !important;
+                border: 1px solid var(--warning-border) !important;
+                color: var(--warning-text) !important;
+            }
+            .btn-deactivate-wrap .ui-button.ui-widget:hover {
+                background: var(--warning-hover) !important;
+            }
+            .btn-deactivate-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* Activate */
+            .btn-activate-wrap .ui-button.ui-widget {
+                background: var(--success-bg) !important;
+                border: 1px solid var(--success-border) !important;
+                color: var(--success-text) !important;
+            }
+            .btn-activate-wrap .ui-button.ui-widget:hover {
+                background: var(--success-hover) !important;
+            }
+            .btn-activate-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* ── DIALOGS ── */
+            .ui-dialog.ui-widget {
+                border-radius: 20px !important;
+                border: 1px solid var(--border) !important;
+                box-shadow: var(--shadow-lg) !important;
+                overflow: hidden !important;
+                font-family: 'DM Sans', sans-serif !important;
+            }
+            .ui-dialog .ui-dialog-titlebar {
+                background: var(--sidebar) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255,255,255,.06) !important;
+                padding: 17px 22px !important;
+            }
+            .ui-dialog .ui-dialog-title {
+                font-family: 'Playfair Display', serif !important;
+                font-size: 15.5px !important;
+                font-weight: 600 !important;
+                color: var(--gold) !important;
+                letter-spacing: .01em !important;
+            }
+            .ui-dialog .ui-dialog-titlebar-close {
+                color: rgba(255,255,255,.36) !important;
+                border-radius: 6px !important;
+            }
+            .ui-dialog .ui-dialog-titlebar-close:hover {
+                color: rgba(255,255,255,.76) !important;
+                background: rgba(255,255,255,.08) !important;
+            }
+            .ui-dialog .ui-dialog-content {
+                background: var(--surface) !important;
+                padding: 0 !important;
+            }
+
+            /* Dialog body */
+            .dlg-body {
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                min-width: 360px;
+            }
+            .form-row   {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .form-label {
+                font-size: 10.5px;
+                font-weight: 700;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: .09em;
+            }
+
+            /* Officer card inside dialog */
+            .dlg-officer-card {
+                background: var(--surface-2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                padding: 14px 16px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .dlg-officer-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                background: var(--info-bg);
+                border: 1.5px solid var(--info-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--info-text);
+                flex-shrink: 0;
+            }
+            .dlg-officer-name  {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text);
+            }
+            .dlg-officer-desig {
+                font-size: 12px;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+
+            /* Current ward strip */
+            .dlg-current-ward {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 14px;
+                background: var(--gold-bg);
+                border: 1px solid var(--gold-border);
+                border-radius: var(--radius-sm);
+            }
+            .dlg-cw-label {
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                flex-shrink: 0;
+            }
+            .dlg-cw-value {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--gold-dim);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            /* Transfer arrow */
+            .transfer-arrow {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                color: var(--muted);
+                font-size: 12px;
+                padding: 2px 0;
+            }
+            .transfer-arrow i {
+                color: var(--gold);
+                font-size: 18px;
+            }
+
+            /* Info note */
+            .dlg-info-note {
+                background: var(--info-bg);
+                border: 1px solid var(--info-border);
+                border-radius: var(--radius-sm);
+                padding: 10px 14px;
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .dlg-info-note i {
+                color: var(--info-text);
+                margin-top: 1px;
+                flex-shrink: 0;
+            }
+            .dlg-info-note span {
+                font-size: 12px;
+                color: var(--info-text);
+                line-height: 1.5;
+            }
+
+            .dlg-body .ui-inputtext,
+            .dlg-body .ui-selectonemenu.ui-widget {
+                width: 100% !important;
+                border: 1.5px solid var(--border) !important;
+                border-radius: var(--radius-sm) !important;
+                padding: 9px 12px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+                color: var(--text) !important;
+                background: var(--surface-2) !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+            }
+            .dlg-body .ui-inputtext:focus {
+                border-color: var(--gold) !important;
+                background: var(--surface) !important;
+                outline: none !important;
+                box-shadow: 0 0 0 3px rgba(212,175,55,.10) !important;
+            }
+            .dlg-body .ui-selectonemenu.ui-widget.ui-state-focus {
+                border-color: var(--gold) !important;
+                box-shadow: 0 0 0 3px rgba(212,175,55,.10) !important;
+            }
+            .dlg-body .ui-selectonemenu .ui-selectonemenu-label {
+                background: transparent !important;
+                border: none !important;
+                padding: 9px 12px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+                color: var(--text) !important;
+            }
+            .dlg-body .ui-selectonemenu .ui-selectonemenu-trigger {
+                background: transparent !important;
+                border: none !important;
+                color: var(--muted) !important;
+                width: 30px !important;
+            }
+            .dlg-body .ui-selectonemenu.ui-state-error {
+                border-color: var(--danger-text) !important;
+                background: #FFF5F5 !important;
+            }
+            .field-error .ui-message-error,
+            .field-error .ui-message {
+                display: inline-flex !important;
+                align-items: center;
+                gap: 5px;
+                background: transparent !important;
+                border: none !important;
+                color: var(--danger-text) !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+                padding: 2px 0 0 !important;
+                margin: 0 !important;
+                font-family: 'DM Sans', sans-serif !important;
+            }
+
+            /* ── VIEW LINK — identical to commandButton View style ── */
+            .btn-view-wrap a,
+            .btn-view-wrap a.ui-link,
+            .btn-view-wrap a:link,
+            .btn-view-wrap a:visited {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                background: var(--gold-bg) !important;
+                border: 1px solid var(--gold-border) !important;
+                color: var(--gold-dim) !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+                padding: 5px 11px !important;
+                text-decoration: none !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+                letter-spacing: .01em !important;
+                line-height: 1.2 !important;
+                cursor: pointer !important;
+            }
+
+            .btn-view-wrap a:hover,
+            .btn-view-wrap a.ui-link:hover {
+                background: var(--gold-bg2) !important;
+                border-color: rgba(201,168,76,.44) !important;
+                color: var(--gold-hover) !important;
+                text-decoration: none !important;
+            }
+
+            .btn-view-wrap a i {
+                font-size: 12px !important;
+                color: inherit !important;
+            }
+
+            .btn-view-wrap a span {
+                color: inherit !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+            }
+
+            /* Dialog footer */
+            .dlg-footer {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 14px 22px;
+                border-top: 1px solid var(--border-subtle);
+                background: var(--surface-2);
+            }
+
+            /* Cancel */
+            .btn-dlg-cancel .ui-button.ui-widget,
+            .btn-cancel-wrap .ui-button.ui-widget {
+                background: transparent !important;
+                border: 1px solid var(--border) !important;
+                color: var(--muted) !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12.5px !important;
+                font-weight: 500 !important;
+                padding: 8px 17px !important;
+                box-shadow: none !important;
+            }
+            .btn-dlg-cancel .ui-button.ui-widget:hover,
+            .btn-cancel-wrap .ui-button.ui-widget:hover {
+                background: var(--surface-2) !important;
+                color: var(--text) !important;
+            }
+
+            /* Save / gold */
+            .btn-dlg-save .ui-button.ui-widget,
+            .btn-save-wrap .ui-button.ui-widget {
+                background: var(--gold) !important;
+                border: 1px solid var(--gold) !important;
+                color: #1A1400 !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12.5px !important;
+                font-weight: 700 !important;
+                padding: 8px 20px !important;
+                box-shadow: 0 2px 8px rgba(212,175,55,.26) !important;
+            }
+            .btn-dlg-save .ui-button.ui-widget:hover,
+            .btn-save-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-light) !important;
+                border-color: var(--gold-light) !important;
+            }
+            .btn-dlg-save .ui-button .ui-button-icon-left,
+            .btn-save-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* Transfer confirm – blue */
+            .btn-transfer-confirm .ui-button.ui-widget {
+                background: var(--info-text) !important;
+                border: 1px solid var(--info-text) !important;
+                color: #fff !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12.5px !important;
+                font-weight: 700 !important;
+                padding: 8px 20px !important;
+                box-shadow: 0 2px 8px rgba(26,91,166,.22) !important;
+            }
+            .btn-transfer-confirm .ui-button.ui-widget:hover {
+                background: #1A4A8A !important;
+                border-color: #1A4A8A !important;
+            }
+            .btn-transfer-confirm .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* MOBILE OVERLAY */
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.45);
+                z-index: 199;
+            }
+            .overlay.show {
+                display: block;
+            }
+
+            /* ── RESPONSIVE ── */
+            @media (max-width: 1024px) {
+                .sidebar {
+                    width: 220px;
+                    min-width: 220px;
+                }
+                .content {
+                    padding: 20px;
+                }
+            }
+            @media (max-width: 768px) {
+                .sidebar {
+                    position: fixed;
+                    left: -268px;
+                    top: 0;
+                    height: 100vh;
+                    z-index: 200;
+                    width: 268px;
+                    min-width: 268px;
+                    transition: left .3s ease;
+                }
+                .sidebar.open {
+                    left: 0;
+                }
+                .hamburger    {
+                    display: flex;
+                }
+                .topbar       {
+                    padding: 0 16px;
+                }
+                .content      {
+                    padding: 16px;
+                }
+                .welcome-banner {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .welcome-actions {
+                    width: 100%;
+                    justify-content: space-between;
+                }
+                .stats-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .dlg-body {
+                    min-width: unset;
+                    width: 100%;
+                }
+                .tab-nav-row {
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    padding-bottom: 8px;
+                }
+                .address-text {
+                    max-width: 160px;
+                }
+            }
+            @media (max-width: 420px) {
+                .stats-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+
+        <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+        <!-- ══════════════════════════════════════════════════════════
+             SINGLE OUTER FORM — everything lives inside frm
+             dialogs included — NO nested h:form anywhere
+        ══════════════════════════════════════════════════════════ -->
+        <h:form id="frm">
+
+            <p:growl id="growl" showDetail="true" life="4000"/>
+
+            <p:remoteCommand name="switchToComplaints"
+                             action="#{wardAdminBean.setTab('complaints')}"
+                             update="sectionPanel" process="@this"/>
+            <p:remoteCommand name="switchToSocieties"
+                             action="#{wardAdminBean.setTab('societies')}"
+                             update="sectionPanel" process="@this"/>
+            <p:remoteCommand name="switchToCitizens"
+                             action="#{wardAdminBean.setTab('citizens')}"
+                             update="sectionPanel" process="@this"/>
+            <p:remoteCommand name="switchToOfficers"
+                             action="#{wardAdminBean.setTab('officers')}"
+                             update="sectionPanel" process="@this"/>
+
+            <div class="wrapper">
+
+                <!-- ══ SIDEBAR ══ -->
+                <aside class="sidebar" id="sidebar">
+                    <div class="brand">
+                        <div class="brand-logo">
+                            <img src="#{request.contextPath}/resources/images/logo.png" alt="Logo"/>
+                        </div>
+                        <div class="brand-title">Government Grievance<br/>Redressal System</div>
+                        <div class="brand-sub">Ward Admin Portal</div>
+                    </div>
+
+                    <nav class="sidebar-nav">
+                        <div class="nav-label">Main</div>
+                        <a href="wardAdminDashboard.jsf" class="active">
+                            <i class="pi pi-th-large"></i> Dashboard
+                        </a>
+                        <div class="nav-label">Grievances</div>
+                        <a href="#" onclick="switchToComplaints(); return false;">
+                            <i class="pi pi-file"></i> Complaints
+                        </a>
+                        <a href="#" onclick="switchToSocieties(); return false;">
+                            <i class="pi pi-home"></i> Societies
+                        </a>
+                        <a href="#" onclick="switchToCitizens(); return false;">
+                            <i class="pi pi-users"></i> Citizens
+                        </a>
+                        <a href="#" onclick="switchToOfficers(); return false;">
+                            <i class="pi pi-shield"></i> Officers
+                        </a>
+                    </nav>
+
+                    <a href="wardProfile.jsf" class="sidebar-footer">
+                        <div class="admin-avatar">
+                            <h:outputText value="#{wardAdminBean.wardAdmin.fullName != null
+                                                   ? wardAdminBean.wardAdmin.fullName.substring(0,1).toUpperCase()
+                                                   : 'W'}"/>
+                        </div>
+                        <div>
+                            <div class="admin-name">
+                                <h:outputText value="#{wardAdminBean.wardAdmin.fullName}"/>
+                            </div>
+                            <div class="admin-role">Ward Admin</div>
+                        </div>
+                    </a>
+                </aside>
+
+                <!-- ══ MAIN ══ -->
+                <div class="main">
+
+                    <!-- TOPBAR -->
+                    <header class="topbar">
+                        <div class="topbar-left">
+                            <button class="hamburger" onclick="toggleSidebar()"
+                                    type="button" aria-label="Toggle menu">
+                                <i class="pi pi-bars"></i>
+                            </button>
+                            <span class="page-title">Ward Admin Dashboard</span>
+                        </div>
+                        <div class="topbar-right">
+                            <button class="icon-btn" type="button" aria-label="Notifications">
+                                <i class="pi pi-bell"></i>
+                                <span class="notif-dot"></span>
+                            </button>
+                            <div class="refresh-btn-wrap">
+                                <p:commandButton
+                                    value="Refresh"
+                                    icon="pi pi-refresh"
+                                    action="#{wardAdminBean.refresh}"
+                                    update="frm"
+                                    process="@this"/>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- CONTENT -->
+                    <div class="content">
+
+                        <!-- WELCOME BANNER -->
+                        <div class="welcome-banner">
+                            <div class="welcome-text">
+                                <h1>Welcome back, Ward Administrator</h1>
+                                <p>Monitor complaints, societies, citizens and officers under your ward.<br/>
+                                    Stay on top of all grievances in real time.</p>
+                            </div>
+                            <div class="welcome-actions">
+                                <div class="welcome-badge">
+                                    <div class="wb-val">#{wardAdminBean.totalComplaints}</div>
+                                    <div class="wb-lbl">Total Complaints</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STAT CARDS -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="pi pi-file"></i></div>
+                                <div class="stat-val">#{wardAdminBean.totalComplaints}</div>
+                                <div class="stat-lbl">Total Complaints</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon pending-icon"><i class="pi pi-clock"></i></div>
+                                <div class="stat-val pending-val">#{wardAdminBean.pendingComplaints}</div>
+                                <div class="stat-lbl">Pending</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon resolved-icon"><i class="pi pi-check-circle"></i></div>
+                                <div class="stat-val resolved-val">#{wardAdminBean.resolvedComplaints}</div>
+                                <div class="stat-lbl">Resolved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon rejected-icon"><i class="pi pi-times-circle"></i></div>
+                                <div class="stat-val rejected-val">#{wardAdminBean.rejectedComplaints}</div>
+                                <div class="stat-lbl">Rejected</div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION PANEL WITH TABS -->
+                        <div>
+                            <div class="section-header">
+                                <span class="section-title">Ward Overview</span>
+                            </div>
+
+                            <h:panelGroup id="sectionPanel" layout="block" styleClass="tab-wrap">
+
+                                <!-- TAB NAV ROW -->
+                                <div class="tab-nav-row">
+                                    <div class="tab-nav">
+                                        <button type="button"
+                                                class="tab-btn #{wardAdminBean.activeTab eq 'complaints' ? 'active' : ''}"
+                                                onclick="switchToComplaints()">
+                                            <i class="pi pi-file"></i> Complaints
+                                            <span class="tab-count">#{wardAdminBean.totalComplaints}</span>
+                                        </button>
+                                        <button type="button"
+                                                class="tab-btn #{wardAdminBean.activeTab eq 'societies' ? 'active' : ''}"
+                                                onclick="switchToSocieties()">
+                                            <i class="pi pi-home"></i> Societies
+                                        </button>
+                                        <button type="button"
+                                                class="tab-btn #{wardAdminBean.activeTab eq 'citizens' ? 'active' : ''}"
+                                                onclick="switchToCitizens()">
+                                            <i class="pi pi-users"></i> Citizens
+                                        </button>
+                                        <button type="button"
+                                                class="tab-btn #{wardAdminBean.activeTab eq 'officers' ? 'active' : ''}"
+                                                onclick="switchToOfficers()">
+                                            <i class="pi pi-shield"></i> Officers
+                                        </button>
+                                    </div>
+
+                                    <!-- Add Society button — societies tab only -->
+                                    <h:panelGroup layout="block"
+                                                  style="#{wardAdminBean.activeTab eq 'societies' ? 'display:block' : 'display:none'}">
+                                        <div class="tab-add-btn-wrap">
+                                            <p:commandButton
+                                                value="Add Society"
+                                                icon="pi pi-plus"
+                                                process="@this"
+                                                action="#{societyManagementCDI.prepareCreate}"
+                                                update=":frm:addSocietyDlg"
+                                                oncomplete="PF('wardAddSocietyDialog').show()"/>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+
+                                <!-- ══ COMPLAINTS TAB ══ -->
+                                <h:panelGroup layout="block"
+                                              style="#{wardAdminBean.activeTab eq 'complaints' ? 'display:block' : 'display:none'}">
+                                    <div class="custom-table">
+                                        <p:dataTable id="complaintsTable"
+                                                     value="#{wardAdminBean.complaints}"
+                                                     var="c" paginator="true" rows="8"
+                                                     emptyMessage="No complaints found."
+                                                     style="width:100%">
+
+                                            <p:column headerText="Complaint ID" width="130">
+                                                <span class="complaint-id">##{c.complaintId}</span>
+                                            </p:column>
+                                            <p:column headerText="Title">
+                                                <span class="user-name">#{c.title}</span>
+                                            </p:column>
+                                            <p:column headerText="Status" width="170">
+                                                <span class="badge
+                                                      #{c.status eq 'PENDING'                   ? 'badge-pending'   :
+                                                        c.status eq 'RESOLVED'                  ? 'badge-resolved'  :
+                                                        c.status eq 'REJECTED'                  ? 'badge-rejected'  :
+                                                        c.status eq 'IN_PROGRESS'               ? 'badge-progress'  :
+                                                        c.status eq 'ESCALATED_TO_ZONE_OFFICER' ? 'badge-escalated' :
+                                                        'badge-default'}">
+                                                      #{c.status eq 'ESCALATED_TO_ZONE_OFFICER' ? 'Escalated'   :
+                                                        c.status eq 'IN_PROGRESS'               ? 'In Progress' :
+                                                        c.status eq 'PENDING'                   ? 'Pending'     :
+                                                        c.status eq 'RESOLVED'                  ? 'Resolved'    :
+                                                        c.status eq 'REJECTED'                  ? 'Rejected'    : c.status}
+                                                </span>
+                                            </p:column>
+                                            <p:column headerText="Priority" width="120">
+                                                <span class="badge
+                                                      #{c.priority eq 'HIGH'   ? 'badge-high'   :
+                                                        c.priority eq 'MEDIUM' ? 'badge-medium' : 'badge-low'}">
+                                                      #{c.priority}
+                                                </span>
+                                            </p:column>
+                                            <p:column headerText="Description">
+                                                <span class="desc-text">#{c.description}</span>
+                                            </p:column>
+                                            <p:column headerText="Action" width="130">
+                                                <div class="action-group">
+                                                    <div class="btn-view-wrap">
+                                                        <p:link outcome="/complaintDetails">
+                                                            <f:param name="complaintId" value="#{c.complaintId}"/>
+                                                            <i class="pi pi-eye"></i>
+                                                            <span>View</span>
+                                                        </p:link>
+                                                    </div>
+                                                </div>
+                                            </p:column>
+
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+
+                                <!-- ══ SOCIETIES TAB ══ -->
+                                <h:panelGroup layout="block"
+                                              style="#{wardAdminBean.activeTab eq 'societies' ? 'display:block' : 'display:none'}">
+                                    <div class="custom-table">
+                                        <p:dataTable id="societiesTable"
+                                                     value="#{societyManagementCDI.societies}"
+                                                     var="s" paginator="true" rows="8"
+                                                     emptyMessage="No societies found."
+                                                     style="width:100%">
+
+                                            <p:column headerText="Society ID" width="120">
+                                                <span class="society-id">#<h:outputText value="#{s.societyId}"/></span>
+                                            </p:column>
+                                            <p:column headerText="Society Name">
+                                                <span class="user-name"><h:outputText value="#{s.societyName}"/></span>
+                                            </p:column>
+                                            <p:column headerText="Address">
+                                                <span class="address-text"><h:outputText value="#{s.address}"/></span>
+                                            </p:column>
+                                            <p:column headerText="Ward">
+                                                <span class="ward-pill">
+                                                    <i class="pi pi-map-marker"></i>
+                                                    <h:outputText value="#{s.wardId.wardName}"/>
+                                                </span>
+                                            </p:column>
+                                            <p:column headerText="Status" width="110">
+                                                <span class="badge #{s.status eq 'ACTIVE' ? 'badge-active' : 'badge-inactive'}">
+                                                    <h:outputText value="#{s.status}"/>
+                                                </span>
+                                            </p:column>
+                                            <p:column headerText="Actions" width="260">
+                                                <div class="action-group">
+                                                    <div class="btn-edit-wrap">
+                                                        <p:commandButton
+                                                            value="Edit" icon="pi pi-pencil" process="@this"
+                                                            action="#{societyManagementCDI.editSociety(s)}"
+                                                            update=":frm:editSocietyDlg"
+                                                            oncomplete="PF('wardEditSocietyDialog').show()"/>
+                                                    </div>
+                                                    <div class="btn-deactivate-wrap">
+                                                        <p:commandButton
+                                                            value="Deactivate" icon="pi pi-ban"
+                                                            rendered="#{s.status eq 'ACTIVE'}"
+                                                            action="#{societyManagementCDI.deactivate(s.societyId)}"
+                                                            update=":frm:sectionPanel :frm:growl"
+                                                            process="@this"/>
+                                                    </div>
+                                                    <div class="btn-activate-wrap">
+                                                        <p:commandButton
+                                                            value="Activate" icon="pi pi-check-circle"
+                                                            rendered="#{s.status eq 'INACTIVE'}"
+                                                            action="#{societyManagementCDI.activate(s.societyId)}"
+                                                            update=":frm:sectionPanel :frm:growl"
+                                                            process="@this"/>
+                                                    </div>
+                                                </div>
+                                            </p:column>
+
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+
+                                <!-- ══ CITIZENS TAB ══ -->
+                                <h:panelGroup layout="block"
+                                              style="#{wardAdminBean.activeTab eq 'citizens' ? 'display:block' : 'display:none'}">
+                                    <div class="custom-table">
+                                        <p:dataTable id="citizensTable"
+                                                     value="#{wardAdminBean.citizens}"
+                                                     var="u" paginator="true" rows="8"
+                                                     emptyMessage="No citizens found."
+                                                     style="width:100%">
+
+                                            <p:column headerText="Name">
+                                                <span class="user-name">#{u.fullName}</span>
+                                            </p:column>
+                                            <p:column headerText="Email">#{u.email}</p:column>
+                                            <p:column headerText="Mobile" width="150">#{u.mobile}</p:column>
+                                            <p:column headerText="Username" width="170">
+                                                <span class="complaint-id">#{u.username}</span>
+                                            </p:column>
+
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+
+                                <!-- ══ OFFICERS TAB ══ -->
+                                <h:panelGroup layout="block"
+                                              style="#{wardAdminBean.activeTab eq 'officers' ? 'display:block' : 'display:none'}">
+                                    <div class="custom-table">
+                                        <p:dataTable id="officersTable"
+                                                     value="#{wardAdminBean.officers}"
+                                                     var="o" paginator="true" rows="8"
+                                                     emptyMessage="No officers found."
+                                                     style="width:100%">
+
+                                            <p:column headerText="Officer ID" width="110">
+                                                <span class="complaint-id">##{o.officerId}</span>
+                                            </p:column>
+
+                                            <p:column headerText="Officer">
+                                                <div class="officer-info">
+                                                    <div class="officer-avatar">
+                                                        #{o.userId.fullName != null
+                                                          ? o.userId.fullName.substring(0,1).toUpperCase()
+                                                          : 'O'}
+                                                    </div>
+                                                    <div class="officer-detail">
+                                                        <span class="officer-name">#{o.userId.fullName}</span>
+                                                        <span class="officer-sub">#{o.userId.email}</span>
+                                                    </div>
+                                                </div>
+                                            </p:column>
+
+                                            <p:column headerText="Designation" width="150">
+                                                <span class="badge badge-progress">#{o.designation}</span>
+                                            </p:column>
+
+                                            <p:column headerText="Department" width="170">
+                                                #{o.departmentId.departmentName}
+                                            </p:column>
+
+                                            <p:column headerText="Current Ward" width="150">
+                                                <span class="ward-pill">
+                                                    <i class="pi pi-map-marker"></i>
+                                                    #{o.wardId.wardName}
+                                                </span>
+                                            </p:column>
+
+                                            <!--
+                                                KEY FIX:
+                                                update=":frm:changeWardDlg"  ← dialog is INSIDE frm, no nested form
+                                                process="@this"              ← only submit this button
+                                            -->
+                                            <p:column headerText="Action" width="150">
+                                                <div class="action-group">
+                                                    <div class="btn-transfer-wrap">
+                                                        <p:commandButton
+                                                            value="Transfer Ward"
+                                                            icon="pi pi-arrows-h"
+                                                            process="@this"
+                                                            action="#{wardAdminBean.prepareOfficerTransfer(o.officerId)}"
+                                                            update=":frm:changeWardDlg"
+                                                            oncomplete="PF('changeWardDlg').show()"/>
+                                                    </div>
+                                                </div>
+                                            </p:column>
+
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+
+                            </h:panelGroup><!-- /sectionPanel -->
+                        </div>
+
+                    </div><!-- /content -->
+                </div><!-- /main -->
+            </div><!-- /wrapper -->
+
+            <!-- ══════════════════════════════════════════════════════════
+                 ADD SOCIETY DIALOG  (inside frm — no nested h:form)
+            ══════════════════════════════════════════════════════════ -->
+            <p:dialog
+                id="addSocietyDlg"
+                widgetVar="wardAddSocietyDialog"
+                header="Create New Society"
+                modal="true" width="460"
+                resizable="false" closable="true" responsive="true">
+
+                <div class="dlg-body">
+                    <div class="form-row">
+                        <label class="form-label" for="wAddSocietyName">Society Name</label>
+                        <p:inputText id="wAddSocietyName"
+                                     value="#{societyManagementCDI.newSocietyName}"
+                                     placeholder="Enter society name"
+                                     required="true" requiredMessage="Society Name is required."
+                                     maxlength="100"/>
+                        <div class="field-error"><p:message for="wAddSocietyName" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wAddAddress">Address</label>
+                        <p:inputText id="wAddAddress"
+                                     value="#{societyManagementCDI.newAddress}"
+                                     placeholder="Enter address"
+                                     required="true" requiredMessage="Address is required."
+                                     maxlength="200"/>
+                        <div class="field-error"><p:message for="wAddAddress" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wAddWard">Ward</label>
+                        <p:selectOneMenu id="wAddWard"
+                                         value="#{societyManagementCDI.newWardId}"
+                                         required="true" requiredMessage="Please select a Ward.">
+                            <f:selectItem itemLabel="Select Ward" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{societyManagementCDI.wards}" var="w"
+                                           itemLabel="#{w.wardName}" itemValue="#{w.wardId}"/>
+                        </p:selectOneMenu>
+                        <div class="field-error"><p:message for="wAddWard" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wAddStatus">Status</label>
+                        <p:selectOneMenu id="wAddStatus"
+                                         value="#{societyManagementCDI.newStatus}"
+                                         required="true" requiredMessage="Status is required.">
+                            <f:selectItem itemLabel="Active"   itemValue="ACTIVE"/>
+                            <f:selectItem itemLabel="Inactive" itemValue="INACTIVE"/>
+                        </p:selectOneMenu>
+                        <div class="field-error"><p:message for="wAddStatus" display="text"/></div>
+                    </div>
+                </div>
+
+                <div class="dlg-footer">
+                    <div class="btn-cancel-wrap">
+                        <p:commandButton value="Cancel" type="button"
+                                         onclick="PF('wardAddSocietyDialog').hide()"/>
+                    </div>
+                    <div class="btn-save-wrap">
+                        <p:commandButton value="Save Society" icon="pi pi-check"
+                                         process=":frm:addSocietyDlg"
+                                         action="#{societyManagementCDI.createSociety}"
+                                         update=":frm:addSocietyDlg :frm:sectionPanel :frm:growl"
+                                         oncomplete="if(!args.validationFailed) PF('wardAddSocietyDialog').hide()"/>
+                    </div>
+                </div>
+            </p:dialog>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 EDIT SOCIETY DIALOG  (inside frm — no nested h:form)
+            ══════════════════════════════════════════════════════════ -->
+            <p:dialog
+                id="editSocietyDlg"
+                widgetVar="wardEditSocietyDialog"
+                header="Edit Society"
+                modal="true" width="460"
+                resizable="false" closable="true" responsive="true">
+
+                <div class="dlg-body">
+                    <div class="form-row">
+                        <label class="form-label" for="wEditSocietyName">Society Name</label>
+                        <p:inputText id="wEditSocietyName"
+                                     value="#{societyManagementCDI.editSocietyName}"
+                                     placeholder="Enter society name"
+                                     required="true" requiredMessage="Society Name is required."
+                                     maxlength="100"/>
+                        <div class="field-error"><p:message for="wEditSocietyName" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wEditAddress">Address</label>
+                        <p:inputText id="wEditAddress"
+                                     value="#{societyManagementCDI.editAddress}"
+                                     placeholder="Enter address"
+                                     required="true" requiredMessage="Address is required."
+                                     maxlength="200"/>
+                        <div class="field-error"><p:message for="wEditAddress" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wEditWard">Ward</label>
+                        <p:selectOneMenu id="wEditWard"
+                                         value="#{societyManagementCDI.editWardId}"
+                                         required="true" requiredMessage="Please select a Ward.">
+                            <f:selectItem itemLabel="Select Ward" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{societyManagementCDI.wards}" var="w"
+                                           itemLabel="#{w.wardName}" itemValue="#{w.wardId}"/>
+                        </p:selectOneMenu>
+                        <div class="field-error"><p:message for="wEditWard" display="text"/></div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="wEditStatus">Status</label>
+                        <p:selectOneMenu id="wEditStatus"
+                                         value="#{societyManagementCDI.editStatus}"
+                                         required="true" requiredMessage="Status is required.">
+                            <f:selectItem itemLabel="Active"   itemValue="ACTIVE"/>
+                            <f:selectItem itemLabel="Inactive" itemValue="INACTIVE"/>
+                        </p:selectOneMenu>
+                        <div class="field-error"><p:message for="wEditStatus" display="text"/></div>
+                    </div>
+                </div>
+
+                <div class="dlg-footer">
+                    <div class="btn-dlg-cancel">
+                        <p:commandButton value="Cancel" type="button"
+                                         onclick="PF('wardEditSocietyDialog').hide()"/>
+                    </div>
+                    <div class="btn-dlg-save">
+                        <p:commandButton value="Update Society" icon="pi pi-check"
+                                         process=":frm:editSocietyDlg"
+                                         action="#{societyManagementCDI.updateSociety}"
+                                         update=":frm:editSocietyDlg :frm:sectionPanel :frm:growl"
+                                         oncomplete="if(!args.validationFailed) PF('wardEditSocietyDialog').hide()"/>
+                    </div>
+                </div>
+            </p:dialog>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 CHANGE OFFICER WARD DIALOG
+                 — inside frm, NO nested h:form
+                 — update=":frm:changeWardDlg" is the correct path
+            ══════════════════════════════════════════════════════════ -->
+            <p:dialog
+                id="changeWardDlg"
+                widgetVar="changeWardDlg"
+                header="Transfer Officer to Another Ward"
+                modal="true" width="480"
+                resizable="false" closable="true" responsive="true"
+                dynamic="true">
+
+                <div class="dlg-body">
+
+                    <!-- Officer preview card -->
+                    <div class="form-row">
+                        <label class="form-label">
+                            <i class="pi pi-shield" style="margin-right:4px;color:var(--gold)"/>
+                            Officer Being Transferred
+                        </label>
+                        <div class="dlg-officer-card">
+                            <div class="dlg-officer-avatar">
+                                #{wardAdminBean.selectedOfficer != null
+                                  ? wardAdminBean.selectedOfficer.userId.fullName.substring(0,1).toUpperCase()
+                                  : 'O'}
+                            </div>
+                            <div>
+                                <div class="dlg-officer-name">
+                                    #{wardAdminBean.selectedOfficer != null
+                                      ? wardAdminBean.selectedOfficer.userId.fullName
+                                      : '—'}
+                                </div>
+                                <div class="dlg-officer-desig">
+                                    #{wardAdminBean.selectedOfficer != null
+                                      ? wardAdminBean.selectedOfficer.designation
+                                      : ''}
+                                    &#160;·&#160;
+                                    #{wardAdminBean.selectedOfficer != null
+                                      ? wardAdminBean.selectedOfficer.departmentId.departmentName
+                                      : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current ward -->
+                    <div class="form-row">
+                        <label class="form-label">
+                            <i class="pi pi-map-marker" style="margin-right:4px;color:var(--gold)"/>
+                            Current Ward
+                        </label>
+                        <div class="dlg-current-ward">
+                            <span class="dlg-cw-label">Ward</span>
+                            <span class="dlg-cw-value">
+                                <i class="pi pi-map-marker"/>
+                                #{wardAdminBean.selectedOfficer != null
+                                  ? wardAdminBean.selectedOfficer.wardId.wardName
+                                  : '—'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="transfer-arrow">
+                        <span>Transfer to</span>
+                        <i class="pi pi-arrow-down"/>
+                    </div>
+
+                    <!-- New ward selector -->
+                    <div class="form-row">
+                        <label class="form-label" for="newWardSelect">
+                            <i class="pi pi-map" style="margin-right:4px;color:var(--gold)"/>
+                            Select New Ward
+                        </label>
+                        <p:selectOneMenu
+                            id="newWardSelect"
+                            value="#{wardAdminBean.selectedWardId}"
+                            required="true"
+                            requiredMessage="Please select a ward.">
+                            <f:selectItem itemLabel="— Select Ward —" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems
+                                value="#{wardAdminBean.zoneWards}"
+                                var="w"
+                                itemValue="#{w.wardId}"
+                                itemLabel="#{w.wardName}"/>
+                        </p:selectOneMenu>
+                        <div class="field-error">
+                            <p:message for="newWardSelect" display="text"/>
+                        </div>
+                    </div>
+
+                    <!-- Info note -->
+                    <div class="dlg-info-note">
+                        <i class="pi pi-info-circle"/>
+                        <span>The officer will be reassigned immediately.
+                            This action can be reversed by performing another transfer.</span>
+                    </div>
+
+                </div><!-- /dlg-body -->
+
+                <div class="dlg-footer">
+                    <div class="btn-dlg-cancel">
+                        <p:commandButton
+                            value="Cancel"
+                            type="button"
+                            icon="pi pi-times"
+                            onclick="PF('changeWardDlg').hide()"/>
+                    </div>
+                    <div class="btn-transfer-confirm">
+                        <!--
+                            process=":frm:changeWardDlg"   ← submit only the dialog fields
+                            update=":frm:sectionPanel"      ← refresh officers table
+                        -->
+                        <p:commandButton
+                            value="Confirm Transfer"
+                            icon="pi pi-check"
+                            process=":frm:changeWardDlg"
+                            action="#{wardAdminBean.changeOfficerWard}"
+                            update=":frm:sectionPanel :frm:growl"
+                            oncomplete="if(!args.validationFailed) PF('changeWardDlg').hide()"/>
+                    </div>
+                </div>
+            </p:dialog>
+
+            <!-- CONFIRM DIALOG -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true">
+                <p:commandButton
+                    value="Yes, Confirm" type="button"
+                    styleClass="ui-confirmdialog-yes" icon="pi pi-check"
+                    style="background:#9B2424;border-color:#9B2424;color:#fff;
+                    border-radius:8px;font-family:'DM Sans',sans-serif;
+                    font-size:12.5px;font-weight:600;padding:7px 16px;"/>
+                <p:commandButton
+                    value="Cancel" type="button"
+                    styleClass="ui-confirmdialog-no" icon="pi pi-times"
+                    style="background:transparent;border:1px solid #E8E9EE;color:#6B7080;
+                    border-radius:8px;font-family:'DM Sans',sans-serif;
+                    font-size:12.5px;font-weight:500;padding:7px 16px;margin-left:6px;"/>
+            </p:confirmDialog>
+
+        </h:form><!-- /frm — single form, no nesting -->
+
+        <script>
+            function toggleSidebar() {
+                document.getElementById('sidebar').classList.toggle('open');
+                document.getElementById('overlay').classList.toggle('show');
+            }
+            function closeSidebar() {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('overlay').classList.remove('show');
+            }
+        </script>
+
+    </h:body>
+</html>

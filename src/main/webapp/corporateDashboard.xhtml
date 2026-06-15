@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Corporate Admin Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
+              rel="stylesheet"/>
+
+        <style>
+            /* ═══════════════════════════════════════
+               DESIGN TOKENS
+            ═══════════════════════════════════════ */
+            :root {
+                --gold:            #C9A84C;
+                --gold-hover:      #B8962E;
+                --gold-dim:        #9A7A28;
+                --gold-bg:         rgba(201,168,76,.07);
+                --gold-bg2:        rgba(201,168,76,.13);
+                --gold-border:     rgba(201,168,76,.28);
+
+                --sidebar-bg:      #161618;
+                --surface:         #FFFFFF;
+                --surface-2:       #F8F8FA;
+                --bg:              #F2F3F6;
+                --text-primary:    #16161A;
+                --text-secondary:  #52525B;
+                --text-muted:      #8A8A96;
+                --border:          #E4E4E8;
+                --border-subtle:   #EFEFEF;
+
+                --success-bg:      #EEF6F1;
+                --success-text:    #1F6E3A;
+                --success-border:  rgba(31,110,58,.18);
+
+                --danger-bg:       #FDF1F1;
+                --danger-text:     #9B2424;
+                --danger-border:   rgba(155,36,36,.18);
+
+                --warning-bg:      #FDF5E8;
+                --warning-text:    #7A5214;
+                --warning-border:  rgba(122,82,20,.18);
+
+                --info-bg:         #EEF3FF;
+                --info-text:       #3A5BD9;
+                --info-border:     rgba(58,91,217,.18);
+
+                --purple-bg:       #F3F0FF;
+                --purple-text:     #5B21B6;
+                --purple-border:   rgba(91,33,182,.2);
+
+                --orange-bg:       #FFF4E5;
+                --orange-text:     #E65100;
+                --orange-border:   rgba(230,81,0,.2);
+
+                --radius-sm:  8px;
+                --radius-md:  12px;
+                --radius-lg:  16px;
+                --radius-xl:  20px;
+
+                --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+                --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+                --shadow-lg:  0 8px 40px rgba(0,0,0,.13);
+
+                --transition: all .18s ease;
+            }
+
+            *, *::before, *::after {
+                margin: 0; padding: 0; box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+                background: var(--bg);
+                color: var(--text-primary);
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* ═══════════════════════════════════════
+               LAYOUT
+            ═══════════════════════════════════════ */
+            .wrapper { display: flex; min-height: 100vh; }
+
+            /* ── SIDEBAR ── */
+            .sidebar {
+                width: 268px; min-width: 268px;
+                background: var(--sidebar-bg);
+                display: flex; flex-direction: column;
+                position: sticky; top: 0; height: 100vh;
+                overflow-y: auto;
+            }
+
+            .brand {
+                padding: 28px 24px 20px;
+                border-bottom: 1px solid rgba(255,255,255,.07);
+                text-align: center;
+            }
+
+            .brand-logo {
+                width: 58px; height: 58px; border-radius: 50%;
+                background: var(--gold-bg2);
+                border: 2px solid var(--gold-dim);
+                display: flex; align-items: center; justify-content: center;
+                margin: 0 auto 12px;
+                color: var(--gold); font-size: 22px;
+            }
+
+            .brand-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 13.5px; color: var(--gold); line-height: 1.5;
+            }
+
+            .brand-sub {
+                font-size: 10px; color: rgba(255,255,255,.3);
+                margin-top: 5px; letter-spacing: .1em;
+                text-transform: uppercase;
+            }
+
+            .sidebar-nav { padding: 20px 14px; flex: 1; }
+
+            .nav-label {
+                font-size: 10px; color: rgba(255,255,255,.3);
+                letter-spacing: .1em; text-transform: uppercase;
+                margin: 18px 8px 8px; font-weight: 500;
+            }
+
+            .sidebar-nav a {
+                display: flex; align-items: center; gap: 10px;
+                padding: 10px 13px; border-radius: 10px;
+                color: rgba(255,255,255,.6);
+                text-decoration: none;
+                font-size: 13.5px; margin-bottom: 2px;
+                transition: var(--transition);
+            }
+
+            .sidebar-nav a:hover,
+            .sidebar-nav a.active {
+                background: var(--gold-bg2); color: var(--gold);
+            }
+
+            .sidebar-footer {
+                padding: 14px 18px;
+                border-top: 1px solid rgba(255,255,255,.07);
+                display: flex; align-items: center; gap: 10px;
+            }
+
+            .admin-avatar {
+                width: 36px; height: 36px; border-radius: 50%;
+                background: var(--gold-bg2);
+                border: 1.5px solid var(--gold-dim);
+                display: flex; align-items: center; justify-content: center;
+                color: var(--gold); font-weight: 600;
+            }
+
+            .admin-name  { color: rgba(255,255,255,.75); font-size: 13px; }
+            .admin-role  { color: rgba(255,255,255,.3);  font-size: 11px; }
+
+            /* ── MAIN ── */
+            .main { flex: 1; display: flex; flex-direction: column; }
+
+            /* ── TOPBAR ── */
+            .topbar {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                height: 64px; padding: 0 32px;
+                display: flex; align-items: center;
+                justify-content: space-between;
+                position: sticky; top: 0; z-index: 40;
+                box-shadow: var(--shadow-xs);
+            }
+
+            .page-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 20px; color: var(--text-primary);
+                font-weight: 600; letter-spacing: -.01em;
+            }
+
+            .topbar-right {
+                display: flex; align-items: center; gap: 10px;
+            }
+
+            .icon-btn {
+                width: 38px; height: 38px;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--surface);
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; color: var(--text-muted);
+                font-size: 14px; transition: var(--transition);
+            }
+
+            .icon-btn:hover {
+                background: var(--surface-2);
+                color: var(--text-primary);
+                border-color: #D0D0D6;
+            }
+
+            .btn-logout {
+                display: inline-flex; align-items: center; gap: 8px;
+                padding: 9px 16px; border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--surface);
+                color: var(--text-secondary);
+                text-decoration: none;
+                font-size: 13px; font-weight: 500;
+                transition: var(--transition); cursor: pointer;
+            }
+
+            .btn-logout:hover {
+                background: var(--danger-bg);
+                border-color: var(--danger-border);
+                color: var(--danger-text);
+            }
+
+            /* ── CONTENT ── */
+            .content {
+                padding: 28px 32px;
+                display: flex; flex-direction: column; gap: 24px;
+            }
+
+            /* ── PAGE HEADER ── */
+            .page-header {
+                background: var(--sidebar-bg);
+                border-radius: var(--radius-lg);
+                padding: 24px 28px;
+                display: flex; align-items: center;
+                justify-content: space-between;
+                position: relative; overflow: hidden;
+            }
+
+            .page-header::before {
+                content: ''; position: absolute;
+                right: -40px; top: -40px;
+                width: 180px; height: 180px; border-radius: 50%;
+                background: radial-gradient(circle,
+                    rgba(201,168,76,.08) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+            .page-header::after {
+                content: ''; position: absolute;
+                left: -20px; bottom: -50px;
+                width: 130px; height: 130px; border-radius: 50%;
+                background: radial-gradient(circle,
+                    rgba(201,168,76,.04) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+            .page-header-left { position: relative; z-index: 1; }
+
+            .page-header-eyebrow {
+                display: flex; align-items: center;
+                gap: 8px; margin-bottom: 8px;
+            }
+
+            .page-header-eyebrow::before {
+                content: ''; display: block;
+                width: 16px; height: 1.5px;
+                background: var(--gold); opacity: .6;
+            }
+
+            .page-header-eyebrow span {
+                font-size: 10px; font-weight: 600; color: var(--gold);
+                text-transform: uppercase; letter-spacing: .12em;
+            }
+
+            .page-header h2 {
+                font-family: 'Playfair Display', serif;
+                font-size: 22px; color: #fff; font-weight: 600;
+                margin-bottom: 5px; line-height: 1.3;
+            }
+
+            .page-header p {
+                font-size: 13px; color: rgba(255,255,255,.36);
+            }
+
+            /* ── STAT CARDS ── */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 16px;
+            }
+
+            @media (max-width: 1200px) {
+                .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            }
+
+            @media (max-width: 700px) {
+                .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            }
+
+            .stat-card {
+                background: var(--surface);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                padding: 20px 22px;
+                box-shadow: var(--shadow-sm);
+                position: relative; overflow: hidden;
+            }
+
+            .stat-card::after {
+                content: ''; position: absolute;
+                bottom: -18px; right: -18px;
+                width: 72px; height: 72px; border-radius: 50%;
+                background: var(--gold-bg);
+            }
+
+            .stat-icon {
+                width: 42px; height: 42px; border-radius: 10px;
+                background: var(--gold-bg2);
+                border: 1px solid var(--gold-border);
+                display: flex; align-items: center; justify-content: center;
+                color: var(--gold); font-size: 16px;
+                margin-bottom: 14px;
+            }
+
+            .stat-value {
+                font-size: 30px; font-weight: 700;
+                font-family: 'Playfair Display', serif;
+                color: var(--text-primary); line-height: 1;
+            }
+
+            .stat-label {
+                font-size: 11.5px; color: var(--text-muted);
+                font-weight: 500; margin-top: 6px;
+                text-transform: uppercase; letter-spacing: .06em;
+            }
+
+            /* Stat accent colours */
+            .stat-total .stat-icon {
+                background: var(--gold-bg2); color: var(--gold);
+                border-color: var(--gold-border);
+            }
+
+            .stat-open .stat-icon {
+                background: var(--danger-bg); color: var(--danger-text);
+                border-color: var(--danger-border);
+            }
+            .stat-open .stat-value { color: var(--danger-text); }
+
+            .stat-assigned .stat-icon {
+                background: var(--info-bg); color: var(--info-text);
+                border-color: var(--info-border);
+            }
+            .stat-assigned .stat-value { color: var(--info-text); }
+
+            .stat-resolved .stat-icon {
+                background: var(--success-bg); color: var(--success-text);
+                border-color: var(--success-border);
+            }
+            .stat-resolved .stat-value { color: var(--success-text); }
+
+            .stat-escalated .stat-icon {
+                background: var(--orange-bg); color: var(--orange-text);
+                border-color: var(--orange-border);
+            }
+            .stat-escalated .stat-value { color: var(--orange-text); }
+
+            /* ── FILTER CARD ── */
+            .filter-card {
+                background: var(--surface);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow-sm);
+                padding: 20px 24px;
+            }
+
+            .filter-card-title {
+                font-size: 14px; font-weight: 600;
+                margin-bottom: 16px;
+                display: flex; align-items: center;
+                gap: 8px; color: var(--text-primary);
+            }
+
+            .filter-card-title i { color: var(--gold); }
+
+            .filter-row {
+                display: flex; flex-wrap: wrap;
+                gap: 12px; align-items: flex-end;
+            }
+
+            .filter-group {
+                display: flex; flex-direction: column;
+                gap: 5px; flex: 1; min-width: 160px;
+            }
+
+            .filter-label {
+                font-size: 10.5px; text-transform: uppercase;
+                color: var(--text-muted); font-weight: 700;
+                letter-spacing: .09em;
+            }
+
+            /* Filter dropdowns match zone page style */
+            .filter-group .ui-selectonemenu.ui-widget {
+                width: 100% !important;
+                border: 1.5px solid var(--border) !important;
+                border-radius: var(--radius-sm) !important;
+                background: var(--surface-2) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+            }
+
+            .filter-group .ui-selectonemenu .ui-selectonemenu-label {
+                background: transparent !important; border: none !important;
+                padding: 9px 12px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important; color: var(--text-primary) !important;
+            }
+
+            .filter-group .ui-selectonemenu .ui-selectonemenu-trigger {
+                background: transparent !important; border: none !important;
+                color: var(--text-muted) !important; width: 30px !important;
+            }
+
+            .filter-group .ui-selectonemenu.ui-state-focus {
+                border-color: var(--gold) !important;
+                box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+            }
+
+            /* Search button */
+            .search-btn-wrap .ui-button.ui-widget {
+                background: var(--gold) !important;
+                border: 1px solid var(--gold) !important;
+                color: #1A1400 !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important; font-weight: 600 !important;
+                padding: 9px 20px !important;
+                transition: var(--transition) !important;
+                box-shadow: 0 2px 10px rgba(201,168,76,.28) !important;
+                white-space: nowrap;
+            }
+
+            .search-btn-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-hover) !important;
+                border-color: var(--gold-hover) !important;
+                box-shadow: 0 4px 16px rgba(201,168,76,.36) !important;
+            }
+
+            .search-btn-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* ── TABLE CARD ── */
+            .table-card {
+                background: var(--surface);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .table-card-head {
+                padding: 16px 22px;
+                border-bottom: 1px solid var(--border-subtle);
+                display: flex; align-items: center;
+                justify-content: space-between;
+                background: var(--surface);
+            }
+
+            .table-card-title-group {
+                display: flex; align-items: center; gap: 10px;
+            }
+
+            .table-card-title {
+                font-size: 14px; font-weight: 600;
+                color: var(--text-primary); letter-spacing: -.01em;
+            }
+
+            .record-badge {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 3px 10px; border-radius: 20px;
+                background: var(--gold-bg);
+                border: 1px solid var(--gold-border);
+                color: var(--gold-dim);
+                font-size: 11px; font-weight: 600;
+            }
+
+            .record-badge i { font-size: 10px; }
+
+            /* ── DATATABLE (exact same as zone page) ── */
+            .custom-table .ui-datatable,
+            .custom-table .ui-datatable table {
+                border: none !important;
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+
+            .custom-table .ui-datatable .ui-datatable-header {
+                display: none !important;
+            }
+
+            .custom-table .ui-datatable thead th,
+            .custom-table .ui-datatable thead .ui-state-default {
+                background: var(--surface-2) !important;
+                border: none !important;
+                border-bottom: 1px solid var(--border) !important;
+                padding: 11px 20px !important;
+                font-size: 10.5px !important; font-weight: 700 !important;
+                color: var(--text-muted) !important;
+                text-transform: uppercase !important;
+                letter-spacing: .09em !important;
+                font-family: 'DM Sans', sans-serif !important;
+                white-space: nowrap !important;
+            }
+
+            .custom-table .ui-datatable tbody td {
+                border: none !important;
+                border-bottom: 1px solid var(--border-subtle) !important;
+                padding: 13px 20px !important;
+                font-size: 13px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                color: var(--text-primary) !important;
+                vertical-align: middle !important;
+            }
+
+            .custom-table .ui-datatable tbody tr:last-child td {
+                border-bottom: none !important;
+            }
+
+            .custom-table .ui-datatable tbody tr:hover td {
+                background: #FAFAFA !important;
+            }
+
+            /* Paginator */
+            .custom-table .ui-paginator {
+                border: none !important;
+                border-top: 1px solid var(--border-subtle) !important;
+                background: var(--surface) !important;
+                padding: 12px 20px !important;
+            }
+
+            .custom-table .ui-paginator .ui-paginator-page,
+            .custom-table .ui-paginator .ui-paginator-next,
+            .custom-table .ui-paginator .ui-paginator-prev,
+            .custom-table .ui-paginator .ui-paginator-first,
+            .custom-table .ui-paginator .ui-paginator-last {
+                border-radius: var(--radius-sm) !important;
+                border: 1px solid var(--border) !important;
+                background: transparent !important;
+                color: var(--text-secondary) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12px !important; font-weight: 500 !important;
+                min-width: 30px !important; height: 30px !important;
+                margin: 0 1px !important;
+                transition: var(--transition) !important;
+            }
+
+            .custom-table .ui-paginator .ui-paginator-page:hover,
+            .custom-table .ui-paginator .ui-paginator-next:hover,
+            .custom-table .ui-paginator .ui-paginator-prev:hover {
+                background: var(--surface-2) !important;
+                border-color: #D0D0D6 !important;
+                color: var(--text-primary) !important;
+            }
+
+            .custom-table .ui-paginator .ui-state-active {
+                background: var(--gold) !important;
+                border-color: var(--gold) !important;
+                color: #1A1400 !important; font-weight: 700 !important;
+                box-shadow: 0 2px 8px rgba(201,168,76,.28) !important;
+            }
+
+            /* ── CELL ELEMENTS ── */
+            .complaint-id {
+                font-weight: 700; color: var(--gold-dim);
+                font-size: 12.5px; background: var(--gold-bg);
+                padding: 3px 9px; border-radius: 6px;
+                border: 1px solid var(--gold-border);
+                display: inline-block;
+            }
+
+            .citizen-cell {
+                display: flex; align-items: center; gap: 10px;
+            }
+
+            .citizen-avatar {
+                width: 34px; height: 34px; border-radius: 50%;
+                background: var(--gold-bg2);
+                border: 1.5px solid var(--gold-border);
+                display: flex; align-items: center; justify-content: center;
+                color: var(--gold-dim); font-size: 13px; flex-shrink: 0;
+            }
+
+            .citizen-name {
+                font-weight: 500; font-size: 13px;
+                color: var(--text-primary); line-height: 1.3;
+            }
+
+            /* Pills */
+            .pill {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 4px 10px; border-radius: 20px;
+                font-size: 12px; font-weight: 500;
+            }
+
+            .pill i { font-size: 10px; }
+
+            .pill-zone {
+                background: var(--gold-bg); color: var(--gold-dim);
+                border: 1px solid var(--gold-border);
+            }
+
+            .pill-ward {
+                background: var(--info-bg); color: var(--info-text);
+                border: 1px solid var(--info-border);
+            }
+
+            .pill-cat {
+                background: var(--purple-bg); color: var(--purple-text);
+                border: 1px solid var(--purple-border);
+            }
+
+            /* Status badge */
+            /* ── STATUS BADGE — allow longer text ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    /* KEY FIXES */
+    white-space: nowrap;        /* keep on one line */
+    overflow: visible;          /* never clip       */
+    max-width: none;            /* no width limit   */
+    width: auto;                /* shrink to content */
+}
+
+.badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;             /* dot never shrinks */
+}
+
+/* Badge colour variants */
+.badge-open {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+}
+
+.badge-assigned {
+    background: var(--info-bg);
+    color: var(--info-text);
+    border: 1px solid var(--info-border);
+}
+
+.badge-active {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+.badge-resolved {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+.badge-escalated {
+    background: var(--orange-bg);
+    color: var(--orange-text);
+    border: 1px solid var(--orange-border);
+}
+
+/* ── NEW: covers ESCALATED_TO_ZONE, ESCALATED_TO_WARD etc ── */
+.badge-escalated-zone {
+    background: var(--orange-bg);
+    color: var(--orange-text);
+    border: 1px solid var(--orange-border);
+}
+
+.badge-escalated-ward {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning-border);
+}
+
+.badge-closed {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+/* ── TABLE: Status column must not clip content ── */
+.custom-table .ui-datatable tbody td {
+    border: none !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    padding: 13px 20px !important;
+    font-size: 13px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: var(--text-primary) !important;
+    vertical-align: middle !important;
+    /* KEY: never clip cell content */
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+/* Allow title column to wrap naturally */
+.custom-table .ui-datatable tbody td:nth-child(2) {
+    white-space: normal !important;
+}
+
+            /* Priority */
+            .priority {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 4px 10px; border-radius: 6px;
+                font-size: 11px; font-weight: 600;
+            }
+
+            .priority i { font-size: 10px; }
+
+            .priority-high {
+                background: var(--danger-bg); color: var(--danger-text);
+                border: 1px solid var(--danger-border);
+            }
+
+            .priority-medium {
+                background: var(--warning-bg); color: var(--warning-text);
+                border: 1px solid var(--warning-border);
+            }
+
+            .priority-low {
+                background: var(--success-bg); color: var(--success-text);
+                border: 1px solid var(--success-border);
+            }
+
+            /* Action button */
+            .action-group {
+                display: flex; align-items: center;
+                gap: 6px; flex-wrap: wrap;
+            }
+
+            .btn-view-wrap .ui-button.ui-widget {
+                background: var(--gold-bg) !important;
+                border: 1px solid var(--gold-border) !important;
+                color: var(--gold-dim) !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 11.5px !important; font-weight: 500 !important;
+                padding: 5px 11px !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+            }
+
+            .btn-view-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-bg2) !important;
+                border-color: rgba(201,168,76,.44) !important;
+                color: var(--gold-hover) !important;
+            }
+
+            .btn-view-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* ── RESPONSIVE ── */
+            @media (max-width: 1080px) {
+                .content { padding: 20px; }
+            }
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    position: fixed; left: -268px;
+                    z-index: 999; transition: .3s;
+                }
+                .sidebar.open { left: 0; }
+                .content { padding: 14px; }
+                .page-header {
+                    flex-direction: column;
+                    align-items: flex-start; gap: 14px;
+                }
+                .filter-row { flex-direction: column; }
+                .topbar { padding: 0 16px; }
+            }
+
+            @media (max-width: 480px) {
+                .stats-grid { grid-template-columns: 1fr 1fr; }
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <div class="wrapper">
+     
+
+            <!-- ══════════════ MAIN ══════════════ -->
+            <div class="main">
+
+                <h:form id="dashboardForm">
+
+                    <p:growl id="msg" showDetail="true" life="4000"/>
+
+                    <!-- TOPBAR -->
+                    <div class="topbar">
+                        <div class="page-title">Corporate Admin Dashboard</div>
+                        <div class="topbar-right">
+                            <button class="icon-btn" type="button"
+                                    title="Search">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <button class="icon-btn" type="button"
+                                    title="Notifications">
+                                <i class="fa fa-bell"></i>
+                            </button>
+                            <a href="#" class="btn-logout">
+                                <i class="fa fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div class="content">
+
+                        <!-- PAGE HEADER -->
+                        <div class="page-header">
+                            <div class="page-header-left">
+                                <div class="page-header-eyebrow">
+                                    <span>Overview</span>
+                                </div>
+                                <h2>Dashboard Overview</h2>
+                                <p>Monitor complaints, escalations and resolution
+                                   status across all zones.</p>
+                            </div>
+                        </div>
+
+                        <!-- ── STAT CARDS ── -->
+                        <div class="stats-grid">
+
+                            <div class="stat-card stat-total">
+                                <div class="stat-icon">
+                                    <i class="fa fa-list-alt"></i>
+                                </div>
+                                <div class="stat-value">
+                                    #{corporateDashboardCDI.totalComplaints}
+                                </div>
+                                <div class="stat-label">Total Complaints</div>
+                            </div>
+
+                            <div class="stat-card stat-open">
+                                <div class="stat-icon">
+                                    <i class="fa fa-folder-open"></i>
+                                </div>
+                                <div class="stat-value">
+                                    #{corporateDashboardCDI.openComplaints}
+                                </div>
+                                <div class="stat-label">Open</div>
+                            </div>
+
+                            <div class="stat-card stat-assigned">
+                                <div class="stat-icon">
+                                    <i class="fa fa-user-check"></i>
+                                </div>
+                                <div class="stat-value">
+                                    #{corporateDashboardCDI.assignedComplaints}
+                                </div>
+                                <div class="stat-label">Assigned</div>
+                            </div>
+
+                            <div class="stat-card stat-resolved">
+                                <div class="stat-icon">
+                                    <i class="fa fa-check-circle"></i>
+                                </div>
+                                <div class="stat-value">
+                                    #{corporateDashboardCDI.resolvedComplaints}
+                                </div>
+                                <div class="stat-label">Resolved</div>
+                            </div>
+
+                            <div class="stat-card stat-escalated">
+                                <div class="stat-icon">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-value">
+                                    #{corporateDashboardCDI.escalatedComplaints}
+                                </div>
+                                <div class="stat-label">Escalated</div>
+                            </div>
+
+                        </div>
+                        <!-- /stats-grid -->
+
+                        <!-- ── FILTER CARD ── -->
+                        <div class="filter-card">
+                            <div class="filter-card-title">
+                                <i class="fa fa-filter"></i>
+                                Filter Complaints
+                            </div>
+
+                            <div class="filter-row">
+
+                                <!-- Zone -->
+                                <div class="filter-group">
+                                    <label class="filter-label">Zone</label>
+                                    <p:selectOneMenu
+                                        value="#{corporateDashboardCDI.selectedZoneId}">
+                                        <f:selectItem
+                                            itemLabel="All Zones"
+                                            itemValue="#{null}"/>
+                                        <f:selectItems
+                                            value="#{corporateDashboardCDI.zones}"
+                                            var="z"
+                                            itemLabel="#{z.zoneName}"
+                                            itemValue="#{z.zoneId}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <!-- Ward -->
+                                <div class="filter-group">
+                                    <label class="filter-label">Ward</label>
+                                    <p:selectOneMenu
+                                        value="#{corporateDashboardCDI.selectedWardId}">
+                                        <f:selectItem
+                                            itemLabel="All Wards"
+                                            itemValue="#{null}"/>
+                                        <f:selectItems
+                                            value="#{corporateDashboardCDI.wards}"
+                                            var="w"
+                                            itemLabel="#{w.wardName}"
+                                            itemValue="#{w.wardId}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="filter-group">
+                                    <label class="filter-label">Category</label>
+                                    <p:selectOneMenu
+                                        value="#{corporateDashboardCDI.selectedCategoryId}">
+                                        <f:selectItem
+                                            itemLabel="All Categories"
+                                            itemValue="#{null}"/>
+                                        <f:selectItems
+                                            value="#{corporateDashboardCDI.categories}"
+                                            var="cat"
+                                            itemLabel="#{cat.categoryName}"
+                                            itemValue="#{cat.categoryId}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="filter-group">
+                                    <label class="filter-label">Status</label>
+                                    <p:selectOneMenu
+                                        value="#{corporateDashboardCDI.selectedStatus}">
+                                        <f:selectItem
+                                            itemLabel="All Status" itemValue=""/>
+                                        <f:selectItem
+                                            itemLabel="Open"       itemValue="OPEN"/>
+                                        <f:selectItem
+                                            itemLabel="Assigned"   itemValue="ASSIGNED"/>
+                                        <f:selectItem
+                                            itemLabel="Active"     itemValue="ACTIVE"/>
+                                        <f:selectItem
+                                            itemLabel="Resolved"   itemValue="RESOLVED"/>
+                                        <f:selectItem
+                                            itemLabel="Closed"     itemValue="CLOSED"/>
+                                        <f:selectItem
+                                            itemLabel="Escalated"  itemValue="ESCALATED"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <!-- Search -->
+                                <div class="search-btn-wrap">
+                                    <p:commandButton
+                                        value="Search"
+                                        icon="pi pi-search"
+                                        process="@form"
+                                        action="#{corporateDashboardCDI.search}"
+                                        update="resultTable
+                                                :dashboardForm:msg"/>
+                                </div>
+
+                            </div>
+                            <!-- /filter-row -->
+                        </div>
+                        <!-- /filter-card -->
+
+                        <!-- ── COMPLAINTS TABLE CARD ── -->
+                        <div class="table-card">
+
+                            <div class="table-card-head">
+                                <div class="table-card-title-group">
+                                    <span class="table-card-title">
+                                        Complaint Records
+                                    </span>
+                                    <span class="record-badge">
+                                        <i class="fa fa-file-alt"></i>
+                                        <h:outputText
+                                            value="#{corporateDashboardCDI.complaints.size()}"/>
+                                        Records
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="custom-table">
+                                <p:dataTable
+                                    id="resultTable"
+                                    value="#{corporateDashboardCDI.complaints}"
+                                    var="c"
+                                    paginator="true"
+                                    rows="10"
+                                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                    emptyMessage="No complaints found."
+                                    rowHover="true"
+                                    style="width:100%">
+
+                                    <!-- ID -->
+                                    <p:column headerText="ID" width="100">
+                                        <span class="complaint-id">
+                                            #<h:outputText value="#{c.complaintId}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- TITLE -->
+                                    <p:column headerText="Title">
+                                        <span style="font-weight:500;
+                                                     font-size:13px;
+                                                     color:var(--text-primary);">
+                                            <h:outputText value="#{c.title}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- CITIZEN -->
+                                    <p:column headerText="Citizen" width="170">
+                                        <div class="citizen-cell">
+                                            <div class="citizen-avatar">
+                                                <i class="fa fa-user"
+                                                   style="font-size:13px"/>
+                                            </div>
+                                            <span class="citizen-name">
+                                                <h:outputText
+                                                    value="#{c.citizenId.fullName}"/>
+                                            </span>
+                                        </div>
+                                    </p:column>
+
+                                    <!-- ZONE -->
+                                    <p:column headerText="Zone" width="130">
+                                        <span class="pill pill-zone">
+                                            <i class="fa fa-map-marker-alt"></i>
+                                            <h:outputText value="#{c.zoneId.zoneName}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- WARD -->
+                                    <p:column headerText="Ward" width="120">
+                                        <span class="pill pill-ward">
+                                            <i class="fa fa-th"></i>
+                                            <h:outputText value="#{c.wardId.wardName}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- CATEGORY -->
+                                    <p:column headerText="Category" width="140">
+                                        <span class="pill pill-cat">
+                                            <i class="fa fa-tag"></i>
+                                            <h:outputText
+                                                value="#{c.categoryId.categoryName}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- STATUS -->
+                                    <p:column headerText="Status" width="160" style="min-width:160px">
+                                <span class="badge
+                                    #{c.status eq 'PENDING'                   ? 'badge-pending'   :
+                                      c.status eq 'RESOLVED'                  ? 'badge-resolved'  :
+                                      c.status eq 'REJECTED'                  ? 'badge-rejected'  :
+                                      c.status eq 'IN_PROGRESS'               ? 'badge-progress'  :
+                                      c.status eq 'ESCALATED_TO_ZONE_OFFICER' ? 'badge-escalated' : 'badge-pending'}"
+                                      title="#{c.status}">
+                                    #{c.status eq 'ESCALATED_TO_ZONE_OFFICER' ? 'Escalated' :
+                                      c.status eq 'IN_PROGRESS' ? 'In Progress' :
+                                      c.status eq 'PENDING' ? 'Pending' :
+                                      c.status eq 'RESOLVED' ? 'Resolved' :
+                                      c.status eq 'REJECTED' ? 'Rejected' : c.status}
+                                </span>
+                            </p:column>
+
+                                    <!-- PRIORITY -->
+                                    <p:column headerText="Priority" width="110">
+                                        <span class="priority
+                                            #{c.priority eq 'HIGH'   ? 'priority-high'
+                                            : c.priority eq 'MEDIUM' ? 'priority-medium'
+                                            : 'priority-low'}">
+                                            <i class="fa fa-flag"></i>
+                                            <h:outputText value="#{c.priority}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <!-- ACTION -->
+                                    <p:column headerText="Action" width="130">
+                                        <div class="action-group">
+                                            <div class="btn-view-wrap">
+                                                <p:commandButton
+                                                    value="View"
+                                                    icon="pi pi-eye"
+                                                    action="#{corporateDashboardCDI.viewComplaint(c.complaintId)}"/>
+                                            </div>
+                                        </div>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </div>
+                            <!-- /custom-table -->
+
+                        </div>
+                        <!-- /table-card -->
+
+                    </div>
+                    <!-- /content -->
+
+                </h:form>
+            </div>
+            <!-- /main -->
+
+        </div>
+        <!-- /wrapper -->
+    </h:body>
+</html>

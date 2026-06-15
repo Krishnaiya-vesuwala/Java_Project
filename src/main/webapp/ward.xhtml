@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Ward Management</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
+              rel="stylesheet"/>
+
+        <style>
+            :root {
+                --gold:           #C9A84C;
+                --gold-hover:     #B8962E;
+                --gold-light:     #E2C46A;
+                --gold-dim:       #9A7A28;
+                --gold-bg:        rgba(201,168,76,.07);
+                --gold-bg2:       rgba(201,168,76,.13);
+                --gold-border:    rgba(201,168,76,.28);
+                --sidebar-bg:     #161618;
+                --surface:        #FFFFFF;
+                --surface-2:      #F8F8FA;
+                --bg:             #F2F3F6;
+                --text-primary:   #16161A;
+                --text-secondary: #52525B;
+                --text-muted:     #8A8A96;
+                --border:         #E4E4E8;
+                --border-subtle:  #EFEFEF;
+                --success-bg:     #EEF6F1;
+                --success-text:   #1F6E3A;
+                --success-border: rgba(31,110,58,.18);
+                --success-hover:  #E0F0E6;
+                --danger-bg:      #FDF1F1;
+                --danger-text:    #9B2424;
+                --danger-border:  rgba(155,36,36,.18);
+                --danger-hover:   #FAEAEA;
+                --warning-bg:     #FDF5E8;
+                --warning-text:   #7A5214;
+                --warning-border: rgba(122,82,20,.18);
+                --warning-hover:  #FAF0DA;
+                --radius-sm:  8px;
+                --radius-md:  12px;
+                --radius-lg:  16px;
+                --radius-xl:  20px;
+                --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+                --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+                --shadow-md:  0 4px 20px rgba(0,0,0,.09);
+                --shadow-lg:  0 8px 40px rgba(0,0,0,.12);
+                --transition: all .18s ease;
+            }
+
+            *, *::before, *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+                background: var(--bg);
+                color: var(--text-primary);
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            .main {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            /* ── TOPBAR ── */
+            .topbar {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 0 28px;
+                height: 64px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                box-shadow: var(--shadow-xs);
+                flex-shrink: 0;
+            }
+            .topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .back-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 18px;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--gold-border);
+                background: var(--gold-bg);
+                color: var(--gold-dim);
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+                transition: var(--transition);
+                letter-spacing: .01em;
+            }
+            .back-btn i {
+                font-size: 12px;
+                color: var(--gold);
+                transition: var(--transition);
+            }
+            .back-btn:hover {
+                background: var(--gold-bg2);
+                border-color: rgba(201,168,76,.44);
+                color: var(--gold-hover);
+                box-shadow: 0 2px 10px rgba(201,168,76,.18);
+                transform: translateX(-2px);
+            }
+            .back-btn:hover i {
+                color: var(--gold-hover);
+            }
+
+            .topbar-sep {
+                width: 1px;
+                height: 24px;
+                background: var(--border);
+                flex-shrink: 0;
+            }
+            .topbar-title {
+                font-family: 'Playfair Display', Georgia, serif;
+                font-size: 18px;
+                color: var(--text-primary);
+                font-weight: 600;
+                letter-spacing: -.01em;
+            }
+
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--surface);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: var(--text-muted);
+                font-size: 14px;
+                transition: var(--transition);
+                position: relative;
+            }
+            .icon-btn:hover {
+                background: var(--surface-2);
+                color: var(--text-primary);
+                border-color: #D0D0D6;
+            }
+            .notif-dot {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--gold);
+                border: 1.5px solid var(--surface);
+            }
+
+            .btn-logout {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 16px;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--surface);
+                color: var(--text-secondary);
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 500;
+                transition: var(--transition);
+                cursor: pointer;
+            }
+            .btn-logout i {
+                font-size: 12px;
+                color: var(--text-muted);
+                transition: var(--transition);
+            }
+            .btn-logout:hover {
+                background: var(--danger-bg);
+                border-color: var(--danger-border);
+                color: var(--danger-text);
+            }
+            .btn-logout:hover i {
+                color: var(--danger-text);
+            }
+
+            /* ── CONTENT ── */
+            .content {
+                padding: 28px 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 22px;
+                flex: 1;
+                max-width: 1400px;
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            /* ── PAGE HEADER ── */
+            .page-header {
+                background: var(--sidebar-bg);
+                border-radius: var(--radius-lg);
+                padding: 24px 28px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+            }
+            .page-header::before {
+                content: '';
+                position: absolute;
+                right: -40px;
+                top: -40px;
+                width: 180px;
+                height: 180px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .page-header::after {
+                content: '';
+                position: absolute;
+                left: -20px;
+                bottom: -50px;
+                width: 130px;
+                height: 130px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .page-header-left {
+                position: relative;
+                z-index: 1;
+            }
+            .page-header-eyebrow {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            .page-header-eyebrow::before {
+                content: '';
+                display: block;
+                width: 16px;
+                height: 1.5px;
+                background: var(--gold);
+                opacity: .6;
+            }
+            .page-header-eyebrow span {
+                font-size: 10px;
+                font-weight: 600;
+                color: var(--gold);
+                text-transform: uppercase;
+                letter-spacing: .12em;
+            }
+            .page-header h2 {
+                font-family: 'Playfair Display', serif;
+                font-size: 22px;
+                color: #fff;
+                font-weight: 600;
+                margin-bottom: 5px;
+                line-height: 1.3;
+            }
+            .page-header p {
+                font-size: 13px;
+                color: rgba(255,255,255,.36);
+            }
+            .page-header-actions {
+                position: relative;
+                z-index: 1;
+            }
+
+            .add-btn-wrap .ui-button.ui-widget {
+                background: var(--gold) !important;
+                border: 1px solid var(--gold) !important;
+                color: #1A1400 !important;
+                border-radius: var(--radius-md) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 14px !important;
+                font-weight: 600 !important;
+                padding: 12px 22px !important;
+                transition: var(--transition) !important;
+                box-shadow: 0 4px 16px rgba(201,168,76,.32) !important;
+                letter-spacing: .01em !important;
+            }
+            .add-btn-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-hover) !important;
+                border-color: var(--gold-hover) !important;
+                box-shadow: 0 6px 22px rgba(201,168,76,.42) !important;
+                transform: translateY(-1px);
+            }
+            .add-btn-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+                font-size: 14px !important;
+            }
+
+            /* ── TABLE CARD ── */
+            .table-card {
+                background: var(--surface);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border);
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+            }
+            .table-card-head {
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border-subtle);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .table-card-title-group {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .table-card-title {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text-primary);
+                letter-spacing: -.01em;
+            }
+            .count-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 3px 10px;
+                border-radius: 20px;
+                background: var(--gold-bg);
+                border: 1px solid var(--gold-border);
+                color: var(--gold-dim);
+                font-size: 11px;
+                font-weight: 600;
+            }
+            .count-badge i {
+                font-size: 10px;
+            }
+
+            /* ── DATATABLE ── */
+            .custom-table .ui-datatable,
+            .custom-table .ui-datatable table {
+                border: none !important;
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            .custom-table .ui-datatable .ui-datatable-header {
+                display: none !important;
+            }
+
+            .custom-table .ui-datatable thead th,
+            .custom-table .ui-datatable thead .ui-state-default {
+                background: var(--surface-2) !important;
+                border: none !important;
+                border-bottom: 1px solid var(--border) !important;
+                padding: 11px 20px !important;
+                font-size: 10.5px !important;
+                font-weight: 700 !important;
+                color: var(--text-muted) !important;
+                text-transform: uppercase !important;
+                letter-spacing: .09em !important;
+                font-family: 'DM Sans', sans-serif !important;
+                white-space: nowrap !important;
+            }
+            .custom-table .ui-datatable tbody td {
+                border: none !important;
+                border-bottom: 1px solid var(--border-subtle) !important;
+                padding: 13px 20px !important;
+                font-size: 13px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                color: var(--text-primary) !important;
+                vertical-align: middle !important;
+            }
+            .custom-table .ui-datatable tbody tr:last-child td {
+                border-bottom: none !important;
+            }
+            .custom-table .ui-datatable tbody tr:hover td {
+                background: #FAFAFA !important;
+            }
+
+            .custom-table .ui-paginator {
+                border: none !important;
+                border-top: 1px solid var(--border-subtle) !important;
+                background: var(--surface) !important;
+                padding: 11px 20px !important;
+            }
+            .custom-table .ui-paginator .ui-paginator-page,
+            .custom-table .ui-paginator .ui-paginator-next,
+            .custom-table .ui-paginator .ui-paginator-prev,
+            .custom-table .ui-paginator .ui-paginator-first,
+            .custom-table .ui-paginator .ui-paginator-last {
+                border-radius: var(--radius-sm) !important;
+                border: 1px solid var(--border) !important;
+                background: transparent !important;
+                color: var(--text-secondary) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12px !important;
+                font-weight: 500 !important;
+                min-width: 30px !important;
+                height: 30px !important;
+                margin: 0 1px !important;
+                transition: var(--transition) !important;
+            }
+            .custom-table .ui-paginator .ui-paginator-page:hover,
+            .custom-table .ui-paginator .ui-paginator-next:hover,
+            .custom-table .ui-paginator .ui-paginator-prev:hover {
+                background: var(--surface-2) !important;
+                border-color: #D0D0D6 !important;
+                color: var(--text-primary) !important;
+            }
+            .custom-table .ui-paginator .ui-state-active {
+                background: var(--gold) !important;
+                border-color: var(--gold) !important;
+                color: #1A1400 !important;
+                font-weight: 700 !important;
+                box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+            }
+
+            /* ── CELL ELEMENTS ── */
+            .ward-id {
+                font-weight: 700;
+                color: var(--gold-dim);
+                font-size: 12px;
+                background: var(--gold-bg);
+                padding: 3px 9px;
+                border-radius: 6px;
+                border: 1px solid var(--gold-border);
+                display: inline-block;
+                font-family: 'DM Sans', monospace;
+            }
+            .zone-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 10px;
+                border-radius: 20px;
+                background: var(--gold-bg);
+                border: 1px solid var(--gold-border);
+                color: var(--gold-dim);
+                font-size: 12px;
+                font-weight: 500;
+            }
+            .zone-pill i {
+                font-size: 10px;
+            }
+
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 10px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: .03em;
+            }
+            .badge::before {
+                content: '';
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: currentColor;
+                flex-shrink: 0;
+            }
+            .badge-active {
+                background: var(--success-bg);
+                color: var(--success-text);
+                border: 1px solid var(--success-border);
+            }
+            .badge-inactive {
+                background: var(--danger-bg);
+                color: var(--danger-text);
+                border: 1px solid var(--danger-border);
+            }
+
+            /* ── ACTION BUTTONS ── */
+            .action-group {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .action-group .ui-button.ui-widget {
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+                padding: 5px 11px !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+                letter-spacing: .01em !important;
+            }
+            .btn-edit-wrap .ui-button.ui-widget {
+                background: var(--gold-bg) !important;
+                border: 1px solid var(--gold-border) !important;
+                color: var(--gold-dim) !important;
+            }
+            .btn-edit-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-bg2) !important;
+                border-color: rgba(201,168,76,.44) !important;
+                color: var(--gold-hover) !important;
+            }
+            .btn-edit-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            .btn-deactivate-wrap .ui-button.ui-widget {
+                background: var(--warning-bg) !important;
+                border: 1px solid var(--warning-border) !important;
+                color: var(--warning-text) !important;
+            }
+            .btn-deactivate-wrap .ui-button.ui-widget:hover {
+                background: var(--warning-hover) !important;
+                border-color: rgba(122,82,20,.28) !important;
+            }
+            .btn-deactivate-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            .btn-activate-wrap .ui-button.ui-widget {
+                background: var(--success-bg) !important;
+                border: 1px solid var(--success-border) !important;
+                color: var(--success-text) !important;
+            }
+            .btn-activate-wrap .ui-button.ui-widget:hover {
+                background: var(--success-hover) !important;
+                border-color: rgba(31,110,58,.28) !important;
+            }
+            .btn-activate-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            .btn-delete-wrap .ui-button.ui-widget {
+                background: transparent !important;
+                border: 1px solid var(--danger-border) !important;
+                color: var(--danger-text) !important;
+            }
+            .btn-delete-wrap .ui-button.ui-widget:hover {
+                background: var(--danger-bg) !important;
+                border-color: rgba(155,36,36,.32) !important;
+            }
+            .btn-delete-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* ── DIALOGS ── */
+            .ui-dialog.ui-widget {
+                border-radius: var(--radius-xl) !important;
+                border: 1px solid var(--border) !important;
+                box-shadow: var(--shadow-lg) !important;
+                overflow: hidden !important;
+                font-family: 'DM Sans', sans-serif !important;
+            }
+            .ui-dialog .ui-dialog-titlebar {
+                background: var(--sidebar-bg) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255,255,255,.06) !important;
+                padding: 17px 22px !important;
+            }
+            .ui-dialog .ui-dialog-title {
+                font-family: 'Playfair Display', serif !important;
+                font-size: 15.5px !important;
+                font-weight: 600 !important;
+                color: var(--gold) !important;
+                letter-spacing: .01em !important;
+            }
+            .ui-dialog .ui-dialog-titlebar-close {
+                color: rgba(255,255,255,.38) !important;
+                border-radius: 6px !important;
+                transition: var(--transition) !important;
+            }
+            .ui-dialog .ui-dialog-titlebar-close:hover {
+                color: rgba(255,255,255,.78) !important;
+                background: rgba(255,255,255,.08) !important;
+            }
+            .ui-dialog .ui-dialog-content {
+                background: var(--surface) !important;
+                padding: 0 !important;
+            }
+
+            .dlg-body {
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                min-width: 340px;
+            }
+            .form-row {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .form-label {
+                font-size: 10.5px;
+                font-weight: 700;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: .09em;
+            }
+
+            .dlg-body .ui-inputtext,
+            .dlg-body .ui-selectonemenu.ui-widget {
+                width: 100% !important;
+                border: 1.5px solid var(--border) !important;
+                border-radius: var(--radius-sm) !important;
+                padding: 9px 12px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+                color: var(--text-primary) !important;
+                background: var(--surface-2) !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+            }
+            .dlg-body .ui-inputtext:focus {
+                border-color: var(--gold) !important;
+                background: var(--surface) !important;
+                outline: none !important;
+                box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+            }
+            .dlg-body .ui-selectonemenu.ui-widget.ui-state-focus {
+                border-color: var(--gold) !important;
+                box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+            }
+            .dlg-body .ui-selectonemenu .ui-selectonemenu-label {
+                background: transparent !important;
+                border: none !important;
+                padding: 9px 12px !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 13px !important;
+                color: var(--text-primary) !important;
+            }
+            .dlg-body .ui-selectonemenu .ui-selectonemenu-trigger {
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-muted) !important;
+                width: 30px !important;
+            }
+
+            /* ── Invalid field highlight ── */
+            .dlg-body .ui-inputtext.ui-state-error,
+            .dlg-body .ui-selectonemenu.ui-state-error {
+                border-color: var(--danger-text) !important;
+                background: #FFF5F5 !important;
+                box-shadow: 0 0 0 3px rgba(155,36,36,.08) !important;
+            }
+
+            /* ── Inline field error message ── */
+            .field-error .ui-message-error,
+            .field-error .ui-message {
+                display: inline-flex !important;
+                align-items: center;
+                gap: 5px;
+                background: transparent !important;
+                border: none !important;
+                color: var(--danger-text) !important;
+                font-size: 11.5px !important;
+                font-weight: 500 !important;
+                padding: 2px 0 0 0 !important;
+                margin: 0 !important;
+                font-family: 'DM Sans', sans-serif !important;
+            }
+            .field-error .ui-message-error-icon,
+            .field-error .ui-message-error-detail {
+                color: var(--danger-text) !important;
+            }
+
+            .dlg-footer {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 14px 22px;
+                border-top: 1px solid var(--border-subtle);
+                background: var(--surface-2);
+            }
+            .btn-dlg-cancel .ui-button.ui-widget,
+            .btn-cancel-wrap .ui-button.ui-widget {
+                background: transparent !important;
+                border: 1px solid var(--border) !important;
+                color: var(--text-secondary) !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12.5px !important;
+                font-weight: 500 !important;
+                padding: 8px 17px !important;
+                transition: var(--transition) !important;
+                box-shadow: none !important;
+            }
+            .btn-dlg-cancel .ui-button.ui-widget:hover,
+            .btn-cancel-wrap .ui-button.ui-widget:hover {
+                background: var(--surface-2) !important;
+                border-color: #C8C8D0 !important;
+                color: var(--text-primary) !important;
+            }
+            .btn-dlg-save .ui-button.ui-widget,
+            .btn-save-wrap .ui-button.ui-widget {
+                background: var(--gold) !important;
+                border: 1px solid var(--gold) !important;
+                color: #1A1400 !important;
+                border-radius: var(--radius-sm) !important;
+                font-family: 'DM Sans', sans-serif !important;
+                font-size: 12.5px !important;
+                font-weight: 700 !important;
+                padding: 8px 20px !important;
+                transition: var(--transition) !important;
+                box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+                letter-spacing: .01em !important;
+            }
+            .btn-dlg-save .ui-button.ui-widget:hover,
+            .btn-save-wrap .ui-button.ui-widget:hover {
+                background: var(--gold-hover) !important;
+                border-color: var(--gold-hover) !important;
+                box-shadow: 0 4px 14px rgba(201,168,76,.34) !important;
+            }
+            .btn-dlg-save .ui-button .ui-button-icon-left,
+            .btn-save-wrap .ui-button .ui-button-icon-left {
+                color: inherit !important;
+            }
+
+            /* ── RESPONSIVE ── */
+            @media (max-width: 1080px) {
+                .content {
+                    padding: 20px 20px;
+                }
+                .topbar  {
+                    padding: 0 20px;
+                }
+            }
+            @media (max-width: 768px) {
+                .topbar         {
+                    padding: 0 14px;
+                    height: 56px;
+                }
+                .content        {
+                    padding: 14px;
+                }
+                .topbar-title   {
+                    display: none;
+                }
+                .topbar-sep     {
+                    display: none;
+                }
+                .back-btn {
+                    padding: 7px 12px;
+                    font-size: 12px;
+                }
+                .back-btn span {
+                    display: none;
+                }
+                .page-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 14px;
+                }
+                .page-header-actions {
+                    width: 100%;
+                }
+                .dlg-body {
+                    min-width: unset;
+                    width: 100%;
+                }
+            }
+            @media (max-width: 480px) {
+                .action-group {
+                    gap: 4px;
+                }
+                .action-group .ui-button.ui-widget {
+                    font-size: 11px !important;
+                    padding: 5px 8px !important;
+                }
+                .btn-logout span {
+                    display: none;
+                }
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+
+        <div class="main">
+
+            <h:form id="wardForm">
+
+                <!-- Growl: success / info messages shown after save -->
+                <p:growl id="growl"
+                         showDetail="true"
+                         life="4000"
+                         severity="info,warn,error"/>
+
+                <!-- ── TOPBAR ── -->
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <a href="adminDashboard.jsf" class="back-btn">
+                            <i class="fa fa-arrow-left"></i>
+                            <span>Back to Dashboard</span>
+                        </a>
+                        <div class="topbar-sep"></div>
+                        <span class="topbar-title">Ward Management</span>
+                    </div>
+                    <div class="topbar-right">
+                        <button class="icon-btn" type="button"
+                                aria-label="Notifications"
+                                style="position:relative;">
+                            <i class="fa fa-bell"></i>
+                            <span class="notif-dot"></span>
+                        </button>
+                        <a href="#" class="btn-logout">
+                            <i class="fa fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </header>
+
+                <!-- ── CONTENT ── -->
+                <div class="content">
+
+                    <!-- PAGE HEADER -->
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <div class="page-header-eyebrow">
+                                <span>Administration</span>
+                            </div>
+                            <h2>Ward Management</h2>
+                            <p>Create, edit and manage all wards across zones.</p>
+                        </div>
+                        <div class="page-header-actions">
+                            <div class="add-btn-wrap">
+                                <p:commandButton
+                                    value="Add Ward"
+                                    icon="pi pi-plus"
+                                    process="@this"
+                                    action="#{wardManagementCDI.prepareCreate}"
+                                    update=":wardForm:addWardDlg"
+                                    oncomplete="PF('addWardDialog').show()"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABLE CARD -->
+                    <div class="table-card">
+                        <div class="table-card-head">
+                            <div class="table-card-title-group">
+                                <span class="table-card-title">All Wards</span>
+                                <span class="count-badge">
+                                    <i class="fa fa-th"></i>
+                                    Ward Records
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="custom-table">
+                            <p:dataTable
+                                id="wardTable"
+                                value="#{wardManagementCDI.wards}"
+                                var="w"
+                                paginator="true"
+                                rows="10"
+                                paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                emptyMessage="No wards found."
+                                rowHover="true"
+                                style="width:100%">
+
+                                <p:column headerText="Ward ID" width="120">
+                                    <span class="ward-id">
+                                        #<h:outputText value="#{w.wardId}"/>
+                                    </span>
+                                </p:column>
+
+                                <p:column headerText="Ward Name">
+                                    <span style="font-weight:500;">
+                                        <h:outputText value="#{w.wardName}"/>
+                                    </span>
+                                </p:column>
+
+                                <p:column headerText="Zone">
+                                    <span class="zone-pill">
+                                        <i class="fa fa-map-marker-alt"></i>
+                                        <h:outputText value="#{w.zoneId.zoneName}"/>
+                                    </span>
+                                </p:column>
+
+                                <p:column headerText="Status" width="110">
+                                    <span class="badge #{w.status eq 'ACTIVE'
+                                                         ? 'badge-active'
+                                                         : 'badge-inactive'}">
+                                        <h:outputText value="#{w.status}"/>
+                                    </span>
+                                </p:column>
+
+                                <p:column headerText="Actions" width="260">
+                                    <div class="action-group">
+
+                                        <div class="btn-edit-wrap">
+                                            <p:commandButton
+                                                value="Edit"
+                                                icon="pi pi-pencil"
+                                                process="@this"
+                                                action="#{wardManagementCDI.editWard(w)}"
+                                                update=":wardForm:editWardDlg"
+                                                oncomplete="PF('editWardDialog').show()"/>
+                                        </div>
+
+                                        <div class="btn-deactivate-wrap">
+                                            <p:commandButton
+                                                value="Deactivate"
+                                                icon="pi pi-ban"
+                                                rendered="#{w.status eq 'ACTIVE'}"
+                                                process="@this"
+                                                immediate="true"
+                                                action="#{wardManagementCDI.deactivate(w.wardId)}"
+                                                update=":wardForm"/>
+                                        </div>
+
+                                        <div class="btn-activate-wrap">
+                                            <p:commandButton
+                                                value="Activate"
+                                                icon="pi pi-check-circle"
+                                                rendered="#{w.status eq 'INACTIVE'}"
+                                                process="@this"
+                                                immediate="true"
+                                                action="#{wardManagementCDI.activate(w.wardId)}"
+                                                update=":wardForm"/>
+                                        </div>
+
+                                    </div>
+                                </p:column>
+
+                            </p:dataTable>
+                        </div>
+                    </div>
+
+                </div><!-- /content -->
+
+                <!-- ════════════════════════════════════════
+                     ADD WARD DIALOG
+                     Same pattern as Zone Management addZoneDlg
+                ════════════════════════════════════════ -->
+                <p:dialog
+                    id="addWardDlg"
+                    widgetVar="addWardDialog"
+                    header="Create New Ward"
+                    modal="true"
+                    width="440"
+                    resizable="false"
+                    closable="true"
+                    responsive="true">
+
+                    <div class="dlg-body">
+
+                        <!-- Ward Name -->
+                        <div class="form-row">
+                            <label class="form-label" for="addWardName">Ward Name</label>
+                            <p:inputText
+                                id="addWardName"
+                                value="#{wardManagementCDI.newWardName}"
+                                placeholder="Enter ward name"
+                                required="true"
+                                requiredMessage="Ward Name is required."
+                                maxlength="50"/>
+                            <div class="field-error">
+                                <p:message for="addWardName" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Zone -->
+                        <div class="form-row">
+                            <label class="form-label" for="addZone">Zone</label>
+                            <p:selectOneMenu
+                                id="addZone"
+                                value="#{wardManagementCDI.newZoneId}"
+                                required="true"
+                                requiredMessage="Please select a Zone.">
+                                <f:selectItem
+                                    itemLabel="Select Zone"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{wardManagementCDI.zones}"
+                                    var="z"
+                                    itemLabel="#{z.zoneName}"
+                                    itemValue="#{z.zoneId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addZone" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-row">
+                            <label class="form-label" for="addStatus">Status</label>
+                            <p:selectOneMenu
+                                id="addStatus"
+                                value="#{wardManagementCDI.newStatus}"
+                                required="true"
+                                requiredMessage="Status is required.">
+                                <f:selectItem itemLabel="Active"   itemValue="ACTIVE"/>
+                                <f:selectItem itemLabel="Inactive" itemValue="INACTIVE"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="addStatus" display="text"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="dlg-footer">
+                        <div class="btn-cancel-wrap">
+                            <p:commandButton
+                                value="Cancel"
+                                type="button"
+                                onclick="PF('addWardDialog').hide()"/>
+                        </div>
+                        <div class="btn-save-wrap">
+                            <!--
+                                process="addWardDlg"  → validates only the dialog fields
+                                oncomplete="if(!args.validationFailed)" → same as Zone Management
+                            -->
+                            <p:commandButton
+                                value="Save Ward"
+                                icon="pi pi-check"
+                                process="addWardDlg"
+                                action="#{wardManagementCDI.createWard}"
+                                update="addWardDlg :wardForm:wardTable :wardForm:growl"
+                                oncomplete="if(!args.validationFailed) PF('addWardDialog').hide()"/>
+                        </div>
+                    </div>
+
+                </p:dialog>
+
+                <!-- ════════════════════════════════════════
+                     EDIT WARD DIALOG
+                     Same pattern as Zone Management editZoneDlg
+                ════════════════════════════════════════ -->
+                <p:dialog
+                    id="editWardDlg"
+                    widgetVar="editWardDialog"
+                    header="Edit Ward"
+                    modal="true"
+                    width="440"
+                    resizable="false"
+                    closable="true"
+                    responsive="true">
+
+                    <div class="dlg-body">
+
+                        <!-- Ward Name -->
+                        <div class="form-row">
+                            <label class="form-label" for="editWardName">Ward Name</label>
+                            <p:inputText
+                                id="editWardName"
+                                value="#{wardManagementCDI.editWardName}"
+                                placeholder="Enter ward name"
+                                required="true"
+                                requiredMessage="Ward Name is required."
+                                maxlength="50"/>
+                            <div class="field-error">
+                                <p:message for="editWardName" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Zone -->
+                        <div class="form-row">
+                            <label class="form-label" for="editZone">Zone</label>
+                            <p:selectOneMenu
+                                id="editZone"
+                                value="#{wardManagementCDI.editZoneId}"
+                                required="true"
+                                requiredMessage="Please select a Zone.">
+                                <f:selectItem
+                                    itemLabel="Select Zone"
+                                    itemValue="#{null}"
+                                    noSelectionOption="true"/>
+                                <f:selectItems
+                                    value="#{wardManagementCDI.zones}"
+                                    var="z"
+                                    itemLabel="#{z.zoneName}"
+                                    itemValue="#{z.zoneId}"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="editZone" display="text"/>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-row">
+                            <label class="form-label" for="editStatus">Status</label>
+                            <p:selectOneMenu
+                                id="editStatus"
+                                value="#{wardManagementCDI.editStatus}"
+                                required="true"
+                                requiredMessage="Status is required.">
+                                <f:selectItem itemLabel="Active"   itemValue="ACTIVE"/>
+                                <f:selectItem itemLabel="Inactive" itemValue="INACTIVE"/>
+                            </p:selectOneMenu>
+                            <div class="field-error">
+                                <p:message for="editStatus" display="text"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="dlg-footer">
+                        <div class="btn-dlg-cancel">
+                            <p:commandButton
+                                value="Cancel"
+                                type="button"
+                                onclick="PF('editWardDialog').hide()"/>
+                        </div>
+                        <div class="btn-dlg-save">
+                            <!--
+                                process="editWardDlg" → validates only the dialog fields
+                                oncomplete="if(!args.validationFailed)" → same as Zone Management
+                            -->
+                            <p:commandButton
+                                value="Update Ward"
+                                icon="pi pi-check"
+                                process="editWardDlg"
+                                action="#{wardManagementCDI.updateWard}"
+                                update="editWardDlg :wardForm:wardTable :wardForm:growl"
+                                oncomplete="if(!args.validationFailed) PF('editWardDialog').hide()"/>
+                        </div>
+                    </div>
+
+                </p:dialog>
+
+                <!-- CONFIRM DIALOG -->
+                <p:confirmDialog
+                    global="true"
+                    showEffect="fade"
+                    hideEffect="fade"
+                    responsive="true">
+                    <p:commandButton
+                        value="Yes, Delete"
+                        type="button"
+                        styleClass="ui-confirmdialog-yes"
+                        icon="pi pi-check"
+                        style="background:#9B2424;border-color:#9B2424;
+                        color:#fff;border-radius:8px;
+                        font-family:'DM Sans',sans-serif;
+                        font-size:12.5px;font-weight:600;
+                        padding:7px 16px;"/>
+                    <p:commandButton
+                        value="Cancel"
+                        type="button"
+                        styleClass="ui-confirmdialog-no"
+                        icon="pi pi-times"
+                        style="background:transparent;
+                        border:1px solid #E4E4E8;
+                        color:#52525B;border-radius:8px;
+                        font-family:'DM Sans',sans-serif;
+                        font-size:12.5px;font-weight:500;
+                        padding:7px 16px;margin-left:6px;"/>
+                </p:confirmDialog>
+
+            </h:form>
+
+        </div>
+
+    </h:body>
+</html>

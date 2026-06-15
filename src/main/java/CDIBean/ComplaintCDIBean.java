@@ -7,7 +7,7 @@ package CDIBean;
 import EJB.AdminBeanLocal;
 import Entity.ComplaintCategory;
 import Entity.Society;
-import Resources.RestClient;
+//import Resources.RestClient;
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
 import jakarta.enterprise.context.RequestScoped;
@@ -37,8 +37,8 @@ public class ComplaintCDIBean implements Serializable{
     @EJB
     AdminBeanLocal adminService;
     
-    RestClient client=new RestClient();
-    Response rs;
+//    RestClient client=new RestClient();
+//    Response rs;
     
     // Getting Scoiety of that Ward
     public void loadSociety(){
@@ -47,9 +47,9 @@ public class ComplaintCDIBean implements Serializable{
           socities=adminService.getAllSocities(ward_id);
     }
     
-    public void submitComplaint(){
-        client.createComplaint(String.valueOf(1), String.valueOf(categoryId), String.valueOf(societyId),String.valueOf(ward_id), title, description, "ACTIVE", priority);
-    }
+//    public void submitComplaint(){
+//        client.createComplaint(String.valueOf(1), String.valueOf(categoryId), String.valueOf(societyId),String.valueOf(ward_id), title, description, "ACTIVE", priority);
+//    }
 
     public Integer getCategoryId() {
         return categoryId;
@@ -83,13 +83,13 @@ public class ComplaintCDIBean implements Serializable{
         this.priority = priority;
     }
 
-    public RestClient getClient() {
-        return client;
-    }
-
-    public void setClient(RestClient client) {
-        this.client = client;
-    }
+//    public RestClient getClient() {
+//        return client;
+//    }
+//
+//    public void setClient(RestClient client) {
+//        this.client = client;
+//    }
     
    
     public ComplaintCDIBean() {

@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Officer Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
+          rel="stylesheet"/>
+
+    <style>
+        /* ═══════════════════════════════════════
+           DESIGN TOKENS
+        ═══════════════════════════════════════ */
+        :root {
+            --gold:            #C9A84C;
+            --gold-hover:      #B8962E;
+            --gold-dim:        #9A7A28;
+            --gold-bg:         rgba(201,168,76,.07);
+            --gold-bg2:        rgba(201,168,76,.13);
+            --gold-border:     rgba(201,168,76,.28);
+
+            --sidebar-bg:      #161618;
+            --surface:         #FFFFFF;
+            --surface-2:       #F8F8FA;
+            --bg:              #F2F3F6;
+            --text-primary:    #16161A;
+            --text-secondary:  #52525B;
+            --text-muted:      #8A8A96;
+            --border:          #E4E4E8;
+            --border-subtle:   #EFEFEF;
+
+            --success-bg:      #EEF6F1;
+            --success-text:    #1F6E3A;
+            --success-border:  rgba(31,110,58,.18);
+            --success-hover:   #E0F0E6;
+
+            --danger-bg:       #FDF1F1;
+            --danger-text:     #9B2424;
+            --danger-border:   rgba(155,36,36,.18);
+            --danger-hover:    #FAEAEA;
+
+            --warning-bg:      #FDF5E8;
+            --warning-text:    #7A5214;
+            --warning-border:  rgba(122,82,20,.18);
+
+            --info-bg:         #EEF3FF;
+            --info-text:       #3A5BD9;
+            --info-border:     rgba(58,91,217,.18);
+
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --radius-xl:  20px;
+
+            --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+            --shadow-lg:  0 8px 40px rgba(0,0,0,.13);
+
+            --transition: all .18s ease;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════
+           MAIN LAYOUT
+        ═══════════════════════════════════════ */
+        .main {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ═══════════════════════════════════════
+           TOPBAR (LIGHT)
+        ═══════════════════════════════════════ */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-xs);
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Brand */
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-brand-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .topbar-sep {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: -.01em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+            border-color: #D0D0D6;
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        /* Logout */
+        .logout-wrap .ui-button.ui-widget {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            padding: 8px 18px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 10px rgba(201,168,76,.28) !important;
+        }
+
+        .logout-wrap .ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.36) !important;
+        }
+
+        .logout-wrap .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* ═══════════════════════════════════════
+           CONTENT
+        ═══════════════════════════════════════ */
+        .content {
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            flex: 1;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ═══════════════════════════════════════
+           PAGE BANNER (Welcome)
+        ═══════════════════════════════════════ */
+        .page-banner {
+            background: var(--sidebar-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-banner::before {
+            content: '';
+            position: absolute;
+            right: -40px; top: -40px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(201,168,76,.09) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-banner::after {
+            content: '';
+            position: absolute;
+            right: 100px; bottom: -60px;
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                rgba(201,168,76,.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .banner-text { position: relative; z-index: 1; }
+
+        .banner-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .banner-eyebrow::before {
+            content: '';
+            display: block;
+            width: 16px; height: 1.5px;
+            background: var(--gold);
+            opacity: .6;
+        }
+
+        .banner-eyebrow span {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .banner-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .banner-text p {
+            font-size: 13px;
+            color: rgba(255,255,255,.36);
+        }
+
+        /* Officer profile card on banner (clickable) */
+        .banner-officer-link {
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .banner-officer-link:hover .banner-officer {
+            background: rgba(255,255,255,.06);
+            border-color: rgba(201,168,76,.40);
+            transform: translateY(-1px);
+        }
+
+        .banner-officer {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 16px 10px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            transition: var(--transition);
+        }
+
+        .officer-avatar {
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 2px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .officer-info { text-align: left; }
+
+        .officer-info .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .officer-info .role {
+            font-size: 11.5px;
+            color: rgba(255,255,255,.40);
+        }
+
+        .officer-info .role i {
+            margin-left: 6px;
+            color: var(--gold);
+            font-size: 10px;
+        }
+
+        /* ═══════════════════════════════════════
+           SECTION CARD
+        ═══════════════════════════════════════ */
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .section-head {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            letter-spacing: -.01em;
+        }
+
+        .section-title i {
+            color: var(--gold);
+            font-size: 14px;
+        }
+
+        .section-body { padding: 22px 24px; }
+
+        /* Record chip */
+        .record-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--gold-bg);
+            border: 1px solid var(--gold-border);
+            color: var(--gold-dim);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .record-chip i { font-size: 10px; }
+
+        /* ═══════════════════════════════════════
+           FILTER GRID
+        ═══════════════════════════════════════ */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        /* Inputs */
+        .section-body .ui-inputtext,
+        .section-body .ui-selectonemenu.ui-widget,
+        .dialog-form .ui-inputtext,
+        .dialog-form .ui-selectonemenu.ui-widget,
+        .dialog-form .ui-inputtextarea {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 9px 12px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .section-body .ui-inputtext:focus,
+        .dialog-form .ui-inputtext:focus,
+        .dialog-form .ui-inputtextarea:focus {
+            border-color: var(--gold) !important;
+            background: var(--surface) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .section-body .ui-selectonemenu.ui-widget.ui-state-focus,
+        .dialog-form .ui-selectonemenu.ui-widget.ui-state-focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .section-body .ui-selectonemenu .ui-selectonemenu-label,
+        .dialog-form .ui-selectonemenu .ui-selectonemenu-label {
+            background: transparent !important;
+            border: none !important;
+            padding: 9px 12px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+        }
+
+        .section-body .ui-selectonemenu .ui-selectonemenu-trigger,
+        .dialog-form .ui-selectonemenu .ui-selectonemenu-trigger {
+            background: transparent !important;
+            border: none !important;
+            color: var(--text-muted) !important;
+            width: 30px !important;
+        }
+
+        /* Checkboxes */
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 8px 0 18px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 14px 0;
+        }
+
+        /* Quick filters */
+        .quick-filters {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .qf-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-right: 2px;
+        }
+
+        .qf-active .ui-button.ui-widget,
+        .qf-today .ui-button.ui-widget,
+        .qf-overdue .ui-button.ui-widget,
+        .qf-resolved .ui-button.ui-widget {
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            padding: 7px 14px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .qf-active .ui-button.ui-widget {
+            background: var(--sidebar-bg) !important;
+            border: 1px solid var(--sidebar-bg) !important;
+            color: #fff !important;
+        }
+
+        .qf-active .ui-button.ui-widget:hover {
+            background: #232328 !important;
+        }
+
+        .qf-today .ui-button.ui-widget {
+            background: var(--info-bg) !important;
+            border: 1px solid var(--info-border) !important;
+            color: var(--info-text) !important;
+        }
+
+        .qf-today .ui-button.ui-widget:hover {
+            background: #DDE6FF !important;
+        }
+
+        .qf-overdue .ui-button.ui-widget {
+            background: var(--danger-bg) !important;
+            border: 1px solid var(--danger-border) !important;
+            color: var(--danger-text) !important;
+        }
+
+        .qf-overdue .ui-button.ui-widget:hover {
+            background: var(--danger-hover) !important;
+        }
+
+        .qf-resolved .ui-button.ui-widget {
+            background: var(--success-bg) !important;
+            border: 1px solid var(--success-border) !important;
+            color: var(--success-text) !important;
+        }
+
+        .qf-resolved .ui-button.ui-widget:hover {
+            background: var(--success-hover) !important;
+        }
+
+        .qf-active .ui-button .ui-button-icon-left,
+        .qf-today .ui-button .ui-button-icon-left,
+        .qf-overdue .ui-button .ui-button-icon-left,
+        .qf-resolved .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* Search / Reset */
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-search .ui-button.ui-widget {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            padding: 9px 22px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 10px rgba(201,168,76,.28) !important;
+        }
+
+        .btn-search .ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.36) !important;
+        }
+
+        .btn-reset .ui-button.ui-widget {
+            background: transparent !important;
+            border: 1.5px solid var(--border) !important;
+            color: var(--text-secondary) !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            padding: 9px 20px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-reset .ui-button.ui-widget:hover {
+            background: var(--surface-2) !important;
+            color: var(--text-primary) !important;
+            border-color: #C8C8D0 !important;
+        }
+
+        .btn-search .ui-button .ui-button-icon-left,
+        .btn-reset .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* ═══════════════════════════════════════
+           DATATABLE
+        ═══════════════════════════════════════ */
+        .custom-table .ui-datatable,
+        .custom-table .ui-datatable table {
+            border: none !important;
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+
+        .custom-table .ui-datatable .ui-datatable-header {
+            display: none !important;
+        }
+
+        .custom-table .ui-datatable thead th,
+        .custom-table .ui-datatable thead .ui-state-default {
+            background: var(--surface-2) !important;
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 11px 16px !important;
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            color: var(--text-muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .09em !important;
+            font-family: 'DM Sans', sans-serif !important;
+            white-space: nowrap !important;
+        }
+
+        .custom-table .ui-datatable tbody td {
+            border: none !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            padding: 12px 16px !important;
+            font-size: 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            color: var(--text-primary) !important;
+            vertical-align: middle !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:hover td {
+            background: #FAFAFA !important;
+        }
+
+        .custom-table .ui-paginator {
+            border: none !important;
+            border-top: 1px solid var(--border-subtle) !important;
+            background: var(--surface) !important;
+            padding: 11px 20px !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page,
+        .custom-table .ui-paginator .ui-paginator-next,
+        .custom-table .ui-paginator .ui-paginator-prev,
+        .custom-table .ui-paginator .ui-paginator-first,
+        .custom-table .ui-paginator .ui-paginator-last {
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12px !important;
+            min-width: 30px !important;
+            height: 30px !important;
+            margin: 0 1px !important;
+            transition: var(--transition) !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page:hover,
+        .custom-table .ui-paginator .ui-paginator-next:hover,
+        .custom-table .ui-paginator .ui-paginator-prev:hover {
+            background: var(--surface-2) !important;
+            border-color: #D0D0D6 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .custom-table .ui-paginator .ui-state-active {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1400 !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+        }
+
+        /* ═══════════════════════════════════════
+           CELL ELEMENTS
+        ═══════════════════════════════════════ */
+        .cid {
+            font-weight: 700;
+            color: var(--gold-dim);
+            font-size: 12px;
+            background: var(--gold-bg);
+            padding: 3px 9px;
+            border-radius: 6px;
+            border: 1px solid var(--gold-border);
+            display: inline-block;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: .03em;
+        }
+
+        .badge::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .badge-high     { background: var(--danger-bg);  color: var(--danger-text);
+                          border: 1px solid var(--danger-border); }
+        .badge-medium   { background: var(--warning-bg); color: var(--warning-text);
+                          border: 1px solid var(--warning-border); }
+        .badge-low      { background: var(--success-bg); color: var(--success-text);
+                          border: 1px solid var(--success-border); }
+
+        .badge-pending  { background: var(--warning-bg); color: var(--warning-text);
+                          border: 1px solid var(--warning-border); }
+        .badge-inprog   { background: var(--info-bg);    color: var(--info-text);
+                          border: 1px solid var(--info-border); }
+        .badge-resolved { background: var(--success-bg); color: var(--success-text);
+                          border: 1px solid var(--success-border); }
+
+        /* Citizen cell */
+        .citizen-cell { display: flex; flex-direction: column; gap: 2px; }
+        .citizen-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .citizen-mob {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        /* Date */
+        .date-val {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Inline status select */
+        .status-wrap .ui-selectonemenu.ui-widget {
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            background: var(--surface-2) !important;
+            min-width: 130px !important;
+            font-size: 12px !important;
+        }
+
+        .status-wrap .ui-selectonemenu .ui-selectonemenu-label {
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* ═══════════════════════════════════════
+           ACTION BUTTONS
+        ═══════════════════════════════════════ */
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .action-group .ui-button.ui-widget {
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            padding: 5px 11px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-update .ui-button.ui-widget {
+            background: var(--gold-bg) !important;
+            border: 1px solid var(--gold-border) !important;
+            color: var(--gold-dim) !important;
+        }
+
+        .btn-update .ui-button.ui-widget:hover {
+            background: var(--gold-bg2) !important;
+            border-color: rgba(201,168,76,.44) !important;
+            color: var(--gold-hover) !important;
+        }
+
+        .btn-view .ui-button.ui-widget {
+            background: var(--info-bg) !important;
+            border: 1px solid var(--info-border) !important;
+            color: var(--info-text) !important;
+        }
+
+        .btn-view .ui-button.ui-widget:hover {
+            background: #DDE6FF !important;
+        }
+
+        .btn-reply .ui-button.ui-widget {
+            background: var(--success-bg) !important;
+            border: 1px solid var(--success-border) !important;
+            color: var(--success-text) !important;
+        }
+
+        .btn-reply .ui-button.ui-widget:hover {
+            background: var(--success-hover) !important;
+        }
+
+        .btn-update .ui-button .ui-button-icon-left,
+        .btn-view .ui-button .ui-button-icon-left,
+        .btn-reply .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* ═══════════════════════════════════════
+           DIALOGS
+        ═══════════════════════════════════════ */
+        .ui-dialog.ui-widget {
+            border-radius: var(--radius-xl) !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: var(--shadow-lg) !important;
+            overflow: hidden !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar {
+            background: var(--sidebar-bg) !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(255,255,255,.06) !important;
+            padding: 17px 22px !important;
+        }
+
+        .ui-dialog .ui-dialog-title {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 15.5px !important;
+            font-weight: 600 !important;
+            color: var(--gold) !important;
+            letter-spacing: .01em !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar-close {
+            color: rgba(255,255,255,.36) !important;
+            border-radius: 6px !important;
+            transition: var(--transition) !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar-close:hover {
+            color: rgba(255,255,255,.76) !important;
+            background: rgba(255,255,255,.08) !important;
+        }
+
+        .ui-dialog .ui-dialog-content {
+            background: var(--surface) !important;
+            padding: 22px !important;
+        }
+
+        .dialog-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 360px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .dialog-form .ui-inputtextarea {
+            resize: vertical !important;
+            min-height: 110px !important;
+        }
+
+        .dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 6px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .btn-dlg-cancel .ui-button.ui-widget {
+            background: transparent !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-secondary) !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            padding: 8px 17px !important;
+            box-shadow: none !important;
+        }
+
+        .btn-dlg-cancel .ui-button.ui-widget:hover {
+            background: var(--surface-2) !important;
+            color: var(--text-primary) !important;
+            border-color: #C8C8D0 !important;
+        }
+
+        .btn-dlg-save .ui-button.ui-widget {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            padding: 8px 20px !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.26) !important;
+        }
+
+        .btn-dlg-save .ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 14px rgba(201,168,76,.34) !important;
+        }
+
+        .btn-dlg-save .ui-button .ui-button-icon-left {
+            color: inherit !important;
+        }
+
+        /* Dialog inner table */
+        .dialog-table .ui-datatable thead th {
+            background: var(--surface-2) !important;
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 10px 14px !important;
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            color: var(--text-muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .09em !important;
+        }
+
+        .dialog-table .ui-datatable tbody td {
+            border: none !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            padding: 11px 14px !important;
+            font-size: 13px !important;
+        }
+
+        .status-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-arrow i {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        /* Growl */
+        .ui-growl { top: 80px !important; }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .filter-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 1080px) {
+            .content { padding: 20px; }
+            .topbar  { padding: 0 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .topbar         { padding: 0 14px; height: 56px; }
+            .content        { padding: 14px; }
+            .topbar-title   { display: none; }
+            .topbar-sep     { display: none; }
+            .filter-grid    { grid-template-columns: 1fr; }
+
+            .page-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .banner-officer-link { width: 100%; }
+            .banner-officer { width: 100%; }
+            .dialog-form { min-width: unset; width: 100%; }
+        }
+    </style>
+</h:head>
+
+<h:body>
+<h:form id="dashboardForm">
+
+    <div class="main">
+
+        <!-- ══════════════════════════════════
+             TOPBAR
+        ══════════════════════════════════ -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-brand">
+                    <div class="topbar-brand-icon">
+                        <i class="fa fa-shield-alt"></i>
+                    </div>
+                </div>
+
+                <div class="topbar-sep"></div>
+
+                <span class="topbar-title">Officer Dashboard</span>
+            </div>
+
+            <div class="topbar-right">
+                
+                <button class="icon-btn" type="button"
+                        aria-label="Notifications"
+                        style="position:relative;">
+                    <i class="fa fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <div class="logout-wrap">
+                    <p:commandButton value="Logout" icon="pi pi-sign-out"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- ══════════════════════════════════
+             CONTENT
+        ══════════════════════════════════ -->
+        <div class="content">
+
+            <p:growl id="msg" showDetail="true" life="4000"/>
+
+            <!-- ── PAGE BANNER ── -->
+            <div class="page-banner">
+                <div class="banner-text">
+                    <div class="banner-eyebrow">
+                        <span>Officer Portal</span>
+                    </div>
+                    <h2>Welcome Back, Officer</h2>
+                    <p>Manage and resolve your assigned complaints below.</p>
+                </div>
+
+                <h:commandLink action="#{officerDashboardBean.goToProfile()}"
+                               styleClass="banner-officer-link">
+                    <div class="banner-officer">
+                        <div class="officer-avatar">
+                            #{officerDashboardBean.officer.userId.fullName.substring(0,1)}
+                        </div>
+                        <div class="officer-info">
+                            <div class="name">
+                                #{officerDashboardBean.officer.userId.fullName}
+                            </div>
+                            <div class="role">
+                                #{officerDashboardBean.officer.designation}
+                                ·
+                                #{officerDashboardBean.officer.departmentId.departmentName}
+                                <i class="fa fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </h:commandLink>
+            </div>
+
+            <!-- ── SEARCH AND FILTER ── -->
+            <div class="section-card">
+                <div class="section-head">
+                    <span class="section-title">
+                        <i class="fa fa-filter"></i>
+                        Search &amp; Filter Complaints
+                    </span>
+                </div>
+                <div class="section-body">
+
+                    <div class="filter-grid">
+
+                        <div class="filter-group">
+                            <span class="filter-label">Complaint ID</span>
+                            <p:inputText
+                                id="searchComplaintId"
+                                value="#{officerDashboardBean.searchComplaintId}"
+                                placeholder="e.g. 1024"/>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Citizen Name</span>
+                            <p:inputText
+                                id="searchCitizenName"
+                                value="#{officerDashboardBean.searchCitizenName}"
+                                placeholder="Enter citizen name"/>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Status</span>
+                            <p:selectOneMenu
+                                id="searchStatus"
+                                value="#{officerDashboardBean.searchStatus}">
+                                <f:selectItem itemLabel="All Statuses" itemValue=""/>
+                                <f:selectItem itemLabel="Pending"      itemValue="PENDING"/>
+                                <f:selectItem itemLabel="In Progress"  itemValue="IN_PROGRESS"/>
+                                <f:selectItem itemLabel="Resolved"     itemValue="RESOLVED"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Priority</span>
+                            <p:selectOneMenu
+                                id="searchPriority"
+                                value="#{officerDashboardBean.searchPriority}">
+                                <f:selectItem itemLabel="All Priorities" itemValue=""/>
+                                <f:selectItem itemLabel="High"           itemValue="HIGH"/>
+                                <f:selectItem itemLabel="Medium"         itemValue="MEDIUM"/>
+                                <f:selectItem itemLabel="Low"            itemValue="LOW"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Category</span>
+                            <p:selectOneMenu
+                                id="searchCategoryId"
+                                value="#{officerDashboardBean.searchCategoryId}">
+                                <f:selectItem itemLabel="All Categories"
+                                              itemValue="#{null}"/>
+                                <f:selectItems
+                                    value="#{officerDashboardBean.categoryList}"
+                                    var="cat"
+                                    itemLabel="#{cat.categoryName}"
+                                    itemValue="#{cat.categoryId}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                    </div>
+
+                    <div class="checkbox-row">
+                        <div class="checkbox-item">
+                            <p:selectBooleanCheckbox
+                                id="overdueOnly"
+                                value="#{officerDashboardBean.overdueOnly}"/>
+                            <label for="dashboardForm:overdueOnly">Overdue Only</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <p:selectBooleanCheckbox
+                                id="slaBreached"
+                                value="#{officerDashboardBean.slaBreached}"/>
+                            <label for="dashboardForm:slaBreached">SLA Breached</label>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="quick-filters">
+                        <span class="qf-label">Quick:</span>
+
+                        <div class="qf-active">
+                            <p:commandButton
+                                value="My Active"
+                                icon="pi pi-briefcase"
+                                actionListener="#{officerDashboardBean.filterActive}"
+                                update="complaintsTable"/>
+                        </div>
+
+                        <div class="qf-today">
+                            <p:commandButton
+                                value="Today"
+                                icon="pi pi-calendar"
+                                actionListener="#{officerDashboardBean.filterToday}"
+                                update="complaintsTable"/>
+                        </div>
+
+                        <div class="qf-overdue">
+                            <p:commandButton
+                                value="Overdue"
+                                icon="pi pi-exclamation-triangle"
+                                actionListener="#{officerDashboardBean.filterOverdue}"
+                                update="complaintsTable"/>
+                        </div>
+
+                        <div class="qf-resolved">
+                            <p:commandButton
+                                value="Resolved"
+                                icon="pi pi-check-circle"
+                                actionListener="#{officerDashboardBean.filterResolved}"
+                                update="complaintsTable"/>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="search-row">
+                        <div class="btn-search">
+                            <p:commandButton
+                                value="Search"
+                                icon="pi pi-search"
+                                actionListener="#{officerDashboardBean.searchComplaints}"
+                                update="complaintsTable msg"/>
+                        </div>
+                        <div class="btn-reset">
+                            <p:commandButton
+                                value="Reset"
+                                icon="pi pi-refresh"
+                                actionListener="#{officerDashboardBean.resetSearch}"
+                                update="@form"/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── ASSIGNED COMPLAINTS TABLE ── -->
+            <div class="section-card">
+
+                <div class="section-head">
+                    <span class="section-title">
+                        <i class="fa fa-inbox"></i>
+                        Assigned Complaints
+                    </span>
+                    <span class="record-chip">
+                        <i class="fa fa-list"></i>
+                        All Records
+                    </span>
+                </div>
+
+                <!-- Reply Dialog -->
+                <p:dialog
+                    id="replyDlg"
+                    header="Add Reply"
+                    widgetVar="replyDialog"
+                    modal="true"
+                    width="520"
+                    responsive="true"
+                    resizable="false">
+
+                    <div class="dialog-form">
+                        <div class="form-group">
+                            <span class="form-label">Your Reply</span>
+                            <p:inputTextarea
+                                id="replyMessage"
+                                value="#{officerDashboardBean.replyMessage}"
+                                rows="6"
+                                placeholder="Type your reply here..."/>
+                        </div>
+                        <div class="dialog-footer">
+                            <div class="btn-dlg-cancel">
+                                <p:commandButton
+                                    value="Cancel"
+                                    type="button"
+                                    onclick="PF('replyDialog').hide()"/>
+                            </div>
+                            <div class="btn-dlg-save">
+                                <p:commandButton
+                                    value="Submit Reply"
+                                    icon="pi pi-send"
+                                    update=":dashboardForm:msg"
+                                    actionListener="#{officerDashboardBean.submitReply}"
+                                    oncomplete="PF('replyDialog').hide()"/>
+                            </div>
+                        </div>
+                    </div>
+                </p:dialog>
+
+                <!-- Status History Dialog -->
+                <p:dialog
+                    id="historyDlg"
+                    header="Status History"
+                    widgetVar="historyDialog"
+                    modal="true"
+                    width="860"
+                    responsive="true"
+                    resizable="false">
+
+                    <div class="dialog-table custom-table">
+                        <p:dataTable
+                            id="historyTable"
+                            value="#{officerDashboardBean.historyList}"
+                            var="hist"
+                            emptyMessage="No history records found.">
+
+                            <p:column headerText="Status Change">
+                                <div class="status-arrow">
+                                    <span class="badge badge-pending">
+                                        #{hist.oldStatus}
+                                    </span>
+                                    <i class="fa fa-arrow-right"></i>
+                                    <span class="badge badge-resolved">
+                                        #{hist.newStatus}
+                                    </span>
+                                </div>
+                            </p:column>
+
+                            <p:column headerText="Changed By">
+                                <h:outputText value="#{hist.changedBy.fullName}"/>
+                            </p:column>
+
+                            <p:column headerText="Changed At">
+                                <span class="date-val">
+                                    <h:outputText value="#{hist.changedAt}"/>
+                                </span>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>
+                </p:dialog>
+
+                <!-- Reply History Dialog -->
+                <p:dialog
+                    id="replyHistoryDlg"
+                    header="Complaint Replies"
+                    widgetVar="replyHistoryDialog"
+                    modal="true"
+                    width="860"
+                    responsive="true"
+                    resizable="false">
+
+                    <div class="dialog-table custom-table">
+                        <p:dataTable
+                            id="replyHistoryTable"
+                            value="#{officerDashboardBean.replyList}"
+                            var="reply"
+                            emptyMessage="No replies found.">
+
+                            <p:column headerText="Replied By">
+                                <h:outputText value="#{reply.repliedBy.fullName}"/>
+                            </p:column>
+
+                            <p:column headerText="Message">
+                                <h:outputText value="#{reply.message}"/>
+                            </p:column>
+
+                            <p:column headerText="Date">
+                                <span class="date-val">
+                                    <h:outputText value="#{reply.repliedAt}"/>
+                                </span>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>
+                </p:dialog>
+
+                <!-- MAIN COMPLAINTS DATATABLE -->
+                <div class="custom-table">
+                    <p:dataTable
+                        id="complaintsTable"
+                        value="#{officerDashboardBean.assignedComplaints}"
+                        var="c"
+                        paginator="true"
+                        rows="10"
+                        paginatorPosition="bottom"
+                        reflow="true"
+                        emptyMessage="No complaints found.">
+
+                        <p:column headerText="ID" width="80">
+                            <span class="cid">##{c.complaintId}</span>
+                        </p:column>
+
+                        <p:column headerText="Title">
+                            <h:outputText value="#{c.title}"
+                                          style="font-weight:500;color:var(--text-primary);"/>
+                        </p:column>
+
+                        <p:column headerText="Category">
+                            <h:outputText value="#{c.categoryId.categoryName}"/>
+                        </p:column>
+
+                        <p:column headerText="Citizen">
+                            <div class="citizen-cell">
+                                <span class="citizen-name">#{c.citizenId.fullName}</span>
+                                <span class="citizen-mob">#{c.citizenId.mobile}</span>
+                            </div>
+                        </p:column>
+
+                        <p:column headerText="Priority" width="105">
+                            <span class="badge
+                                #{c.priority eq 'HIGH'   ? 'badge-high'   :
+                                  c.priority eq 'MEDIUM' ? 'badge-medium' :
+                                  'badge-low'}">
+                                #{c.priority}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Status" width="160">
+                            <div class="status-wrap">
+                                <p:selectOneMenu value="#{c.status}">
+                                    <f:selectItem itemLabel="Pending"     itemValue="PENDING"/>
+                                    <f:selectItem itemLabel="In Progress" itemValue="IN_PROGRESS"/>
+                                    <f:selectItem itemLabel="Resolved"    itemValue="RESOLVED"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </p:column>
+
+                        <p:column headerText="Created" width="120">
+                            <span class="date-val">
+                                <h:outputText value="#{c.createdAt}"/>
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Due Date" width="120">
+                            <span class="date-val">
+                                <h:outputText value="#{c.dueDate}"/>
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Actions" width="220">
+                            <div class="action-group">
+
+                                <div class="btn-update">
+                                    <p:commandButton
+                                        value="Update"
+                                        icon="pi pi-save"
+                                        update=":dashboardForm:msg"
+                                        actionListener="#{officerDashboardBean.updateStatus(c)}"/>
+                                </div>
+
+                                <div class="btn-reply">
+                                    <p:commandButton
+                                        value="Reply"
+                                        icon="pi pi-comments"
+                                        process="@this"
+                                        update=":dashboardForm:replyDlg"
+                                        actionListener="#{officerDashboardBean.openReplyDialog(c)}"
+                                        oncomplete="PF('replyDialog').show()"/>
+                                </div>
+
+                                <div class="btn-view">
+                                    <p:commandButton
+                                        value="View"
+                                        icon="pi pi-eye"
+                                        action="#{officerDashboardBean.viewComplaint(c.complaintId)}"/>
+                                </div>
+
+                            </div>
+                        </p:column>
+
+                    </p:dataTable>
+                </div>
+
+            </div>
+            <!-- /complaints card -->
+
+        </div>
+        <!-- /content -->
+
+    </div>
+    <!-- /main -->
+
+</h:form>
+</h:body>
+</html>

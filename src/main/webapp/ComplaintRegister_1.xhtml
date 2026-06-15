@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+<f:metadata>
+    <f:viewParam name="wardID" value="#{complaintCDIBean.ward_id}" />
+    <f:viewAction action="#{complaintCDIBean.loadSociety}" />
+</f:metadata>
+
+<h:head>
+    <title>Register Complaint</title>
+
+    <style>
+       body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #F7F5F1;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 420px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.08);
+}
+
+h2 {
+    text-align: center;
+    color: #344945;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: 500;
+    color: #344945;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #E0DCD1;
+    background-color: #F7F5F1;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #344945;
+    background-color: #ffffff;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #344945;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: #2a3b38;
+}
+
+.card-header {
+    background: #D5E3E8;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #344945;
+    font-weight: bold;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 18px;
+        border-radius: 10px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+}
+    </style>
+</h:head>
+
+<h:body>
+
+<div class="container">
+
+    <div class="card-header">
+        Complaint Registration
+    </div>
+
+    <h:form>
+
+        <h:inputHidden value="#{complaintCDIBean.ward_id}"/>
+
+        <label>Select Society</label>
+        <h:selectOneMenu value="#{complaintCDIBean.societyId}">
+            <f:selectItems value="#{complaintCDIBean.socities}"
+                           var="s"
+                           itemLabel="#{s.societyName}"
+                           itemValue="#{s.societyId}" />
+        </h:selectOneMenu>
+
+        <label>Select Category</label>
+        <h:selectOneMenu value="#{complaintCDIBean.categoryId}">
+            <f:selectItems value="#{complaintCDIBean.categories}"
+                           var="c"
+                           itemLabel="#{c.categoryName}"
+                           itemValue="#{c.categoryId}" />
+        </h:selectOneMenu>
+
+        <label>Title</label>
+        <h:inputText value="#{complaintCDIBean.title}" required="true"/>
+
+        <label>Description</label>
+        <h:inputText value="#{complaintCDIBean.description}"/>
+
+        <label>Priority</label>
+        <h:selectOneMenu value="#{complaintCDIBean.priority}">
+            <f:selectItem itemValue="Low" itemLabel="Low"/>
+            <f:selectItem itemValue="Medium" itemLabel="Medium"/>
+            <f:selectItem itemValue="High" itemLabel="High"/>
+        </h:selectOneMenu>
+
+        <h:commandButton value="Submit Complaint"
+                         styleClass="btn"
+                         action="#{complaintCDIBean.submitComplaint}" />
+
+    </h:form>
+
+</div>
+
+</h:body>
+</html>

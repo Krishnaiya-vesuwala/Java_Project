@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Escalated Complaints</title>
+</h:head>
+
+<h:body>
+
+<h:form id="complaintForm">
+
+    <p:growl id="msg" showDetail="true"/>
+
+    <p:dataTable id="allTable"
+                 value="#{escalatedComplaintCDI.allEscalatedComplaints}"
+                 var="c"
+                 paginator="true"
+                 rows="10">
+
+        <p:column headerText="Complaint ID">
+            #{c.complaintId}
+        </p:column>
+
+        <p:column headerText="Title">
+            #{c.title}
+        </p:column>
+
+        <p:column headerText="Citizen">
+            #{c.citizenId.fullName}
+        </p:column>
+
+        <p:column headerText="Category">
+            #{c.categoryId.categoryName}
+        </p:column>
+
+        <p:column headerText="Status">
+            #{c.status}
+        </p:column>
+
+        <p:column headerText="Action">
+
+            <p:commandButton
+                    value="View Details"
+                    icon="pi pi-eye"
+                    process="@this"
+                    actionListener="#{escalatedComplaintCDI.prepareView(c)}"
+                    update=":complaintForm:detailDialog"
+                    oncomplete="PF('detailDlg').show()"/>
+
+        </p:column>
+
+    </p:dataTable>
+
+    <p:dialog id="detailDialog"
+              widgetVar="detailDlg"
+              header="Complaint Details"
+              modal="true"
+              appendTo="@(body)"
+              width="1100"
+              resizable="false">
+
+        <h:panelGroup rendered="#{not empty escalatedComplaintCDI.selectedComplaint}">
+
+            <p:panel header="Complaint Information">
+
+                <h:panelGrid columns="2" cellpadding="8">
+
+                    <h:outputText value="Complaint ID"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.complaintId}"/>
+
+                    <h:outputText value="Title"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.title}"/>
+
+                    <h:outputText value="Description"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.description}"/>
+
+                    <h:outputText value="Priority"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.priority}"/>
+
+                    <h:outputText value="Status"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.status}"/>
+
+                    <h:outputText value="Created At"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.createdAt}"/>
+
+                </h:panelGrid>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Citizen Information">
+
+                <h:panelGrid columns="2" cellpadding="8">
+
+                    <h:outputText value="Name"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.citizenId.fullName}"/>
+
+                    <h:outputText value="Email"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.citizenId.email}"/>
+
+                    <h:outputText value="Mobile"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.citizenId.mobile}"/>
+
+                    <h:outputText value="Username"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.citizenId.username}"/>
+
+                </h:panelGrid>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Location Information">
+
+                <h:panelGrid columns="2" cellpadding="8">
+
+                    <h:outputText value="Society"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.societyId.societyName}"/>
+
+                    <h:outputText value="Ward"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.wardId.wardName}"/>
+
+                    <h:outputText value="Zone"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.zoneId.zoneName}"/>
+
+                </h:panelGrid>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Category Information">
+
+                <h:panelGrid columns="2" cellpadding="8">
+
+                    <h:outputText value="Category"/>
+                    <h:outputText value="#{escalatedComplaintCDI.selectedComplaint.categoryId.categoryName}"/>
+
+                </h:panelGrid>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Escalation History">
+
+                <p:dataTable
+                        value="#{escalatedComplaintCDI.selectedComplaint.complaintEscalationCollection}"
+                        var="e"
+                        emptyMessage="No Escalation Records">
+
+                    <p:column headerText="Escalation ID">
+                        #{e.escalationId}
+                    </p:column>
+
+                    <p:column headerText="Reason">
+                        #{e.reason}
+                    </p:column>
+
+                    <p:column headerText="Escalated At">
+                        #{e.escalatedAt}
+                    </p:column>
+
+                    <p:column headerText="Officer">
+                        #{e.escalatedTo.designation}
+                    </p:column>
+
+                </p:dataTable>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Replies">
+
+                <p:dataTable
+                        value="#{escalatedComplaintCDI.selectedComplaint.complaintReplyCollection}"
+                        var="r"
+                        emptyMessage="No Replies Found">
+
+                    <p:column headerText="Reply ID">
+                        #{r.replyId}
+                    </p:column>
+
+                    <p:column headerText="Message">
+                        #{r.message}
+                    </p:column>
+
+                    <p:column headerText="Replied By">
+                        #{r.repliedBy.fullName}
+                    </p:column>
+
+                    <p:column headerText="Date">
+                        #{r.repliedAt}
+                    </p:column>
+
+                </p:dataTable>
+
+            </p:panel>
+
+            <br/>
+
+            <p:panel header="Status History">
+
+                <p:dataTable
+                        value="#{escalatedComplaintCDI.selectedComplaint.complaintStatusHistoryCollection}"
+                        var="s"
+                        emptyMessage="No Status History">
+
+                    <p:column headerText="Old Status">
+                        #{s.oldStatus}
+                    </p:column>
+
+                    <p:column headerText="New Status">
+                        #{s.newStatus}
+                    </p:column>
+
+                    <p:column headerText="Changed By">
+                        #{s.changedBy.fullName}
+                    </p:column>
+
+                    <p:column headerText="Changed At">
+                        #{s.changedAt}
+                    </p:column>
+
+                </p:dataTable>
+
+            </p:panel>
+
+        </h:panelGroup>
+
+    </p:dialog>
+
+</h:form>
+
+</h:body>
+</html>
+

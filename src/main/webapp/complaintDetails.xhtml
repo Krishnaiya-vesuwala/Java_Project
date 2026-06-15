@@ -1,0 +1,648 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Complaint Details</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap"
+              rel="stylesheet"/>
+
+        <style>
+            :root {
+                --gold: #D4AF37;
+                --gold-light: #F0D060;
+                --gold-dim: #A88B20;
+                --gold-bg: rgba(212,175,55,.08);
+                --gold-bg2: rgba(212,175,55,.14);
+                --sidebar: #1A1A1A;
+                --bg: #F4F5F8;
+                --text: #1C1C1E;
+                --muted: #6B7080;
+                --border: #E8E9EE;
+                --radius: 14px;
+                --shadow: 0 2px 16px rgba(0,0,0,.07);
+            }
+
+            * { margin:0; padding:0; box-sizing:border-box; }
+
+            body {
+                font-family: 'DM Sans','Segoe UI',sans-serif;
+                background: var(--bg); color: var(--text);
+            }
+
+            .wrapper { display:flex; min-height:100vh; }
+
+            /* ── SIDEBAR ── */
+            .sidebar {
+                width:268px; min-width:268px;
+                background:var(--sidebar);
+                display:flex; flex-direction:column;
+                position:sticky; top:0; height:100vh; overflow-y:auto;
+            }
+            .brand {
+                padding:28px 24px 20px;
+                border-bottom:1px solid rgba(255,255,255,.07);
+                text-align:center;
+            }
+            .brand-logo {
+                width:58px; height:58px; border-radius:50%;
+                background:var(--gold-bg2); border:2px solid var(--gold-dim);
+                display:flex; align-items:center; justify-content:center;
+                margin:0 auto 12px; color:var(--gold); font-size:22px;
+            }
+            .brand-title {
+                font-family:'Playfair Display',serif;
+                font-size:13.5px; color:var(--gold); line-height:1.5;
+            }
+            .brand-sub {
+                font-size:10px; color:rgba(255,255,255,.3);
+                margin-top:5px; letter-spacing:.1em; text-transform:uppercase;
+            }
+            .sidebar-nav { padding:20px 14px; flex:1; }
+            .nav-label {
+                font-size:10px; color:rgba(255,255,255,.3);
+                letter-spacing:.1em; text-transform:uppercase;
+                margin:18px 8px 8px; font-weight:500;
+            }
+            .sidebar-nav a {
+                display:flex; align-items:center; gap:10px;
+                padding:10px 13px; border-radius:10px;
+                color:rgba(255,255,255,.6); text-decoration:none;
+                font-size:13.5px; margin-bottom:2px; transition:.2s;
+            }
+            .sidebar-nav a:hover, .sidebar-nav a.active {
+                background:var(--gold-bg2); color:var(--gold);
+            }
+            .sidebar-footer {
+                padding:14px 18px;
+                border-top:1px solid rgba(255,255,255,.07);
+                display:flex; align-items:center; gap:10px;
+            }
+            .admin-avatar {
+                width:36px; height:36px; border-radius:50%;
+                background:var(--gold-bg2); border:1.5px solid var(--gold-dim);
+                display:flex; align-items:center; justify-content:center;
+                color:var(--gold); font-weight:600;
+            }
+            .admin-name { color:rgba(255,255,255,.75); font-size:13px; }
+            .admin-role { color:rgba(255,255,255,.3); font-size:11px; }
+
+            /* ── MAIN ── */
+            .main { flex:1; display:flex; flex-direction:column; }
+            .topbar {
+                background:#fff; border-bottom:1px solid var(--border);
+                height:66px; padding:0 32px;
+                display:flex; align-items:center; justify-content:space-between;
+            }
+            .page-title {
+                font-family:'Playfair Display',serif; font-size:22px;
+            }
+            .topbar-right { display:flex; align-items:center; gap:12px; }
+            .icon-btn {
+                width:38px; height:38px; border-radius:10px;
+                border:1px solid var(--border); background:transparent;
+                cursor:pointer;
+            }
+            .btn-logout {
+                display:flex; align-items:center; gap:6px;
+                padding:8px 16px; border-radius:10px;
+                background:var(--gold-bg); color:var(--gold-dim);
+                text-decoration:none; font-size:13px; font-weight:600;
+                border:1px solid rgba(212,175,55,.3); transition:.2s;
+            }
+            .btn-logout:hover { background:var(--gold-bg2); color:var(--gold); }
+
+            .content {
+                padding:28px 32px;
+                display:flex; flex-direction:column; gap:24px;
+            }
+
+            /* ── PAGE HEADER ── */
+            .page-header {
+                background:var(--sidebar); border-radius:var(--radius);
+                padding:22px 28px; display:flex;
+                justify-content:space-between; align-items:center;
+                overflow:hidden; position:relative;
+            }
+            .page-header::before {
+                content:''; position:absolute; right:-30px; top:-30px;
+                width:160px; height:160px; border-radius:50%;
+                background:rgba(212,175,55,.06);
+            }
+            .page-header-text h2 {
+                color:#fff; font-family:'Playfair Display',serif; font-size:22px;
+            }
+            .page-header-text p { color:rgba(255,255,255,.4); font-size:13px; }
+
+            /* back button */
+            .btn-back {
+                display:inline-flex; align-items:center; gap:7px;
+                padding:9px 18px; border-radius:10px;
+                background:var(--gold-bg2); color:var(--gold);
+                text-decoration:none; font-size:13px; font-weight:600;
+                border:1px solid rgba(212,175,55,.3); transition:.2s;
+                cursor:pointer;
+            }
+            .btn-back:hover { background:var(--gold); color:#1A1A1A; }
+
+            /* ── TWO-COLUMN GRID ── */
+            .detail-grid {
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:20px;
+            }
+            @media(max-width:800px){ .detail-grid{ grid-template-columns:1fr; } }
+
+            /* ── INFO CARD ── */
+            .info-card {
+                background:#fff; border-radius:var(--radius);
+                border:1px solid var(--border); box-shadow:var(--shadow);
+                overflow:hidden;
+            }
+            .info-card-header {
+                padding:16px 22px; border-bottom:1px solid var(--border);
+                background:#FAFAFA;
+                display:flex; align-items:center; gap:10px;
+            }
+            .info-card-icon {
+                width:34px; height:34px; border-radius:9px;
+                background:var(--gold-bg2); border:1px solid rgba(212,175,55,.3);
+                display:flex; align-items:center; justify-content:center;
+                color:var(--gold); font-size:13px; flex-shrink:0;
+            }
+            .info-card-title {
+                font-size:14px; font-weight:600; color:var(--text);
+            }
+            .info-card-body { padding:20px 22px; }
+
+            /* ── FIELD ROWS ── */
+            .field-row {
+                display:flex; gap:12px; padding:10px 0;
+                border-bottom:1px solid var(--border);
+                align-items:flex-start;
+            }
+            .field-row:last-child { border-bottom:none; padding-bottom:0; }
+            .field-label {
+                min-width:130px; font-size:12px; font-weight:600;
+                text-transform:uppercase; letter-spacing:.05em;
+                color:var(--muted); padding-top:2px;
+            }
+            .field-value {
+                font-size:13.5px; color:var(--text); flex:1; line-height:1.6;
+            }
+
+            /* ── STATUS / PRIORITY BADGES ── */
+            .badge {
+                display:inline-flex; align-items:center; gap:5px;
+                padding:4px 12px; border-radius:20px;
+                font-size:11.5px; font-weight:600;
+            }
+            .badge::before {
+                content:''; width:6px; height:6px;
+                border-radius:50%; background:currentColor;
+            }
+            .badge-open      { background:#FFF0F0; color:#C0392B; }
+            .badge-assigned  { background:#EEF3FF; color:#3A5BD9; }
+            .badge-active    { background:#E8F8EE; color:#1A8040; }
+            .badge-resolved  { background:#E8F8EE; color:#1A8040; }
+            .badge-closed    { background:#F0F0F0; color:#555;    }
+            .badge-escalated { background:#FFF4E5; color:#E65100; }
+
+            /* ── TABLE CARD ── */
+            .table-card {
+                background:#fff; border-radius:var(--radius);
+                border:1px solid var(--border); overflow:hidden;
+                box-shadow:var(--shadow);
+            }
+            .table-card-head {
+                padding:16px 22px; border-bottom:1px solid var(--border);
+                display:flex; align-items:center; gap:10px;
+            }
+            .table-card-head-icon {
+                width:32px; height:32px; border-radius:8px;
+                background:var(--gold-bg2); border:1px solid rgba(212,175,55,.3);
+                display:flex; align-items:center; justify-content:center;
+                color:var(--gold); font-size:12px;
+            }
+            .table-card-title { font-size:14px; font-weight:600; }
+            .record-count {
+                margin-left:auto;
+                background:var(--gold-bg); border:1px solid rgba(212,175,55,.3);
+                color:var(--gold-dim); font-size:12px; font-weight:600;
+                padding:3px 10px; border-radius:20px;
+            }
+
+            /* ── DATATABLE ── */
+            .custom-table .ui-datatable { border:none!important; }
+            .custom-table .ui-datatable thead th {
+                background:#FAFAFA!important;
+                border-bottom:1px solid var(--border)!important;
+                padding:10px 20px!important; font-size:11.5px!important;
+                text-transform:uppercase!important; color:var(--muted)!important;
+                font-weight:600!important;
+            }
+            .custom-table .ui-datatable tbody td {
+                padding:12px 20px!important;
+                border-bottom:1px solid var(--border)!important;
+                font-size:13.5px!important;
+            }
+            .custom-table .ui-datatable tbody tr:last-child td {
+                border-bottom:none!important;
+            }
+            .custom-table .ui-datatable tbody tr:hover td {
+                background:#FAFBFF!important;
+            }
+
+            /* ── REPLY MESSAGE CELL ── */
+            .reply-msg {
+                background:var(--bg); border-radius:8px;
+                padding:8px 12px; font-size:13px;
+                border-left:3px solid var(--gold);
+                line-height:1.5;
+            }
+
+            /* ── DATE PILL ── */
+            .date-pill {
+                display:inline-flex; align-items:center; gap:5px;
+                padding:3px 10px; border-radius:20px;
+                background:#F0F7FF; color:#1565C0;
+                font-size:12px; font-weight:500;
+                border:1px solid rgba(21,101,192,.15);
+            }
+
+            /* ── STATUS TRANSITION ── */
+            .status-transition {
+                display:inline-flex; align-items:center; gap:8px;
+            }
+            .arrow-icon { color:var(--muted); font-size:12px; }
+
+            /* ── ESCALATION OFFICER CELL ── */
+            .officer-cell {
+                display:flex; align-items:center; gap:8px;
+            }
+            .officer-dot {
+                width:30px; height:30px; border-radius:50%;
+                background:var(--gold-bg2); border:1.5px solid var(--gold-dim);
+                display:flex; align-items:center; justify-content:center;
+                color:var(--gold); font-size:12px; flex-shrink:0;
+            }
+            .officer-name-text { font-weight:600; font-size:13px; }
+
+            /* ── EMPTY STATE ── */
+            .empty-state {
+                text-align:center; padding:32px 20px;
+                color:var(--muted); font-size:13px;
+            }
+            .empty-state i {
+                font-size:30px; color:var(--border);
+                display:block; margin-bottom:10px;
+            }
+
+            /* ── RESPONSIVE ── */
+            @media(max-width:768px){
+                .sidebar {
+                    position:fixed; left:-268px; top:0;
+                    z-index:999; transition:.3s;
+                }
+                .sidebar.open { left:0; }
+                .content { padding:16px; }
+                .page-header {
+                    flex-direction:column;
+                    align-items:flex-start; gap:14px;
+                }
+                .detail-grid { grid-template-columns:1fr; }
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <div class="wrapper">
+
+          
+                     
+                  
+      
+
+            <!-- ══════════════ MAIN ══════════════ -->
+            <div class="main">
+                <h:form id="detailsForm">
+
+                    <!-- TOPBAR -->
+                    <div class="topbar">
+                        <div class="page-title">Complaint Details</div>
+                        <div class="topbar-right">
+                            <button class="icon-btn" type="button"
+                                    title="Notifications">
+                                <i class="fa fa-bell"></i>
+                            </button>
+                            <a href="complaintDetails.jsf" class="btn-logout">
+                                <i class="fa fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div class="content">
+
+                        <!-- PAGE HEADER -->
+                        <div class="page-header">
+                            <div class="page-header-text">
+                                <h2>Complaint Details</h2>
+                                <p>Full complaint record — replies, status
+                                   history and escalations.</p>
+                            </div>
+                            <a href="adminDashboard.xhtml" class="btn-back">
+                                <i class="fa fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+
+                        <!-- ── TOP DETAIL GRID ── -->
+                        <div class="detail-grid">
+
+                            <!-- COMPLAINT INFO CARD -->
+                            <div class="info-card">
+                                <div class="info-card-header">
+                                    <div class="info-card-icon">
+                                        <i class="fa fa-file-alt"/>
+                                    </div>
+                                    <div class="info-card-title">
+                                        Complaint Information
+                                    </div>
+                                </div>
+                                <div class="info-card-body">
+
+                                    <div class="field-row">
+                                        <div class="field-label">Complaint ID</div>
+                                        <div class="field-value"
+                                             style="color:var(--gold);font-weight:700">
+                                            #<h:outputText
+                                                value="#{complaintDetailsCDI.complaint.complaintId}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field-label">Title</div>
+                                        <div class="field-value">
+                                            <h:outputText
+                                                value="#{complaintDetailsCDI.complaint.title}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field-label">Description</div>
+                                        <div class="field-value">
+                                            <h:outputText
+                                                value="#{complaintDetailsCDI.complaint.description}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field-label">Status</div>
+                                        <div class="field-value">
+                                            <span class="badge
+                                                #{complaintDetailsCDI.complaint.status eq 'OPEN'
+                                                  ? 'badge-open'
+                                                  : complaintDetailsCDI.complaint.status eq 'ASSIGNED'
+                                                    ? 'badge-assigned'
+                                                    : complaintDetailsCDI.complaint.status eq 'ACTIVE'
+                                                      ? 'badge-active'
+                                                      : complaintDetailsCDI.complaint.status eq 'RESOLVED'
+                                                        ? 'badge-resolved'
+                                                        : complaintDetailsCDI.complaint.status eq 'ESCALATED'
+                                                          ? 'badge-escalated'
+                                                          : 'badge-closed'}">
+                                                <h:outputText
+                                                    value="#{complaintDetailsCDI.complaint.status}"/>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- CITIZEN INFO CARD -->
+                            <div class="info-card">
+                                <div class="info-card-header">
+                                    <div class="info-card-icon">
+                                        <i class="fa fa-user"/>
+                                    </div>
+                                    <div class="info-card-title">
+                                        Citizen Information
+                                    </div>
+                                </div>
+                                <div class="info-card-body">
+
+                                    <div class="field-row">
+                                        <div class="field-label">Full Name</div>
+                                        <div class="field-value"
+                                             style="font-weight:600">
+                                            <h:outputText
+                                                value="#{complaintDetailsCDI.citizen.fullName}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field-label">Mobile</div>
+                                        <div class="field-value">
+                                            <i class="fa fa-phone"
+                                               style="color:var(--gold-dim);
+                                                      margin-right:6px;
+                                                      font-size:12px"/>
+                                            <h:outputText
+                                                value="#{complaintDetailsCDI.citizen.mobile}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field-label">Email</div>
+                                        <div class="field-value">
+                                            <i class="fa fa-envelope"
+                                               style="color:var(--gold-dim);
+                                                      margin-right:6px;
+                                                      font-size:12px"/>
+                                            <h:outputText
+                                                value="#{complaintDetailsCDI.citizen.email}"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div><!-- /detail-grid -->
+
+                        <!-- ── REPLIES TABLE ── -->
+                        <div class="table-card">
+                            <div class="table-card-head">
+                                <div class="table-card-head-icon">
+                                    <i class="fa fa-comments"/>
+                                </div>
+                                <div class="table-card-title">Replies</div>
+                                <div class="record-count">
+                                    #{complaintDetailsCDI.replies.size()}
+                                </div>
+                            </div>
+                            <div class="custom-table">
+                                <p:dataTable
+                                    value="#{complaintDetailsCDI.replies}"
+                                    var="r"
+                                    emptyMessage="No replies yet."
+                                    rowHover="true"
+                                    style="width:100%">
+
+                                    <p:column headerText="Reply Message">
+                                        <div class="reply-msg">
+                                            <h:outputText value="#{r.message}"/>
+                                        </div>
+                                    </p:column>
+
+                                    <p:column headerText="Date" width="200">
+                                        <span class="date-pill">
+                                            <i class="fa fa-calendar-alt"
+                                               style="font-size:10px"/>
+                                            <h:outputText value="#{r.repliedAt}">
+                                                <f:convertDateTime
+                                                    pattern="dd MMM yyyy, HH:mm"
+                                                    type="localDateTime"/>
+                                            </h:outputText>
+                                        </span>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </div>
+                        </div>
+
+                        <!-- ── STATUS HISTORY TABLE ── -->
+                        <div class="table-card">
+                            <div class="table-card-head">
+                                <div class="table-card-head-icon">
+                                    <i class="fa fa-history"/>
+                                </div>
+                                <div class="table-card-title">Status History</div>
+                                <div class="record-count">
+                                    #{complaintDetailsCDI.statusHistory.size()}
+                                </div>
+                            </div>
+                            <div class="custom-table">
+                                <p:dataTable
+                                    value="#{complaintDetailsCDI.statusHistory}"
+                                    var="sh"
+                                    emptyMessage="No status changes yet."
+                                    rowHover="true"
+                                    style="width:100%">
+
+                                    <p:column headerText="Old Status" width="200">
+                                        <span class="badge
+                                            #{sh.oldStatus eq 'OPEN'
+                                              ? 'badge-open'
+                                              : sh.oldStatus eq 'ASSIGNED'
+                                                ? 'badge-assigned'
+                                                : sh.oldStatus eq 'RESOLVED'
+                                                  ? 'badge-resolved'
+                                                  : sh.oldStatus eq 'ESCALATED'
+                                                    ? 'badge-escalated'
+                                                    : 'badge-closed'}">
+                                            <h:outputText value="#{sh.oldStatus}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <p:column headerText="" width="50">
+                                        <span class="arrow-icon">
+                                            <i class="fa fa-arrow-right"/>
+                                        </span>
+                                    </p:column>
+
+                                    <p:column headerText="New Status" width="200">
+                                        <span class="badge
+                                            #{sh.newStatus eq 'OPEN'
+                                              ? 'badge-open'
+                                              : sh.newStatus eq 'ASSIGNED'
+                                                ? 'badge-assigned'
+                                                : sh.newStatus eq 'RESOLVED'
+                                                  ? 'badge-resolved'
+                                                  : sh.newStatus eq 'ESCALATED'
+                                                    ? 'badge-escalated'
+                                                    : 'badge-closed'}">
+                                            <h:outputText value="#{sh.newStatus}"/>
+                                        </span>
+                                    </p:column>
+
+                                    <p:column headerText="Changed On">
+                                        <span class="date-pill">
+                                            <i class="fa fa-clock"
+                                               style="font-size:10px"/>
+                                            <h:outputText value="#{sh.changedAt}">
+                                                <f:convertDateTime
+                                                    pattern="dd MMM yyyy, HH:mm"
+                                                    type="localDateTime"/>
+                                            </h:outputText>
+                                        </span>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </div>
+                        </div>
+
+                        <!-- ── ESCALATION HISTORY TABLE ── -->
+                        <div class="table-card">
+                            <div class="table-card-head">
+                                <div class="table-card-head-icon">
+                                    <i class="fa fa-exclamation-triangle"/>
+                                </div>
+                                <div class="table-card-title">
+                                    Escalation History
+                                </div>
+                                <div class="record-count">
+                                    #{complaintDetailsCDI.escalationHistory.size()}
+                                </div>
+                            </div>
+                            <div class="custom-table">
+                                <p:dataTable
+                                    value="#{complaintDetailsCDI.escalationHistory}"
+                                    var="e"
+                                    emptyMessage="No escalations recorded."
+                                    rowHover="true"
+                                    style="width:100%">
+
+                                    <p:column headerText="Escalated To">
+                                        <div class="officer-cell">
+                                            <div class="officer-dot">
+                                                <i class="fa fa-user-shield"
+                                                   style="font-size:12px"/>
+                                            </div>
+                                            <div class="officer-name-text">
+                                                <h:outputText
+                                                    value="#{e.escalatedTo.userId.fullName}"/>
+                                            </div>
+                                        </div>
+                                    </p:column>
+
+                                    <p:column headerText="Escalated On">
+                                        <span class="date-pill">
+                                            <i class="fa fa-calendar-alt"
+                                               style="font-size:10px"/>
+                                            <h:outputText value="#{e.escalatedAt}">
+                                                <f:convertDateTime
+                                                    pattern="dd MMM yyyy, HH:mm"
+                                                    type="localDateTime"/>
+                                            </h:outputText>
+                                        </span>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </div>
+                        </div>
+
+                    </div><!-- /content -->
+                </h:form>
+            </div><!-- /main -->
+
+        </div><!-- /wrapper -->
+    </h:body>
+</html>

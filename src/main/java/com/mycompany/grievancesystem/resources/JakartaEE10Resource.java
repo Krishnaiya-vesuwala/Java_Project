@@ -37,12 +37,13 @@ import java.util.List;
 
 /**
  *
- * @author
+ * @author 
  */
 @Path("jakartaee10")
-public class JakartaEE10Resource {
 
-    @EJB
+
+public class JakartaEE10Resource {
+  @EJB
     AdminBeanLocal adminBean;
 
     @EJB
@@ -140,9 +141,6 @@ public class JakartaEE10Resource {
         return adminBean.getWardsByZone(zoneId);
     }
 
-    // =========================================================
-    // CORPORATION
-    // =========================================================
 
     @GET
     @Path("getAllCorporations")
@@ -1390,4 +1388,5 @@ public class JakartaEE10Resource {
             @PathParam("officerId") Integer officerId) {
         return corporateDashboardService.getHighPriorityComplaints(officerId);
     }
+
 }

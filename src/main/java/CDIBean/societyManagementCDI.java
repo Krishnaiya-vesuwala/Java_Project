@@ -1,16 +1,18 @@
 package CDIBean;
 
-import EJB.AdminBeanLocal;
+import Client.RestClient;
 import Entity.Society;
 import Entity.Ward;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -18,8 +20,7 @@ import java.util.regex.Pattern;
 @ViewScoped
 public class societyManagementCDI implements Serializable {
 
-    @EJB
-    private AdminBeanLocal adminService;
+    private RestClient restClient = new RestClient();
 
     private List<Society> societies;
     private List<Ward>    wards;
@@ -56,14 +57,44 @@ public class societyManagementCDI implements Serializable {
 
     @PostConstruct
     public void init() {
-        societies       = adminService.getAllSocieties();
-        wards           = adminService.getAllWards();
+        societies       = new ArrayList<>();
+        wards           = new ArrayList<>();
         selectedSociety = new Society();
         newStatus       = "ACTIVE";
+        loadData();
+        loadWards();
     }
 
     public void loadData() {
-        societies = adminService.getAllSocieties();
+        try {
+            Response rs = restClient.getAllSocieties(Response.class);
+            if (rs.getStatus() == 200) {
+                societies = rs.readEntity(new GenericType<List<Society>>() {});
+            } else {
+                System.err.println("[societyManagementCDI] loadData failed. Status: " + rs.getStatus());
+                societies = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            System.err.println("[societyManagementCDI] loadData error: " + e.getMessage());
+            e.printStackTrace();
+            societies = new ArrayList<>();
+        }
+    }
+
+    private void loadWards() {
+        try {
+            Response rs = restClient.getAllWards(Response.class);
+            if (rs.getStatus() == 200) {
+                wards = rs.readEntity(new GenericType<List<Ward>>() {});
+            } else {
+                System.err.println("[societyManagementCDI] loadWards failed. Status: " + rs.getStatus());
+                wards = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            System.err.println("[societyManagementCDI] loadWards error: " + e.getMessage());
+            e.printStackTrace();
+            wards = new ArrayList<>();
+        }
     }
 
     /** Called by "Add Society" button — resets add-dialog fields. */
@@ -78,16 +109,6 @@ public class societyManagementCDI implements Serializable {
     //  VALIDATION
     // ═══════════════════════════════════════════════════════
 
-    /**
-     * Validates all fields for create / update.
-     * Posts FacesMessages to the component IDs that match the
-     * p:message for="..." attributes in the XHTML, then calls
-     * fc.validationFailed() so PrimeFaces sets
-     * args.validationFailed = true → dialog stays open.
-     *
-     * isEdit = false → prefix "societyForm:add..."
-     * isEdit = true  → prefix "societyForm:edit..."
-     */
     private boolean validateSociety(String  societyName,
                                     String  address,
                                     String  status,
@@ -98,7 +119,6 @@ public class societyManagementCDI implements Serializable {
         boolean      ok = true;
         FacesContext fc = FacesContext.getCurrentInstance();
 
-        // Component-ID prefix matches the XHTML ids
         String prefix = isEdit ? "societyForm:edit" : "societyForm:add";
 
         // ── 1. Society Name ───────────────────────────────
@@ -133,7 +153,7 @@ public class societyManagementCDI implements Serializable {
                 for (Society s : societies) {
                     if (excludeSocietyId != null
                             && s.getSocietyId().equals(excludeSocietyId)) {
-                        continue; // skip the record being edited
+                        continue;
                     }
                     if (s.getWardId() != null
                             && s.getWardId().getWardId().equals(wardId)
@@ -196,16 +216,11 @@ public class societyManagementCDI implements Serializable {
 
     // ── Message helpers ───────────────────────────────────
 
-    /**
-     * Adds an error message to a specific component AND marks
-     * validation as failed so args.validationFailed = true on the client.
-     * Identical pattern to ZoneManagementCDI / WardManagementCDI.
-     */
     private void addError(FacesContext fc, String clientId, String detail) {
         fc.addMessage(clientId,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                  "Validation Error", detail));
-        fc.validationFailed(); // ← keeps dialog open via oncomplete check
+        fc.validationFailed();
     }
 
     private void addSuccess(String summary, String detail) {
@@ -230,27 +245,33 @@ public class societyManagementCDI implements Serializable {
         if (!validateSociety(newSocietyName, newAddress,
                              newStatus, newWardId,
                              null, false)) {
-            return; // validationFailed() already set → dialog stays open
+            return;
         }
 
-        adminService.createSociety(
-                newWardId,
-                newSocietyName.trim(),
-                newAddress.trim(),
-                newStatus);
+        try {
+            restClient.createSociety(
+                    String.valueOf(newWardId),
+                    newSocietyName.trim(),
+                    newAddress.trim(),
+                    newStatus);
 
-        loadData();
+            loadData();
+            addSuccess("Success",
+                    "Society '" + newSocietyName.trim()
+                    + "' created successfully.");
+            prepareCreate();
 
-        addSuccess("Success",
-                "Society '" + newSocietyName.trim()
-                + "' created successfully.");
-
-        prepareCreate(); // reset fields for next use
+        } catch (Exception e) {
+            System.err.println("[societyManagementCDI] createSociety error: "
+                               + e.getMessage());
+            addError(FacesContext.getCurrentInstance(),
+                     "societyForm:addSocietyName",
+                     "Failed to create society. Please try again.");
+        }
     }
 
     /** Called by "Edit" row button — populates edit-dialog fields. */
     public void editSociety(Society s) {
-
         selectedSociety = s;
         editSocietyName = s.getSocietyName();
         editAddress     = s.getAddress();
@@ -258,7 +279,6 @@ public class societyManagementCDI implements Serializable {
         editWardId      = (s.getWardId() != null)
                           ? s.getWardId().getWardId()
                           : null;
-
         System.out.println("Editing Society = " + s.getSocietyId());
     }
 
@@ -276,19 +296,27 @@ public class societyManagementCDI implements Serializable {
         if (!validateSociety(editSocietyName, editAddress,
                              editStatus, editWardId,
                              selectedSociety.getSocietyId(), true)) {
-            return; // validationFailed() already set → dialog stays open
+            return;
         }
 
-        adminService.updateSociety(
-                selectedSociety.getSocietyId(),
-                editSocietyName.trim(),
-                editAddress.trim(),
-                editStatus,
-                editWardId);
+        try {
+            restClient.updateSociety(
+                    String.valueOf(selectedSociety.getSocietyId()),
+                    editSocietyName.trim(),
+                    editAddress.trim(),
+                    editStatus,
+                    String.valueOf(editWardId));
 
-        loadData();
+            loadData();
+            addSuccess("Updated", "Society updated successfully.");
 
-        addSuccess("Updated", "Society updated successfully.");
+        } catch (Exception e) {
+            System.err.println("[societyManagementCDI] updateSociety error: "
+                               + e.getMessage());
+            addError(FacesContext.getCurrentInstance(),
+                     "societyForm:editSocietyName",
+                     "Failed to update society. Please try again.");
+        }
     }
 
     /** Set society status → ACTIVE. */
@@ -299,16 +327,23 @@ public class societyManagementCDI implements Serializable {
                 .findFirst().orElse(null);
 
         if (s != null) {
-            adminService.updateSociety(
-                    s.getSocietyId(),
-                    s.getSocietyName(),
-                    s.getAddress(),
-                    "ACTIVE",
-                    s.getWardId().getWardId());
-            loadData();
-            addSuccess("Activated",
-                    "Society '" + s.getSocietyName()
-                    + "' has been activated.");
+            try {
+                restClient.updateSociety(
+                        String.valueOf(s.getSocietyId()),
+                        s.getSocietyName(),
+                        s.getAddress(),
+                        "ACTIVE",
+                        String.valueOf(s.getWardId().getWardId()));
+
+                loadData();
+                addSuccess("Activated",
+                        "Society '" + s.getSocietyName()
+                        + "' has been activated.");
+
+            } catch (Exception e) {
+                System.err.println("[societyManagementCDI] activate error: "
+                                   + e.getMessage());
+            }
         }
     }
 
@@ -320,33 +355,42 @@ public class societyManagementCDI implements Serializable {
                 .findFirst().orElse(null);
 
         if (s != null) {
-            adminService.updateSociety(
-                    s.getSocietyId(),
-                    s.getSocietyName(),
-                    s.getAddress(),
-                    "INACTIVE",
-                    s.getWardId().getWardId());
-            loadData();
-            addSuccess("Deactivated",
-                    "Society '" + s.getSocietyName()
-                    + "' has been deactivated.");
+            try {
+                restClient.updateSociety(
+                        String.valueOf(s.getSocietyId()),
+                        s.getSocietyName(),
+                        s.getAddress(),
+                        "INACTIVE",
+                        String.valueOf(s.getWardId().getWardId()));
+
+                loadData();
+                addSuccess("Deactivated",
+                        "Society '" + s.getSocietyName()
+                        + "' has been deactivated.");
+
+            } catch (Exception e) {
+                System.err.println("[societyManagementCDI] deactivate error: "
+                                   + e.getMessage());
+            }
         }
     }
 
     /** Hard-delete a society. */
     public void deleteSociety(Integer id) {
         System.out.println("DELETE Society ID: " + id);
-        adminService.deleteSociety(id);
-        loadData();
-        addSuccess("Deleted", "Society deleted successfully.");
+        try {
+            restClient.deleteSociety(String.valueOf(id));
+            loadData();
+            addSuccess("Deleted", "Society deleted successfully.");
+        } catch (Exception e) {
+            System.err.println("[societyManagementCDI] deleteSociety error: "
+                               + e.getMessage());
+        }
     }
 
     // ═══════════════════════════════════════════════════════
     //  Getters / Setters
     // ═══════════════════════════════════════════════════════
-
-    public AdminBeanLocal getAdminService()                     { return adminService; }
-    public void setAdminService(AdminBeanLocal adminService)    { this.adminService = adminService; }
 
     public List<Society> getSocieties()                         { return societies; }
     public void setSocieties(List<Society> societies)           { this.societies = societies; }

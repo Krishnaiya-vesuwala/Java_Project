@@ -149,11 +149,11 @@ public class UserBean implements UserBeanLocal {
             System.out.println("User found");
 
             user.setFullName(fullName);
+            user.setEmail(email);
+            user.setMobile(mobile);
+            user.setUsername(username);
 
             em.merge(user);
-
-            em.flush();
-
             System.out.println("Database updated");
         }
     }

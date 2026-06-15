@@ -1,239 +1,895 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="jakarta.faces.core">
-    
+
 <f:metadata>
     <f:viewAction action="#{authBean.checkCitizenAccess}" />
 </f:metadata>
 
 <h:head>
     <title>Citizen Dashboard</title>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=Playfair+Display:wght@600&amp;display=swap"/>
+    <style>
 
-    <h:outputStylesheet library="css"
-                        name="dashboard.css"/>
+        :root {
+            --gold:        #D4AF37;
+            --gold-light:  #F0D060;
+            --gold-dim:    #A88B20;
+            --gold-bg:     rgba(212,175,55,.08);
+            --gold-bg2:    rgba(212,175,55,.14);
+            --sidebar:     #1A1A1A;
+            --surface:     #FFFFFF;
+            --bg:          #F4F5F8;
+            --text:        #1C1C1E;
+            --muted:       #6B7080;
+            --border:      #E8E9EE;
+            --radius:      14px;
+            --shadow:      0 2px 16px rgba(0,0,0,.07);
+            --shadow-card: 0 4px 24px rgba(0,0,0,.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ── LAYOUT ── */
+        .wrapper { display: flex; min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 268px;
+            min-width: 268px;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            text-align: center;
+        }
+
+        .brand-logo {
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 2px solid var(--gold-dim);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .brand-logo img {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 13.5px;
+            color: var(--gold);
+            line-height: 1.5;
+            letter-spacing: .02em;
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,.3);
+            margin-top: 5px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        /* NAV */
+        .sidebar-nav { padding: 20px 14px; flex: 1; }
+
+        .nav-label {
+            font-size: 10px;
+            color: rgba(255,255,255,.3);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin: 18px 8px 8px;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 400;
+            margin-bottom: 2px;
+            transition: all .2s;
+        }
+
+        .sidebar-nav a i { font-size: 15px; flex-shrink: 0; width: 18px; }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--gold-bg2);
+            color: var(--gold);
+        }
+
+        .sidebar-nav a.active { font-weight: 500; }
+
+        /* Sidebar Footer / Profile */
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid rgba(255,255,255,.07);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all .3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-footer:hover { background: rgba(212,175,55,.08); }
+
+        .citizen-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-dim);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .citizen-name { font-size: 13px; color: rgba(255,255,255,.75); font-weight: 500; }
+        .citizen-role { font-size: 11px; color: rgba(255,255,255,.3); }
+
+        /* ── MAIN ── */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        /* TOPBAR */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 20px;
+            padding: 4px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--text);
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all .2s;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover { background: var(--bg); color: var(--text); }
+
+        .notif-dot {
+            position: absolute;
+            top: 7px; right: 7px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        /* PrimeFaces logout button override */
+        .logout-btn-wrap .ui-button {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1A1A !important;
+            border-radius: 10px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            padding: 8px 18px !important;
+            transition: all .2s !important;
+        }
+
+        .logout-btn-wrap .ui-button:hover {
+            background: var(--gold-light) !important;
+            border-color: var(--gold-light) !important;
+        }
+
+        /* ── CONTENT ── */
+        .content { padding: 28px 32px; display: flex; flex-direction: column; gap: 28px; }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: var(--sidebar);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute; right: -40px; top: -40px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(212,175,55,.06);
+        }
+
+        .welcome-banner::after {
+            content: '';
+            position: absolute; right: 60px; bottom: -60px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: rgba(212,175,55,.04);
+        }
+
+        .welcome-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            color: rgba(255,255,255,.45);
+            line-height: 1.6;
+        }
+
+        .welcome-badge {
+            background: var(--gold-bg2);
+            border: 1px solid var(--gold-dim);
+            border-radius: 10px;
+            padding: 14px 22px;
+            text-align: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .wb-val {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .wb-lbl {
+            font-size: 11px;
+            color: rgba(255,255,255,.4);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        /* STAT CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform .2s, box-shadow .2s;
+            cursor: default;
+        }
+
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
+
+        .stat-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: var(--gold-bg);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        .stat-icon i { font-size: 16px; color: var(--gold); }
+
+        .stat-icon.success { background: rgba(26,128,64,.1); }
+        .stat-icon.success i { color: #1A8040; }
+
+        .stat-icon.warning { background: rgba(184,134,11,.1); }
+        .stat-icon.warning i { color: #B8860B; }
+
+        .stat-icon.danger { background: rgba(192,57,43,.1); }
+        .stat-icon.danger i { color: #C0392B; }
+
+        .stat-val { font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1; }
+        .stat-val.success { color: #1A8040; }
+        .stat-val.warning { color: #B8860B; }
+        .stat-val.danger  { color: #C0392B; }
+
+        .stat-lbl { font-size: 12.5px; color: var(--muted); }
+
+        /* QUICK NAV */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text); }
+
+        .view-all-link {
+            font-size: 13px;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .2s;
+        }
+
+        .view-all-link:hover { color: var(--gold-dim); }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .quick-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .25s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .quick-card:hover {
+            background: var(--sidebar);
+            border-color: var(--gold-dim);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .quick-card:hover .qc-icon  { background: var(--gold-bg2); }
+        .quick-card:hover .qc-icon i { color: var(--gold-light); }
+        .quick-card:hover .qc-label  { color: rgba(255,255,255,.8); }
+
+        .qc-icon {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            background: var(--gold-bg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px;
+            transition: all .25s;
+        }
+
+        .qc-icon i   { font-size: 20px; color: var(--gold); transition: color .25s; }
+        .qc-label    { font-size: 12.5px; font-weight: 500; color: var(--text); transition: color .25s; }
+
+        /* TABLE SECTION */
+        .table-wrap {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table-head {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-head-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+        /* PrimeFaces DataTable overrides */
+        .custom-table .ui-datatable             { border: none !important; }
+        .custom-table .ui-datatable-header      { display: none; }
+
+        .custom-table .ui-datatable thead th {
+            background:     #FAFAFA !important;
+            border-bottom:  1px solid var(--border) !important;
+            border-top:     none !important;
+            border-left:    none !important;
+            border-right:   none !important;
+            padding:        11px 20px !important;
+            font-size:      12px !important;
+            font-weight:    600 !important;
+            color:          var(--muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .05em !important;
+            font-family:    'DM Sans', sans-serif !important;
+        }
+
+        .custom-table .ui-datatable tbody td {
+            border-bottom:  1px solid var(--border) !important;
+            border-top:     none !important;
+            border-left:    none !important;
+            border-right:   none !important;
+            padding:        13px 20px !important;
+            font-size:      13.5px !important;
+            font-family:    'DM Sans', sans-serif !important;
+            vertical-align: middle !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:last-child td { border-bottom: none !important; }
+        .custom-table .ui-datatable tbody tr:hover td      { background: #FAFBFF !important; }
+
+        /* PrimeFaces paginator */
+        .custom-table .ui-paginator {
+            border-top:    1px solid var(--border) !important;
+            border-bottom: none !important;
+            border-left:   none !important;
+            border-right:  none !important;
+            background:    var(--surface) !important;
+            padding:       12px 20px !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page,
+        .custom-table .ui-paginator .ui-paginator-next,
+        .custom-table .ui-paginator .ui-paginator-prev,
+        .custom-table .ui-paginator .ui-paginator-first,
+        .custom-table .ui-paginator .ui-paginator-last {
+            border-radius: 8px !important;
+            border:        1px solid var(--border) !important;
+            background:    transparent !important;
+            color:         var(--muted) !important;
+            font-family:   'DM Sans', sans-serif !important;
+            font-size:     13px !important;
+            min-width:     32px !important;
+            height:        32px !important;
+            margin:        0 2px !important;
+            transition:    all .2s !important;
+        }
+
+        .custom-table .ui-paginator .ui-state-active {
+            background:   var(--gold) !important;
+            border-color: var(--gold) !important;
+            color:        #1A1A1A !important;
+            font-weight:  600 !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page:hover:not(.ui-state-active),
+        .custom-table .ui-paginator .ui-paginator-next:hover,
+        .custom-table .ui-paginator .ui-paginator-prev:hover {
+            background: var(--bg) !important;
+            color:      var(--text) !important;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px; font-weight: 500;
+        }
+
+        .badge-pending  { background: #FFF8E0; color: #B8860B; }
+        .badge-resolved { background: #E8F8EE; color: #1A8040; }
+        .badge-open     { background: #FFF0F0; color: #C0392B; }
+        .badge-progress { background: #EAF2FF; color: #1A5BA6; }
+        .badge-rejected { background: #FEE8E8; color: #C0392B; }
+        .badge-default  { background: #F1F1F1; color: #555;    }
+
+        /* SUPPORT CARD */
+        .support-card {
+            background: var(--sidebar);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border: 1px solid rgba(212,175,55,.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-card::before {
+            content: '';
+            position: absolute; left: -30px; bottom: -30px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: rgba(212,175,55,.05);
+        }
+
+        .support-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        .support-card p {
+            font-size: 13px;
+            color: rgba(255,255,255,.45);
+            line-height: 1.6;
+            max-width: 420px;
+        }
+
+        /* Support button */
+        .support-btn-wrap .ui-button {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1A1A !important;
+            border-radius: 10px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            padding: 10px 22px !important;
+            transition: all .2s !important;
+            white-space: nowrap !important;
+            z-index: 1;
+            position: relative;
+        }
+
+        .support-btn-wrap .ui-button:hover {
+            background: var(--gold-light) !important;
+            border-color: var(--gold-light) !important;
+        }
+
+        /* Mobile overlay */
+        .overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 199;
+        }
+        .overlay.show { display: block; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; min-width: 220px; }
+            .content { padding: 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed; left: -268px; top: 0;
+                height: 100vh; z-index: 200;
+                width: 268px; min-width: 268px;
+                transition: left .3s ease;
+            }
+            .sidebar.open { left: 0; }
+            .hamburger    { display: flex; }
+            .topbar       { padding: 0 16px; }
+            .content      { padding: 16px; }
+            .welcome-banner { flex-direction: column; align-items: flex-start; }
+            .welcome-badge  { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .stats-grid     { grid-template-columns: repeat(2, 1fr); }
+            .quick-grid     { grid-template-columns: repeat(3, 1fr); }
+            .support-card   { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .quick-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+    </style>
 </h:head>
 
 <h:body>
 
-<div class="layout">
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
+<h:form>
+<div class="wrapper">
 
-        <div class="logo-section">
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar" id="sidebar">
 
-            <img src="#{resource['images:government.png']}"
-                 class="logo"/>
-
-            <div class="logo-text">
-                Government Grievance
-                <br/>
-                Redressal System
+        <div class="brand">
+            <div class="brand-logo">
+                <img src="#{resource['images:government.png']}" alt="Logo"/>
             </div>
-
+            <div class="brand-title">Government Grievance<br/>Redressal System</div>
+            <div class="brand-sub">Citizen Portal</div>
         </div>
 
-        <div class="menu">
+        <nav class="sidebar-nav">
 
-            <h:link outcome="/citizen/dashboard"
-                    styleClass="menu-item active">
+            <div class="nav-label">Main</div>
 
-                <i class="pi pi-home"></i>
+            <a href="dashboard.jsf" class="active">
+                <i class="pi pi-th-large"></i>
                 <span>Dashboard</span>
+            </a>
 
-            </h:link>
+            <div class="nav-label">Grievances</div>
 
-            <h:link outcome="/citizen/raiseComplaint"
-                    styleClass="menu-item">
-
+            <a href="raiseComplaint.jsf">
                 <i class="pi pi-plus-circle"></i>
                 <span>Raise Grievance</span>
+            </a>
 
-            </h:link>
-
-            <h:link outcome="/citizen/myComplaints"
-                    styleClass="menu-item">
-
+            <a href="myComplaints.jsf">
                 <i class="pi pi-file"></i>
                 <span>My Grievances</span>
+            </a>
 
-            </h:link>
+            <div class="nav-label">Account</div>
 
-            <h:link outcome="/citizen/notifications"
-                    styleClass="menu-item">
-
+            <a href="notifications.jsf">
                 <i class="pi pi-bell"></i>
                 <span>Notifications</span>
+            </a>
 
-            </h:link>
-
-            <h:link outcome="/citizen/profile"
-                    styleClass="menu-item">
-
-                <i class="pi pi-user"></i>
-                <span>Profile</span>
-
-            </h:link>
-
-            <h:link outcome="/citizen/changePassword"
-                    styleClass="menu-item">
-
+            <a href="changePassword.jsf">
                 <i class="pi pi-lock"></i>
                 <span>Change Password</span>
+            </a>
 
-            </h:link>
+        </nav>
 
-        </div>
+        <!-- Sidebar Footer: Profile -->
+        <a href="profile.jsf" class="sidebar-footer">
+            <div class="citizen-avatar">
+                #{loginBean.loggedInUser.fullName.substring(0,1).toUpperCase()}
+            </div>
+            <div>
+                <div class="citizen-name">#{loginBean.loggedInUser.fullName}</div>
+                <div class="citizen-role">Citizen</div>
+            </div>
+        </a>
 
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <!-- ══ MAIN ══ -->
+    <div class="main">
 
-        <!-- Top Bar -->
-        <div class="topbar">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()" type="button" aria-label="Toggle menu">
+                    <i class="pi pi-bars"></i>
+                </button>
+                <span class="page-title">Citizen Dashboard</span>
+            </div>
+            <div class="topbar-right">
 
-            <h2>Citizen Dashboard</h2>
+                <!-- Notifications shortcut -->
+                <a href="notifications.jsf" class="icon-btn" aria-label="Notifications"
+                   style="position:relative; display:flex; align-items:center; justify-content:center;">
+                    <i class="pi pi-bell"></i>
+                    <span class="notif-dot"></span>
+                </a>
 
-            <div class="user-info">
+                <!-- Profile shortcut -->
+                <a href="profile.jsf" class="icon-btn" aria-label="Profile">
+                    <i class="pi pi-user"></i>
+                </a>
 
-                <i class="pi pi-user"></i>
+                
 
-                <span>
-                    #{loginBean.loggedInUser.fullName}
-                </span>
+            </div>
+        </header>
 
-                <h:form style="display:inline">
+        <!-- CONTENT -->
+        <div class="content">
 
-                    <p:commandButton
-                            value="Logout"
-                            icon="pi pi-sign-out"
-                            action="#{loginBean.logout}"
-                            styleClass="logout-btn"/>
+            <!-- ── WELCOME BANNER ── -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h1>Hello, #{loginBean.loggedInUser.fullName}</h1>
+                    <p>Welcome to the Government Grievance Redressal System.<br/>
+                       Track your grievances, raise new complaints and stay updated in real time.</p>
+                </div>
+                <div class="welcome-badge">
+                    <div class="wb-val">#{citizenBean.totalComplaints}</div>
+                    <div class="wb-lbl">Total Grievances</div>
+                </div>
+            </div>
 
-                </h:form>
+            <!-- ── STAT CARDS ── -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="pi pi-file"></i>
+                    </div>
+                    <div class="stat-val">#{citizenBean.totalComplaints}</div>
+                    <div class="stat-lbl">Total Complaints</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="pi pi-check-circle"></i>
+                    </div>
+                    <div class="stat-val success">#{citizenBean.resolvedComplaints}</div>
+                    <div class="stat-lbl">Resolved</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon warning">
+                        <i class="pi pi-clock"></i>
+                    </div>
+                    <div class="stat-val warning">#{citizenBean.assignedComplaints}</div>
+                    <div class="stat-lbl">In Progress</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon danger">
+                        <i class="pi pi-times-circle"></i>
+                    </div>
+                    <div class="stat-val danger">#{citizenBean.rejectedComplaints}</div>
+                    <div class="stat-lbl">Rejected</div>
+                </div>
 
             </div>
 
-        </div>
-
-        <div class="welcome-card">
-
-            <h1>
-                Hello,
-                #{loginBean.loggedInUser.fullName}
-            </h1>
-
-            <p>
-                Welcome to the Government Grievance Redressal System.
-            </p>
-
-            <br/>
-
-        </div>
-
-        <!-- Statistics -->
-        <div class="stats-grid">
-
-            <div class="stat-card">
-                <i class="pi pi-file"></i>
-                <h3>
-                    #{citizenBean.totalComplaints}
-                </h3>
-                <span>Total Complaints</span>
-            </div>
-
-            <div class="stat-card success">
-                <i class="pi pi-check-circle"></i>
-                <h3>
-                    #{citizenBean.resolvedComplaints}
-                </h3>
-                <span>Resolved</span>
-            </div>
-
-            <div class="stat-card warning">
-                <i class="pi pi-clock"></i>
-                <h3>
-                    #{citizenBean.assignedComplaints}
-                </h3>
-                <span>In Progress</span>
-            </div>
-
-            <div class="stat-card danger">
-                <i class="pi pi-times-circle"></i>
-                <h3>
-                    #{citizenBean.rejectedComplaints}
-                </h3>
-                <span>Rejected</span>
-            </div>
-
-        </div>
-
-        <!-- Complaints -->
-        <div class="table-card">
-
-            <div class="card-header">
-
-                <h3>My Recent Grievances</h3>
-
-                <h:link outcome="/citizen/myComplaints"
-                        value="View All"/>
-
-            </div>
-
-            <p:dataTable value="#{citizenBean.recentComplaints}"
-             var="c"
-             paginator="true"
-             rows="5">
-
-                <p:column headerText="Title">
-                    #{c[0]}
-                </p:column>
-
-                <p:column headerText="Assigned Officer">
-                    #{c[1]}
-                </p:column>
-
-                <p:column headerText="Status">
-                    #{c[2]}
-                </p:column>
-
-            </p:dataTable>
-
-        </div>
-
-        <!-- Support -->
-        <div class="support-card">
-
+            <!-- ── QUICK NAVIGATION ── -->
             <div>
+                <div class="section-header">
+                    <span class="section-title">Quick Navigation</span>
+                </div>
+                <div class="quick-grid">
 
-                <h3>Need Help &amp; Support?</h3>
+                    <a href="raiseComplaint.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-plus-circle"></i></div>
+                        <div class="qc-label">Raise Grievance</div>
+                    </a>
 
-                <p>
-                    Facing issues while raising or tracking grievances?
-                    Contact our support team for assistance.
-                </p>
+                    <a href="myComplaints.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-file"></i></div>
+                        <div class="qc-label">My Grievances</div>
+                    </a>
 
+                    <a href="notifications.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-bell"></i></div>
+                        <div class="qc-label">Notifications</div>
+                    </a>
+
+<!--                    <a href="profile.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-user"></i></div>
+                        <div class="qc-label">My Profile</div>
+                    </a>
+
+                    <a href="changePassword.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-lock"></i></div>
+                        <div class="qc-label">Change Password</div>
+                    </a>-->
+
+                    <a href="contact.jsf" class="quick-card">
+                        <div class="qc-icon"><i class="pi pi-phone"></i></div>
+                        <div class="qc-label">Contact Support</div>
+                    </a>
+
+                </div>
             </div>
 
+            <!-- ── RECENT GRIEVANCES TABLE ── -->
             <div>
+                <div class="section-header">
+                    <span class="section-title">My Recent Grievances</span>
+                    <a href="myComplaints.jsf" class="view-all-link">View All →</a>
+                </div>
+                <div class="table-wrap">
+                    <div class="table-head">
+                        <div class="table-head-title">Grievance Records</div>
+                    </div>
+                    <div class="custom-table">
+                        <p:dataTable
+                            value="#{citizenBean.recentComplaints}"
+                            var="c"
+                            paginator="true"
+                            rows="5"
+                            paginatorPosition="bottom">
 
-                <p:button
+                            <p:column headerText="Title">
+                                #{c[0]}
+                            </p:column>
+
+                            <p:column headerText="Assigned Officer">
+                                #{c[1]}
+                            </p:column>
+
+                            <p:column headerText="Status">
+                                <span class="badge
+                                    #{c[2] == 'Pending'     ? 'badge-pending'  :
+                                      c[2] == 'Resolved'    ? 'badge-resolved' :
+                                      c[2] == 'Open'        ? 'badge-open'     :
+                                      c[2] == 'In Progress' ? 'badge-progress' :
+                                      c[2] == 'Rejected'    ? 'badge-rejected' :
+                                      'badge-default'}">
+                                    #{c[2]}
+                                </span>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── SUPPORT CARD ── -->
+            <div class="support-card">
+                <div>
+                    <h3>Need Help &amp; Support?</h3>
+                    <p>
+                        Facing issues while raising or tracking grievances?
+                        Our support team is here to assist you around the clock.
+                    </p>
+                </div>
+                <div class="support-btn-wrap">
+                    <p:button
                         value="Contact Support"
                         icon="pi pi-phone"
-                        outcome="contact.xhtml"/>
-
+                        outcome="/citizen/contact"
+                        styleClass="ui-button"/>
+                </div>
             </div>
 
         </div>
+        <!-- /content -->
 
-    </main>
+    </div>
+    <!-- /main -->
 
 </div>
+<!-- /wrapper -->
+</h:form>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('show');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('overlay').classList.remove('show');
+    }
+</script>
 
 </h:body>
 </html>

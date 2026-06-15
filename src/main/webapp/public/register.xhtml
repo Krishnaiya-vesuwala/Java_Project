@@ -1,194 +1,742 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="jakarta.faces.core">
 
 <h:head>
-    <title>Register</title>
+    <title>Citizen Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap"
+          rel="stylesheet"/>
 
-    <h:outputStylesheet library="css" name="style.css"/>
+    <style>
+        :root {
+            --gold:           #C9A84C;
+            --gold-hover:     #B8962E;
+            --gold-light:     #E2C46A;
+            --gold-dim:       #9A7A28;
+            --gold-bg:        rgba(201,168,76,.07);
+            --gold-bg2:       rgba(201,168,76,.13);
+            --gold-border:    rgba(201,168,76,.28);
+
+            --sidebar-bg:     #161618;
+            --sidebar-bg-2:   #0F0F11;
+            --surface:        #FFFFFF;
+            --surface-2:      #F8F8FA;
+            --bg:             #F2F3F6;
+
+            --text-primary:   #16161A;
+            --text-secondary: #52525B;
+            --text-muted:     #8A8A96;
+            --border:         #E4E4E8;
+            --border-subtle:  #EFEFEF;
+
+            --danger-bg:      #FDF1F1;
+            --danger-text:    #9B2424;
+            --danger-border:  rgba(155,36,36,.18);
+
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --radius-xl:  20px;
+
+            --transition: all .18s ease;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════
+           FULL SCREEN SPLIT LAYOUT
+        ═══════════════════════════════════════ */
+        .auth-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            background: var(--bg);
+        }
+
+        /* ───── LEFT BRAND PANEL ───── */
+        .brand-panel {
+            background: linear-gradient(135deg, var(--sidebar-bg) 0%, var(--sidebar-bg-2) 100%);
+            color: #fff;
+            padding: 60px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 420px; height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -160px; left: -100px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Top - brand logo */
+        .brand-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-logo {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-border);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .brand-logo i {
+            color: var(--gold);
+            font-size: 20px;
+        }
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .brand-sub {
+            font-size: 10px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* Center - hero text */
+        .brand-center {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+        }
+        .brand-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gold-bg2);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            margin-bottom: 24px;
+        }
+        .brand-eyebrow i { font-size: 11px; }
+
+        .brand-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            line-height: 1.15;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 18px;
+            letter-spacing: -.01em;
+        }
+        .brand-headline .accent {
+            color: var(--gold);
+            font-style: italic;
+        }
+        .brand-tagline {
+            font-size: 15px;
+            color: rgba(255,255,255,.55);
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        /* Feature list */
+        .brand-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .brand-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+            color: rgba(255,255,255,.78);
+        }
+        .feat-icon {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1px solid var(--gold-border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Bottom - copyright */
+        .brand-bottom {
+            position: relative;
+            z-index: 1;
+            font-size: 12px;
+            color: rgba(255,255,255,.32);
+        }
+        .brand-bottom a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ───── RIGHT FORM PANEL ───── */
+        .form-panel {
+            background: var(--surface);
+            padding: 50px 60px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-inner {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            margin-bottom: 28px;
+        }
+        .form-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .form-eyebrow::before {
+            content: '';
+            width: 18px; height: 1.5px;
+            background: var(--gold); opacity: .6;
+        }
+        .form-eyebrow span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--text-primary);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 6px;
+            letter-spacing: -.01em;
+        }
+        .form-subtitle {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 2-column form grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 18px;
+        }
+        .form-grid .full-width { grid-column: 1 / -1; }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        /* Inputs */
+        .form-inner .ui-inputtext,
+        .form-inner .ui-password-input,
+        .form-inner .ui-selectonemenu.ui-widget {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 10px 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13.5px !important;
+            color: var(--text-primary) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+        .form-inner .ui-password {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            display: block !important;
+            width: 100% !important;
+        }
+        .form-inner .ui-password input.ui-password-input {
+            padding-right: 38px !important;
+        }
+        .form-inner .ui-password .ui-password-mask-icon {
+            color: var(--text-muted) !important;
+            right: 12px !important;
+        }
+
+        .form-inner .ui-inputtext:focus,
+        .form-inner .ui-password-input:focus {
+            border-color: var(--gold) !important;
+            background: var(--surface) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .form-inner .ui-selectonemenu.ui-widget.ui-state-focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+        .form-inner .ui-selectonemenu .ui-selectonemenu-label {
+            background: transparent !important;
+            border: none !important;
+            padding: 10px 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13.5px !important;
+            color: var(--text-primary) !important;
+        }
+        .form-inner .ui-selectonemenu .ui-selectonemenu-trigger {
+            background: transparent !important;
+            border: none !important;
+            color: var(--text-muted) !important;
+            width: 32px !important;
+        }
+
+        /* Invalid state */
+        .form-inner .ui-inputtext.ui-state-error,
+        .form-inner .ui-password-input.ui-state-error,
+        .form-inner .ui-selectonemenu.ui-state-error {
+            border-color: var(--danger-text) !important;
+            background: #FFF5F5 !important;
+            box-shadow: 0 0 0 3px rgba(155,36,36,.08) !important;
+        }
+
+        /* Inline validation messages */
+        .form-inner .ui-message-error,
+        .form-inner .ui-message {
+            display: inline-flex !important;
+            align-items: center; gap: 5px;
+            background: transparent !important;
+            border: none !important;
+            color: var(--danger-text) !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            padding: 2px 0 0 0 !important;
+            margin: 0 !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+        .form-inner .ui-message-error-icon,
+        .form-inner .ui-message-error-detail {
+            color: var(--danger-text) !important;
+        }
+
+        /* Top-of-form messages */
+        .form-messages .ui-messages-error,
+        .form-messages .ui-messages-info {
+            background: #FFF5F5 !important;
+            border: 1px solid var(--danger-border) !important;
+            border-left: 3px solid var(--danger-text) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 10px 14px !important;
+            margin: 0 0 18px 0 !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+        .form-messages .ui-messages-info {
+            background: #EFF6FF !important;
+            border-color: rgba(58,91,217,.20) !important;
+            border-left-color: #3A5BD9 !important;
+        }
+        .form-messages .ui-messages-error ul,
+        .form-messages .ui-messages-info ul {
+            list-style: none !important; margin: 0 !important; padding: 0 !important;
+        }
+        .form-messages .ui-messages-error li {
+            color: var(--danger-text) !important;
+            font-size: 12.5px !important; font-weight: 500 !important;
+            padding: 2px 0 !important;
+        }
+        .form-messages .ui-messages-info li {
+            color: #1E3A8A !important;
+            font-size: 12.5px !important; font-weight: 500 !important;
+        }
+        .form-messages .ui-messages-error-icon,
+        .form-messages .ui-messages-info-icon {
+            color: inherit !important; margin-right: 4px !important;
+        }
+
+        /* Submit button */
+        .auth-actions { margin-top: 24px; }
+
+        .gold-btn,
+        .gold-btn.ui-button.ui-widget {
+            width: 100% !important;
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            padding: 13px 22px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.30) !important;
+            letter-spacing: .02em !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+        }
+        .gold-btn:hover,
+        .gold-btn.ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 6px 22px rgba(201,168,76,.42) !important;
+            transform: translateY(-1px) !important;
+        }
+        .gold-btn .ui-button-icon-left { color: inherit !important; }
+
+        /* Divider + footer link */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 22px 0 18px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .auth-links {
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+        }
+        .auth-links a {
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            margin-left: 6px;
+        }
+        .auth-links a:hover {
+            color: var(--gold-hover);
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .brand-panel { padding: 40px 36px; }
+            .form-panel { padding: 40px 36px; }
+            .brand-headline { font-size: 34px; }
+        }
+
+        @media (max-width: 900px) {
+            .auth-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .brand-panel {
+                min-height: auto;
+                padding: 32px 28px;
+                text-align: center;
+            }
+            .brand-top { justify-content: center; }
+            .brand-center { max-width: 100%; }
+            .brand-eyebrow { margin: 0 auto 18px; }
+            .brand-headline { font-size: 28px; }
+            .brand-tagline { font-size: 14px; margin-bottom: 22px; }
+            .brand-features { display: none; }
+            .brand-bottom { display: none; }
+
+            .form-panel { padding: 32px 28px; }
+        }
+
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .brand-headline { font-size: 24px; }
+            .form-title { font-size: 23px; }
+            .form-panel { padding: 26px 20px; }
+            .brand-panel { padding: 26px 20px; }
+        }
+    </style>
 </h:head>
 
 <h:body>
 
-<div class="auth-container">
+<div class="auth-wrapper">
 
-    <div class="auth-card">
+    <!-- ════════════ LEFT — BRAND PANEL ════════════ -->
+    <div class="brand-panel">
 
-        <div class="auth-title">
-            Citizen Registration
+        <div class="brand-top">
+            <div class="brand-logo">
+                <i class="fa fa-landmark"></i>
+            </div>
+            <div>
+                <div class="brand-title">Government Grievance</div>
+                <div class="brand-sub">Redressal System</div>
+            </div>
         </div>
 
-        <h:form>
+        <div class="brand-center">
+            <div class="brand-eyebrow">
+                <i class="fa fa-shield-halved"></i>
+                <span>Trusted Government Platform</span>
+            </div>
+            <h1 class="brand-headline">
+                Your Voice, <span class="accent">Heard</span> &amp; <span class="accent">Resolved.</span>
+            </h1>
+            <p class="brand-tagline">
+                Join thousands of citizens who use our platform to register grievances,
+                track resolutions in real time, and hold public services accountable.
+            </p>
 
-            <span class="field-label">Full Name</span>
+            <ul class="brand-features">
+                <li>
+                    <span class="feat-icon"><i class="fa fa-bolt"></i></span>
+                    Register complaints in under 2 minutes
+                </li>
+                <li>
+                    <span class="feat-icon"><i class="fa fa-eye"></i></span>
+                    Track real-time status &amp; resolution updates
+                </li>
+                <li>
+                    <span class="feat-icon"><i class="fa fa-lock"></i></span>
+                    Secure &amp; verified citizen portal
+                </li>
+                <li>
+                    <span class="feat-icon"><i class="fa fa-users"></i></span>
+                    Direct access to assigned officers
+                </li>
+            </ul>
+        </div>
 
-            <p:inputText id="fullname"
-                         value="#{registerBean.fullname}"
-                         required="true"
-                         requiredMessage="Please enter your full name."
-                         validatorMessage="Full Name should contain only letters and spaces (3-50 characters).">
+        <div class="brand-bottom">
+            © 2026 Government Grievance Redressal System 
+        </div>
 
-                <f:validateRegex pattern="^[A-Za-z ]{3,50}$"/>
-
-                <p:ajax event="blur"
-                        update="fullnameMsg"/>
-
-            </p:inputText>
-
-            <p:message id="fullnameMsg"
-                       for="fullname"
-                       display="text"/>
-
-
-
-            <span class="field-label">Email</span>
-
-            <p:inputText id="email"
-                         value="#{registerBean.email}"
-                         required="true"
-                         requiredMessage="Please enter your email address."
-                         validatorMessage="Please enter a valid email address.">
-
-                <f:validateRegex pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"/>
-
-                <p:ajax event="blur"
-                        update="emailMsg"/>
-
-            </p:inputText>
-
-            <p:message id="emailMsg"
-                       for="email"
-                       display="text"/>
+    </div>
 
 
-                  <span class="field-label">Username</span>
+    <!-- ════════════ RIGHT — FORM PANEL ════════════ -->
+    <div class="form-panel">
 
-            <p:inputText id="username"
-                         value="#{registerBean.username}"
-                         required="true"
-                         requiredMessage="Please enter a username."
-                         validatorMessage="Username must be between 4 and 20 characters.">
+        <div class="form-inner">
 
-                <f:validateLength minimum="4"
-                                  maximum="20"/>
-
-                <p:ajax event="blur"
-                        update="usernameMsg"/>
-
-            </p:inputText>
-
-            <p:message id="usernameMsg"
-                       for="username"
-                       display="text"/>
-
-
-            <span class="field-label">Mobile</span>
-
-            <p:inputText id="mobile"
-                         value="#{registerBean.mobile}"
-                         required="true"
-                         requiredMessage="Please enter your mobile number."
-                         validatorMessage="Mobile number must contain exactly 10 digits.">
-
-                <f:validateRegex pattern="^[0-9]{10}$"/>
-
-                <p:ajax event="blur"
-                        update="mobileMsg"/>
-
-            </p:inputText>
-
-            <p:message id="mobileMsg"
-                       for="mobile"
-                       display="text"/>
-
-
-            <span class="field-label">Password</span>
-
-            <p:password id="password"
-                        value="#{registerBean.password}"
-                        toggleMask="true"
-                        feedback="true"
-                        required="true"
-                        requiredMessage="Please enter a password."
-                        validatorMessage="Password must contain at least one uppercase letter, one lowercase letter, one number and be at least 8 characters long.">
-
-                <f:validateRegex
-                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"/>
-
-                <p:ajax event="blur"
-                        update="passwordMsg"/>
-
-            </p:password>
-
-            <p:message id="passwordMsg"
-                       for="password"
-                       display="text"/>
-
-
-            <span class="field-label">Confirm Password</span>
-
-            <p:password id="confirmPassword"
-                        value="#{registerBean.confirmPassword}"
-                        toggleMask="true"
-                        feedback="false"
-                        required="true"
-                        requiredMessage="Please confirm your password.">
-
-                <p:ajax event="blur"
-                        update="confirmPasswordMsg"/>
-
-            </p:password>
-
-            <p:message id="confirmPasswordMsg"
-                       for="confirmPassword"
-                       display="text"/>
-
-         
-            
-            <span class="field-label">Select Society</span>
-
-            <p:selectOneMenu id="society"
-                             value="#{registerBean.societyId}"
-                             required="true"
-                             requiredMessage="Please select your society.">
-
-                <p:ajax event="change"
-                        update="societyMsg"/>
-
-                <f:selectItem itemLabel="Select Society"
-                              itemValue="#{null}"
-                              noSelectionOption="true"/>
-
-                <f:selectItems value="#{registerBean.societies}"
-                               var="s"
-                               itemLabel="#{s.societyName}"
-                               itemValue="#{s.societyId}"/>
-
-            </p:selectOneMenu>
-
-            <p:message id="societyMsg"
-                       for="society"
-                       display="text"/>
-
-            <br/><br/>
-
-            <p:commandButton
-                    value="Register"
-                    action="#{registerBean.register}"
-                    update="@form"
-                    styleClass="gold-btn"/>
-
-            <div class="auth-links">
-
-                <h:link outcome="/public/login.xhtml"
-                        value="Already have an account?"/>
-
+            <div class="form-header">
+                <div class="form-eyebrow">
+                    <span>Create Account</span>
+                </div>
+                <h2 class="form-title">Citizen Registration</h2>
+                <p class="form-subtitle">
+                    Fill out the form below to create your account and start raising grievances.
+                </p>
             </div>
 
-        </h:form>
+            <h:form id="registerForm">
+
+                <!-- Top-of-form messages (server errors like duplicate username) -->
+                <p:messages id="formMsgs"
+                            styleClass="form-messages"
+                            showDetail="true"
+                            closable="true"
+                            globalOnly="true"
+                            redisplay="false"/>
+
+                <div class="form-grid">
+
+                    <!-- Full Name (full width) -->
+                    <div class="form-row full-width">
+                        <span class="field-label">Full Name</span>
+                        <p:inputText id="fullname"
+                                     value="#{registerBean.fullname}"
+                                     placeholder="Enter your full name"
+                                     required="true"
+                                     requiredMessage="Please enter your full name."
+                                     validatorMessage="Full Name should contain only letters and spaces (3-50 characters).">
+                            <f:validateRegex pattern="^[A-Za-z ]{3,50}$"/>
+                            <p:ajax event="blur" update="fullnameMsg fullname"/>
+                        </p:inputText>
+                        <p:message id="fullnameMsg" for="fullname" display="text"/>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-row">
+                        <span class="field-label">Email</span>
+                        <p:inputText id="email"
+                                     value="#{registerBean.email}"
+                                     placeholder="example@domain.com"
+                                     required="true"
+                                     requiredMessage="Please enter your email address."
+                                     validatorMessage="Please enter a valid email address.">
+                            <f:validateRegex pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"/>
+                            <p:ajax event="blur" update="emailMsg email"/>
+                        </p:inputText>
+                        <p:message id="emailMsg" for="email" display="text"/>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="form-row">
+                        <span class="field-label">Mobile</span>
+                        <p:inputText id="mobile"
+                                     value="#{registerBean.mobile}"
+                                     placeholder="10-digit mobile number"
+                                     required="true"
+                                     requiredMessage="Please enter your mobile number."
+                                     validatorMessage="Mobile number must contain exactly 10 digits.">
+                            <f:validateRegex pattern="^[0-9]{10}$"/>
+                            <p:ajax event="blur" update="mobileMsg mobile"/>
+                        </p:inputText>
+                        <p:message id="mobileMsg" for="mobile" display="text"/>
+                    </div>
+
+                    <!-- Username (full width) -->
+                    <div class="form-row full-width">
+                        <span class="field-label">Username</span>
+                        <p:inputText id="username"
+                                     value="#{registerBean.username}"
+                                     placeholder="Choose a unique username"
+                                     required="true"
+                                     requiredMessage="Please enter a username."
+                                     validatorMessage="Username must be between 4 and 20 characters.">
+                            <f:validateLength minimum="4" maximum="20"/>
+                            <p:ajax event="blur" update="usernameMsg username"/>
+                        </p:inputText>
+                        <p:message id="usernameMsg" for="username" display="text"/>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-row">
+                        <span class="field-label">Password</span>
+                        <p:password id="password"
+                                    value="#{registerBean.password}"
+                                    redisplay="true"
+                                    toggleMask="true"
+                                    feedback="true"
+                                    placeholder="8+ chars, 1 upper, 1 number"
+                                    required="true"
+                                    requiredMessage="Please enter a password."
+                                    validatorMessage="Password must have at least one uppercase, one lowercase, one number and 8+ characters.">
+                            <f:validateRegex pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"/>
+                            <p:ajax event="blur" update="passwordMsg password"/>
+                        </p:password>
+                        <p:message id="passwordMsg" for="password" display="text"/>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-row">
+                        <span class="field-label">Confirm Password</span>
+                        <p:password id="confirmPassword"
+                                    value="#{registerBean.confirmPassword}"
+                                    redisplay="true"
+                                    toggleMask="true"
+                                    feedback="false"
+                                    placeholder="Re-enter your password"
+                                    required="true"
+                                    requiredMessage="Please confirm your password.">
+                            <p:ajax event="blur" update="confirmPasswordMsg confirmPassword"/>
+                        </p:password>
+                        <p:message id="confirmPasswordMsg" for="confirmPassword" display="text"/>
+                    </div>
+
+                    <!-- Society (full width) -->
+                    <div class="form-row full-width">
+                        <span class="field-label">Select Society</span>
+                        <p:selectOneMenu id="society"
+                                         value="#{registerBean.societyId}"
+                                         required="true"
+                                         requiredMessage="Please select your society.">
+                            <f:selectItem itemLabel="Select Society"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{registerBean.societies}"
+                                           var="s"
+                                           itemLabel="#{s.societyName}"
+                                           itemValue="#{s.societyId}"/>
+                            <p:ajax event="change" update="societyMsg society"/>
+                        </p:selectOneMenu>
+                        <p:message id="societyMsg" for="society" display="text"/>
+                    </div>
+
+                </div>
+
+                <div class="auth-actions">
+                    <p:commandButton
+                        value="Create Account"
+                        icon="pi pi-user-plus"
+                        action="#{registerBean.register}"
+                        update="@form"
+                        styleClass="gold-btn"/>
+                </div>
+
+                <div class="divider">or</div>
+
+                <div class="auth-links">
+                    Already have an account?
+                    <h:link outcome="/public/login" value="Sign in"/>
+                </div>
+
+            </h:form>
+
+        </div>
 
     </div>
 

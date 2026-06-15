@@ -22,6 +22,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 
@@ -536,21 +537,18 @@ public class JakartaEE10Resource {
     }
     
     @PUT
-    @Path("updateUser/{userId}/{fullName}/{email}/{mobile}/{username}")
-    @Secured(roles = {"Admin", "Officer", "Citizen"})
-    public Response updateUser(
-            @PathParam("userId") Integer userId,
-            @PathParam("fullName") String fullName,
-            @PathParam("email") String email,
-            @PathParam("mobile") String mobile,
-            @PathParam("username") String username) {
+    @Path("updateUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUser(Users user) {
+         System.out.println("REST method called");
+    System.out.println(user.getFullName());
 
         userBean.updateUser(
-                userId,
-                fullName,
-                email,
-                mobile,
-                username);
+                user.getUserId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getMobile(),
+                user.getUsername());
 
         return Response.ok().build();
     }

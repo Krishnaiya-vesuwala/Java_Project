@@ -57,16 +57,14 @@ public class ProfileCDIBean implements Serializable {
     }
 
     public void updateProfile() {
-
+        
+          System.out.println("Update button clicked");
         try {
-
+            System.out.println("User ID = " + user.getUserId());
+            System.out.println("Name = " + user.getFullName());
             rl.updateUser(
-                    String.valueOf(user.getUserId()),
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getMobile(),
-                    user.getUsername(),
-                    loginBean.getToken());
+                user,
+                loginBean.getToken());
 
             editMode = false;
 

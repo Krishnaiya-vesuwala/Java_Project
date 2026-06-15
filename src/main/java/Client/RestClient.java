@@ -77,27 +77,21 @@ public class RestClient {
     }
     
     public void updateUser(
-            String userId,
-            String fullName,
-            String email,
-            String mobile,
-            String username,
+            Users user,
             String token)
             throws ClientErrorException {
 
-        webTarget.path(
-                java.text.MessageFormat.format(
-                        "updateUser/{0}/{1}/{2}/{3}/{4}",
-                        new Object[]{
-                            userId,
-                            fullName,
-                            email,
-                            mobile,
-                            username
-                        }))
+        Response response =
+        webTarget.path("updateUser")
                 .request()
                 .header("Authorization", "Bearer " + token)
-                .put(jakarta.ws.rs.client.Entity.text(""));
+                .put(Entity.entity(user, MediaType.APPLICATION_JSON));
+
+        System.out.println("Status = " + response.getStatus());
+
+        if (response.hasEntity()) {
+            System.out.println(response.readEntity(String.class));
+        }
     }
 
     public void createWard(String zoneId, String wardName, String status) throws ClientErrorException {

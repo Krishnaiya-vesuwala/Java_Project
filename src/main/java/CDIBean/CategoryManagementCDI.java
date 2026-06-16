@@ -1,25 +1,27 @@
 package CDIBean;
 
-import EJB.AdminBeanLocal;
+import Client.RestClient;
 import Entity.ComplaintCategory;
 import Entity.Departments;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Named("categoryManagementCDI")
 @ViewScoped
 public class CategoryManagementCDI implements Serializable {
 
-    @EJB
-    private AdminBeanLocal adminService;
+    private RestClient restClient = new RestClient();
 
     private List<ComplaintCategory> categories;
     private List<Departments>       departments;
@@ -37,6 +39,9 @@ public class CategoryManagementCDI implements Serializable {
     private String  editCategoryName;
     private Integer editDepartmentId;
 
+    // ── Token ──────────────────────────────────────────────
+    private String token;
+
     // ── Validation constants ───────────────────────────────
     private static final Pattern NAME_PATTERN =
             Pattern.compile("^[a-zA-Z0-9 .&'\\-/]+$");
@@ -50,14 +55,110 @@ public class CategoryManagementCDI implements Serializable {
 
     @PostConstruct
     public void init() {
-        loadData();
-        departments      = adminService.getAllDepartments();
-        selectedCategory = new ComplaintCategory();
-        selectedCategoryId = null;
+
+        try {
+
+            // ── Get token from session ───────────────
+            Map<String, Object> session = FacesContext
+                    .getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
+
+            token = (String) session.get("token");
+
+            System.out.println("[CategoryManagementCDI] token = "
+                    + token);
+
+            if (token == null || token.isEmpty()) {
+                System.err.println(
+                        "[CategoryManagementCDI] Token is NULL!");
+                return;
+            }
+
+            loadData();
+            loadDepartments();
+
+            selectedCategory   = new ComplaintCategory();
+            selectedCategoryId = null;
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] init error: "
+                    + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
+    // ═══════════════════════════════════════════════════════
+    //  LOAD DATA
+    // ═══════════════════════════════════════════════════════
+
     public void loadData() {
-        categories = adminService.getAllCategory();
+
+        try {
+
+            Response rs = restClient.getAllCategories(
+                    Response.class, token);
+
+            System.out.println(
+                    "[CategoryManagementCDI] getAllCategories status: "
+                    + rs.getStatus());
+
+            if (rs.getStatus() == 200) {
+                categories = rs.readEntity(
+                        new GenericType<List<ComplaintCategory>>() {});
+                System.out.println(
+                        "[CategoryManagementCDI] categories loaded: "
+                        + (categories != null
+                                ? categories.size() : 0));
+            } else {
+                categories = new ArrayList<>();
+                System.err.println(
+                        "[CategoryManagementCDI] getAllCategories"
+                        + " failed. Status: " + rs.getStatus());
+            }
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] loadData error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            categories = new ArrayList<>();
+        }
+    }
+
+    public void loadDepartments() {
+
+        try {
+
+            Response rs = restClient.getAllDepartments(
+                    Response.class, token);
+
+            System.out.println(
+                    "[CategoryManagementCDI] getAllDepartments status: "
+                    + rs.getStatus());
+
+            if (rs.getStatus() == 200) {
+                departments = rs.readEntity(
+                        new GenericType<List<Departments>>() {});
+                System.out.println(
+                        "[CategoryManagementCDI] departments loaded: "
+                        + (departments != null
+                                ? departments.size() : 0));
+            } else {
+                departments = new ArrayList<>();
+                System.err.println(
+                        "[CategoryManagementCDI] getAllDepartments"
+                        + " failed. Status: " + rs.getStatus());
+            }
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] loadDepartments error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            departments = new ArrayList<>();
+        }
     }
 
     // ═══════════════════════════════════════════════════════
@@ -66,8 +167,8 @@ public class CategoryManagementCDI implements Serializable {
 
     /** Called by "Add Category" button — resets create fields. */
     public void prepareCreate() {
-        newCategoryName  = "";
-        newDepartmentId  = null;
+        newCategoryName = "";
+        newDepartmentId = null;
     }
 
     /**
@@ -76,7 +177,7 @@ public class CategoryManagementCDI implements Serializable {
      */
     public void editCategory(ComplaintCategory category) {
 
-        System.out.println("EDIT CATEGORY ID = "
+        System.out.println("[CategoryManagementCDI] EDIT CATEGORY ID = "
                 + category.getCategoryId());
 
         selectedCategory   = category;
@@ -88,8 +189,10 @@ public class CategoryManagementCDI implements Serializable {
                 ? category.getDepartmentId().getDepartmentId()
                 : null;
 
-        System.out.println("editCategoryName = " + editCategoryName);
-        System.out.println("editDepartmentId = " + editDepartmentId);
+        System.out.println("[CategoryManagementCDI] editCategoryName = "
+                + editCategoryName);
+        System.out.println("[CategoryManagementCDI] editDepartmentId = "
+                + editDepartmentId);
     }
 
     // ═══════════════════════════════════════════════════════
@@ -111,34 +214,35 @@ public class CategoryManagementCDI implements Serializable {
 
         boolean      ok = true;
         FacesContext fc = FacesContext.getCurrentInstance();
-        String P = isEdit ? "categoryForm:edit"
-                          : "categoryForm:add";
+        String prefix   = isEdit ? "categoryForm:edit"
+                                 : "categoryForm:add";
 
         // ── 1. Category Name ──────────────────────────────
         if (categoryName == null
                 || categoryName.trim().isEmpty()) {
-            addError(fc, P + "CategoryName",
+            addError(fc, prefix + "CategoryName",
                     "Category Name is required.");
             ok = false;
 
         } else {
+
             String t = categoryName.trim();
 
             if (t.length() < NAME_MIN) {
-                addError(fc, P + "CategoryName",
+                addError(fc, prefix + "CategoryName",
                         "Category Name must be at least "
                         + NAME_MIN + " characters.");
                 ok = false;
 
             } else if (t.length() > NAME_MAX) {
-                addError(fc, P + "CategoryName",
+                addError(fc, prefix + "CategoryName",
                         "Category Name cannot exceed "
                         + NAME_MAX + " characters.");
                 ok = false;
             }
 
             if (!NAME_PATTERN.matcher(t).matches()) {
-                addError(fc, P + "CategoryName",
+                addError(fc, prefix + "CategoryName",
                         "Category Name can only contain "
                         + "letters, digits, spaces, hyphens, "
                         + "dots, slashes, apostrophes and '&'.");
@@ -147,7 +251,8 @@ public class CategoryManagementCDI implements Serializable {
 
             // Duplicate check — same name in same department
             // (case-insensitive, skip self in edit mode)
-            if (ok && departmentId != null) {
+            if (ok && departmentId != null
+                    && categories != null) {
                 for (ComplaintCategory cat : categories) {
                     if (excludeCategoryId != null
                             && cat.getCategoryId()
@@ -165,7 +270,7 @@ public class CategoryManagementCDI implements Serializable {
                                   .equalsIgnoreCase(t);
 
                     if (sameDept && sameName) {
-                        addError(fc, P + "CategoryName",
+                        addError(fc, prefix + "CategoryName",
                                 "A category with this name "
                                 + "already exists in the "
                                 + "selected department.");
@@ -178,7 +283,7 @@ public class CategoryManagementCDI implements Serializable {
 
         // ── 2. Department ─────────────────────────────────
         if (departmentId == null) {
-            addError(fc, P + "DepartmentId",
+            addError(fc, prefix + "DepartmentId",
                     "Please select a Department.");
             ok = false;
         }
@@ -212,9 +317,11 @@ public class CategoryManagementCDI implements Serializable {
     /** Called by "Save Category" in the Add dialog. */
     public void createCategory() {
 
-        System.out.println("CREATE CATEGORY CLICKED");
-        System.out.println("name  = " + newCategoryName);
-        System.out.println("deptId = " + newDepartmentId);
+        System.out.println("[CategoryManagementCDI] CREATE CLICKED");
+        System.out.println("[CategoryManagementCDI] name   = "
+                + newCategoryName);
+        System.out.println("[CategoryManagementCDI] deptId = "
+                + newDepartmentId);
 
         if (!validateCategory(
                 newCategoryName, newDepartmentId,
@@ -222,27 +329,48 @@ public class CategoryManagementCDI implements Serializable {
             return; // validationFailed() set → dialog stays open
         }
 
-        adminService.createCategory(
-                newCategoryName.trim(),
-                newDepartmentId);
+        try {
 
-        loadData();
+            restClient.createCategory(
+                    newCategoryName.trim(),
+                    String.valueOf(newDepartmentId),
+                    token);
 
-        addSuccess("Success",
-                "Category '"
-                + newCategoryName.trim()
-                + "' created successfully.");
+            System.out.println(
+                    "[CategoryManagementCDI] createCategory"
+                    + " REST called.");
 
-        prepareCreate(); // reset fields
+            loadData();
+
+            addSuccess("Success",
+                    "Category '"
+                    + newCategoryName.trim()
+                    + "' created successfully.");
+
+            prepareCreate(); // reset fields
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] createCategory error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "categoryForm:addCategoryName",
+                    "Failed to create category: "
+                    + e.getMessage());
+        }
     }
 
     /** Called by "Update Category" in the Edit dialog. */
     public void updateCategory() {
 
-        System.out.println("UPDATE CATEGORY CLICKED");
-        System.out.println("categoryId = " + selectedCategoryId);
-        System.out.println("name       = " + editCategoryName);
-        System.out.println("deptId     = " + editDepartmentId);
+        System.out.println("[CategoryManagementCDI] UPDATE CLICKED");
+        System.out.println("[CategoryManagementCDI] categoryId = "
+                + selectedCategoryId);
+        System.out.println("[CategoryManagementCDI] name       = "
+                + editCategoryName);
+        System.out.println("[CategoryManagementCDI] deptId     = "
+                + editDepartmentId);
 
         // ── Guard ─────────────────────────────────────────
         if (selectedCategoryId == null) {
@@ -259,58 +387,95 @@ public class CategoryManagementCDI implements Serializable {
             return;
         }
 
-        adminService.updateCategory(
-                selectedCategoryId,
-                editCategoryName.trim(),
-                editDepartmentId);
+        try {
 
-        loadData();
+            restClient.updateCategory(
+                    String.valueOf(selectedCategoryId),
+                    editCategoryName.trim(),
+                    String.valueOf(editDepartmentId),
+                    token);
 
-        addSuccess("Updated",
-                "Category updated successfully.");
+            System.out.println(
+                    "[CategoryManagementCDI] updateCategory"
+                    + " REST called.");
+
+            loadData();
+
+            addSuccess("Updated",
+                    "Category updated successfully.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] updateCategory error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "categoryForm:editCategoryName",
+                    "Failed to update category: "
+                    + e.getMessage());
+        }
     }
 
     /** Hard-delete a category. */
     public void deleteCategory(Integer id) {
 
-        System.out.println("DELETE CATEGORY ID = " + id);
+        System.out.println(
+                "[CategoryManagementCDI] DELETE CATEGORY ID = " + id);
 
-        adminService.deleteCategory(id);
+        try {
 
-        loadData();
+            restClient.deleteCategory(
+                    String.valueOf(id), token);
 
-        addSuccess("Deleted",
-                "Category deleted successfully.");
+            System.out.println(
+                    "[CategoryManagementCDI] deleteCategory"
+                    + " REST called. id=" + id);
+
+            loadData();
+
+            addSuccess("Deleted",
+                    "Category deleted successfully.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[CategoryManagementCDI] deleteCategory error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to delete category: "
+                    + e.getMessage());
+        }
     }
 
     // ═══════════════════════════════════════════════════════
     //  Getters / Setters
     // ═══════════════════════════════════════════════════════
 
-    public AdminBeanLocal getAdminService() { return adminService; }
-    public void setAdminService(AdminBeanLocal s) { this.adminService = s; }
+    public List<ComplaintCategory> getCategories()          { return categories; }
+    public void setCategories(List<ComplaintCategory> c)    { this.categories = c; }
 
-    public List<ComplaintCategory> getCategories() { return categories; }
-    public void setCategories(List<ComplaintCategory> c) { this.categories = c; }
+    public List<Departments> getDepartments()               { return departments; }
+    public void setDepartments(List<Departments> d)         { this.departments = d; }
 
-    public List<Departments> getDepartments() { return departments; }
-    public void setDepartments(List<Departments> d) { this.departments = d; }
+    public ComplaintCategory getSelectedCategory()          { return selectedCategory; }
+    public void setSelectedCategory(ComplaintCategory c)    { this.selectedCategory = c; }
 
-    public ComplaintCategory getSelectedCategory() { return selectedCategory; }
-    public void setSelectedCategory(ComplaintCategory c) { this.selectedCategory = c; }
+    public Integer getSelectedCategoryId()                  { return selectedCategoryId; }
+    public void setSelectedCategoryId(Integer id)           { this.selectedCategoryId = id; }
 
-    public Integer getSelectedCategoryId() { return selectedCategoryId; }
-    public void setSelectedCategoryId(Integer id) { this.selectedCategoryId = id; }
+    public String getNewCategoryName()                      { return newCategoryName; }
+    public void setNewCategoryName(String s)                { this.newCategoryName = s; }
 
-    public String getNewCategoryName() { return newCategoryName; }
-    public void setNewCategoryName(String s) { this.newCategoryName = s; }
+    public Integer getNewDepartmentId()                     { return newDepartmentId; }
+    public void setNewDepartmentId(Integer id)              { this.newDepartmentId = id; }
 
-    public Integer getNewDepartmentId() { return newDepartmentId; }
-    public void setNewDepartmentId(Integer id) { this.newDepartmentId = id; }
+    public String getEditCategoryName()                     { return editCategoryName; }
+    public void setEditCategoryName(String s)               { this.editCategoryName = s; }
 
-    public String getEditCategoryName() { return editCategoryName; }
-    public void setEditCategoryName(String s) { this.editCategoryName = s; }
+    public Integer getEditDepartmentId()                    { return editDepartmentId; }
+    public void setEditDepartmentId(Integer id)             { this.editDepartmentId = id; }
 
-    public Integer getEditDepartmentId() { return editDepartmentId; }
-    public void setEditDepartmentId(Integer id) { this.editDepartmentId = id; }
+    public String getToken()                                { return token; }
+    public void setToken(String t)                          { this.token = t; }
 }

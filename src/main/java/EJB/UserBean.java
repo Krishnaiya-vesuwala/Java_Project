@@ -140,9 +140,13 @@ public class UserBean implements UserBeanLocal {
             String mobile,
             String username) {
 
+        System.out.println("EJB method called");
+
         Users user = em.find(Users.class, userId);
 
         if (user != null) {
+
+            System.out.println("User found");
 
             user.setFullName(fullName);
             user.setEmail(email);
@@ -150,6 +154,7 @@ public class UserBean implements UserBeanLocal {
             user.setUsername(username);
 
             em.merge(user);
+            System.out.println("Database updated");
         }
     }
     

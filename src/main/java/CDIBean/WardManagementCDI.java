@@ -1,25 +1,27 @@
 package CDIBean;
 
-import EJB.AdminBeanLocal;
+import Client.RestClient;
 import Entity.Ward;
 import Entity.Zone;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Named(value = "wardManagementCDI")
 @ViewScoped
 public class WardManagementCDI implements Serializable {
 
-    @EJB
-    private AdminBeanLocal adminService;
+    private RestClient restClient = new RestClient();
 
     private List<Ward> wards;
     private List<Zone> zones;
@@ -36,6 +38,9 @@ public class WardManagementCDI implements Serializable {
     private String  editStatus;
     private Integer editZoneId;
 
+    // Token
+    private String token;
+
     // ── Validation rules ──────────────────────────────────
     private static final Pattern WARD_NAME_PATTERN =
             Pattern.compile("^[a-zA-Z0-9 .&\\-]+$");
@@ -49,15 +54,103 @@ public class WardManagementCDI implements Serializable {
 
     @PostConstruct
     public void init() {
-        wards        = adminService.getAllWards();
-        zones        = adminService.getAllZones();
-        selectedWard = new Ward();
-        newStatus    = "ACTIVE";
+
+        try {
+
+            // ── Get token from session ───────────────
+            Map<String, Object> session = FacesContext
+                    .getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
+
+            token = (String) session.get("token");
+
+            System.out.println("[WardManagementCDI] token = " + token);
+
+            if (token == null || token.isEmpty()) {
+                System.err.println("[WardManagementCDI] Token is NULL!");
+                return;
+            }
+
+            loadWards();
+            loadZones();
+
+            selectedWard = new Ward();
+            newStatus    = "ACTIVE";
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] init error: "
+                    + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    public void loadData() {
-        wards = adminService.getAllWards();
+    // ═══════════════════════════════════════════════════════
+    //  LOAD DATA
+    // ═══════════════════════════════════════════════════════
+
+    public void loadWards() {
+
+        try {
+
+            Response rs = restClient.getAllWards(Response.class, token);
+
+            System.out.println("[WardManagementCDI] getAllWards status: "
+                    + rs.getStatus());
+
+            if (rs.getStatus() == 200) {
+                wards = rs.readEntity(new GenericType<List<Ward>>() {});
+                System.out.println("[WardManagementCDI] wards loaded: "
+                        + (wards != null ? wards.size() : 0));
+            } else {
+                wards = new ArrayList<>();
+                System.err.println("[WardManagementCDI] getAllWards failed."
+                        + " Status: " + rs.getStatus());
+            }
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] loadWards error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            wards = new ArrayList<>();
+        }
     }
+
+    private void loadZones() {
+
+        try {
+
+            Response rs = restClient.getAllZones(Response.class, token);
+
+            System.out.println("[WardManagementCDI] getAllZones status: "
+                    + rs.getStatus());
+
+            if (rs.getStatus() == 200) {
+                zones = rs.readEntity(new GenericType<List<Zone>>() {});
+                System.out.println("[WardManagementCDI] zones loaded: "
+                        + (zones != null ? zones.size() : 0));
+            } else {
+                zones = new ArrayList<>();
+                System.err.println("[WardManagementCDI] getAllZones failed."
+                        + " Status: " + rs.getStatus());
+            }
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] loadZones error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            zones = new ArrayList<>();
+        }
+    }
+
+    // Keep loadData() for backward compatibility with any XHTML calls
+    public void loadData() {
+        loadWards();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  PREPARE
+    // ═══════════════════════════════════════════════════════
 
     /** Called by "Add Ward" button — resets the add-dialog fields. */
     public void prepareCreate() {
@@ -67,23 +160,18 @@ public class WardManagementCDI implements Serializable {
     }
 
     // ═══════════════════════════════════════════════════════
-    //  VALIDATION  (mirrors ZoneManagementCDI exactly)
+    //  VALIDATION
     // ═══════════════════════════════════════════════════════
 
     /**
-     * Posts FacesMessages to the correct dialog component so that
-     * the p:message tags under each field light up, AND
-     * calls fc.validationFailed() so that
-     * oncomplete="if(!args.validationFailed)" keeps the dialog open.
-     *
      * isEdit = false → "wardForm:addWardName" / "wardForm:addZone" etc.
      * isEdit = true  → "wardForm:editWardName" / "wardForm:editZone" etc.
      */
     private boolean validateWard(String  wardName,
-                                 String  status,
-                                 Integer zoneId,
-                                 Integer excludeWardId,
-                                 boolean isEdit) {
+                                  String  status,
+                                  Integer zoneId,
+                                  Integer excludeWardId,
+                                  boolean isEdit) {
 
         boolean      ok = true;
         FacesContext fc = FacesContext.getCurrentInstance();
@@ -96,6 +184,7 @@ public class WardManagementCDI implements Serializable {
             addError(fc, prefix + "WardName", "Ward Name is required.");
             ok = false;
         } else {
+
             String trimmed = wardName.trim();
 
             if (trimmed.length() < WARD_NAME_MIN) {
@@ -118,7 +207,7 @@ public class WardManagementCDI implements Serializable {
             }
 
             // Duplicate check (same zone + name, case-insensitive)
-            if (zoneId != null && ok) {
+            if (zoneId != null && ok && wards != null) {
                 for (Ward w : wards) {
                     if (excludeWardId != null
                             && w.getWardId().equals(excludeWardId)) {
@@ -160,16 +249,11 @@ public class WardManagementCDI implements Serializable {
 
     // ── Message helpers ───────────────────────────────────
 
-    /**
-     * Adds an error to a specific component AND marks validation as failed
-     * so PrimeFaces sets args.validationFailed = true on the client.
-     * Identical pattern to ZoneManagementCDI.addError().
-     */
     private void addError(FacesContext fc, String clientId, String detail) {
         fc.addMessage(clientId,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                  "Validation Error", detail));
-        fc.validationFailed(); // ← key: makes args.validationFailed true
+        fc.validationFailed();
     }
 
     private void addSuccess(String summary, String detail) {
@@ -185,27 +269,41 @@ public class WardManagementCDI implements Serializable {
     /** Called by "Save Ward" button in the Add dialog. */
     public void createWard() {
 
-        System.out.println("CREATE WARD CLICKED");
-        System.out.println("Ward Name  = " + newWardName);
-        System.out.println("Status     = " + newStatus);
-        System.out.println("Zone ID    = " + newZoneId);
+        System.out.println("[WardManagementCDI] CREATE WARD CLICKED");
+        System.out.println("[WardManagementCDI] Ward Name = " + newWardName);
+        System.out.println("[WardManagementCDI] Status    = " + newStatus);
+        System.out.println("[WardManagementCDI] Zone ID   = " + newZoneId);
 
         if (!validateWard(newWardName, newStatus, newZoneId,
-                          null, false)) {
-            return; // validationFailed() already called → dialog stays open
+                null, false)) {
+            return;
         }
 
-        adminService.createWard(
-                newZoneId,
-                newWardName.trim(),
-                newStatus);
+        try {
 
-        loadData();
+            restClient.createWard(
+                    String.valueOf(newZoneId),
+                    newWardName.trim(),
+                    newStatus,token);
 
-        addSuccess("Success",
-                "Ward '" + newWardName.trim() + "' created successfully.");
+            System.out.println("[WardManagementCDI] createWard REST called.");
 
-        prepareCreate(); // reset fields for next use
+            loadWards();
+
+            addSuccess("Success",
+                    "Ward '" + newWardName.trim()
+                    + "' created successfully.");
+
+            prepareCreate();
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] createWard error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "wardForm:addWardName",
+                    "Failed to create ward: " + e.getMessage());
+        }
     }
 
     /** Called by "Edit" row button — populates edit-dialog fields. */
@@ -218,7 +316,8 @@ public class WardManagementCDI implements Serializable {
                        ? ward.getZoneId().getZoneId()
                        : null;
 
-        System.out.println("Editing Ward = " + ward.getWardId());
+        System.out.println("[WardManagementCDI] Editing Ward = "
+                + ward.getWardId());
     }
 
     /** Called by "Update Ward" button in the Edit dialog. */
@@ -232,71 +331,149 @@ public class WardManagementCDI implements Serializable {
         }
 
         if (!validateWard(editWardName, editStatus, editZoneId,
-                          selectedWard.getWardId(), true)) {
-            return; // validationFailed() already called → dialog stays open
+                selectedWard.getWardId(), true)) {
+            return;
         }
 
-        adminService.updateWard(
-                selectedWard.getWardId(),
-                editZoneId,
-                editWardName.trim(),
-                editStatus);
+        try {
 
-        loadData();
+            restClient.updateWard(
+                    String.valueOf(selectedWard.getWardId()),
+                    String.valueOf(editZoneId),
+                    editWardName.trim(),
+                    editStatus,token);
 
-        addSuccess("Updated", "Ward updated successfully.");
+            System.out.println("[WardManagementCDI] updateWard REST called.");
+
+            loadWards();
+
+            addSuccess("Updated", "Ward updated successfully.");
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] updateWard error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "wardForm:editWardName",
+                    "Failed to update ward: " + e.getMessage());
+        }
     }
 
     /** Set ward status → ACTIVE. */
     public void activate(Integer wardId) {
 
-        Ward ward = wards.stream()
-                .filter(w -> w.getWardId().equals(wardId))
-                .findFirst().orElse(null);
+        try {
 
-        if (ward != null) {
-            adminService.updateWard(
-                    wardId,
-                    ward.getZoneId().getZoneId(),
+            // Find ward in list to get current values
+            Ward ward = null;
+            if (wards != null) {
+                ward = wards.stream()
+                        .filter(w -> w.getWardId().equals(wardId))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (ward == null) {
+                addError(FacesContext.getCurrentInstance(),
+                        null,
+                        "Ward not found.");
+                return;
+            }
+
+            restClient.updateWard(
+                    String.valueOf(wardId),
+                    String.valueOf(ward.getZoneId().getZoneId()),
                     ward.getWardName(),
-                    "ACTIVE");
-            loadData();
+                    "ACTIVE",token);
+
+            System.out.println("[WardManagementCDI] activate REST called."
+                    + " wardId=" + wardId);
+
+            loadWards();
+
             addSuccess("Activated", "Ward has been activated.");
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] activate error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to activate ward: " + e.getMessage());
         }
     }
 
     /** Set ward status → INACTIVE. */
     public void deactivate(Integer wardId) {
 
-        Ward ward = wards.stream()
-                .filter(w -> w.getWardId().equals(wardId))
-                .findFirst().orElse(null);
+        try {
 
-        if (ward != null) {
-            adminService.updateWard(
-                    wardId,
-                    ward.getZoneId().getZoneId(),
+            // Find ward in list to get current values
+            Ward ward = null;
+            if (wards != null) {
+                ward = wards.stream()
+                        .filter(w -> w.getWardId().equals(wardId))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (ward == null) {
+                addError(FacesContext.getCurrentInstance(),
+                        null,
+                        "Ward not found.");
+                return;
+            }
+
+            restClient.updateWard(
+                    String.valueOf(wardId),
+                    String.valueOf(ward.getZoneId().getZoneId()),
                     ward.getWardName(),
-                    "INACTIVE");
-            loadData();
+                    "INACTIVE",token);
+
+            System.out.println("[WardManagementCDI] deactivate REST called."
+                    + " wardId=" + wardId);
+
+            loadWards();
+
             addSuccess("Deactivated", "Ward has been deactivated.");
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] deactivate error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to deactivate ward: " + e.getMessage());
         }
     }
 
     /** Hard-delete a ward. */
     public void deleteWard(Integer wardId) {
-        adminService.deleteWard(wardId);
-        loadData();
-        addSuccess("Deleted", "Ward deleted successfully.");
+
+        try {
+
+            restClient.deleteWard(String.valueOf(wardId),token);
+
+            System.out.println("[WardManagementCDI] deleteWard REST called."
+                    + " wardId=" + wardId);
+
+            loadWards();
+
+            addSuccess("Deleted", "Ward deleted successfully.");
+
+        } catch (Exception e) {
+            System.err.println("[WardManagementCDI] deleteWard error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to delete ward: " + e.getMessage());
+        }
     }
- 
 
     // ═══════════════════════════════════════════════════════
     //  Getters / Setters
     // ═══════════════════════════════════════════════════════
-
-    public AdminBeanLocal getAdminService()                  { return adminService; }
-    public void setAdminService(AdminBeanLocal s)            { this.adminService = s; }
 
     public List<Ward> getWards()                             { return wards; }
     public void setWards(List<Ward> wards)                   { this.wards = wards; }
@@ -324,4 +501,7 @@ public class WardManagementCDI implements Serializable {
 
     public Integer getEditZoneId()                           { return editZoneId; }
     public void setEditZoneId(Integer editZoneId)            { this.editZoneId = editZoneId; }
+
+    public String getToken()                                 { return token; }
+    public void setToken(String token)                       { this.token = token; }
 }

@@ -1,37 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSF/JSFManagedBean.java to edit this template
- */
 package CDIBean;
 
-import EJB.AdminBeanLocal;
-import EJB.ComplaintBeanLocal;
-import EJB.UserBeanLocal;
+import Client.RestClient;
 import Entity.Users;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.faces.view.ViewScoped;
-import java.io.Serializable;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
-/**
- *
- * @author krishnaiya
- */
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 @Named(value = "adminDashboardCDI")
 @ViewScoped
 public class AdminDashboardCDI implements Serializable {
 
-    @EJB
-    private AdminBeanLocal adminService;
-    @EJB
-    private ComplaintBeanLocal complaintService;
-    @EJB 
-    private UserBeanLocal userService;
-    
-     private Users admin;
+    private RestClient restClient = new RestClient();
+
+    private Users admin;
 
     private Long totalZones;
     private Long totalWards;
@@ -43,96 +32,209 @@ public class AdminDashboardCDI implements Serializable {
     private Long pendingComplaints;
 
     @PostConstruct
-    public void init(){
+    public void init() {
 
-        totalZones =
-                (long) adminService.getAllZones().size();
+        try {
 
-        totalWards =
-                (long) adminService.getAllWards().size();
+            // ── Get token and loggedInUser from session ──
+            Map<String, Object> session = FacesContext.getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
 
-        totalSocieties =
-                (long) adminService.getAllSocieties().size();
+            Users loggedInUser = (Users) session.get("loggedInUser");
+            String token = (String) session.get("token");
 
-        totalDepartments =
-                (long) adminService.getAllDepartments().size();
+            System.out.println("[AdminDashboardCDI] token = " + token);
+            System.out.println("[AdminDashboardCDI] loggedInUser = "
+                    + (loggedInUser != null ? loggedInUser.getUserId() : "NULL"));
 
-        totalCategories =
-                (long) adminService.getAllCategory().size();
+            // ── Total Zones ──────────────────────────────
+            try {
+                Response rs = restClient.getAllZones(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalZones = (long) list.size();
+                } else {
+                    totalZones = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalZones error: " + e.getMessage());
+                totalZones = 0L;
+            }
 
-        totalOfficers =
-                (long) adminService.getAllOfficers().size();
+            // ── Total Wards ──────────────────────────────
+            try {
+                Response rs = restClient.getAllWards(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalWards = (long) list.size();
+                } else {
+                    totalWards = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalWards error: " + e.getMessage());
+                totalWards = 0L;
+            }
 
-        totalComplaints =
-                (long) complaintService.getAllComplaints().size();
+            // ── Total Societies ──────────────────────────
+            try {
+                Response rs = restClient.getAllSocities(Response.class);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalSocieties = (long) list.size();
+                } else {
+                    totalSocieties = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalSocieties error: " + e.getMessage());
+                totalSocieties = 0L;
+            }
 
-        pendingComplaints =
-                (long) complaintService.getPendingComplaints().size();
-        
-         try {
+            // ── Total Departments ────────────────────────
+            try {
+                Response rs = restClient.getAllDepartments(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalDepartments = (long) list.size();
+                } else {
+                    totalDepartments = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalDepartments error: " + e.getMessage());
+                totalDepartments = 0L;
+            }
 
-            Users loggedUser =
-                    (Users) FacesContext.getCurrentInstance()
-                            .getExternalContext()
-                            .getSessionMap()
-                            .get("user");
+            // ── Total Categories ─────────────────────────
+            try {
+                Response rs = restClient.getAllCategories(Response.class, token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalCategories = (long) list.size();
+                } else {
+                    totalCategories = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalCategories error: " + e.getMessage());
+                totalCategories = 0L;
+            }
 
-//            admin =
-//                    userService.getAdminProfile(
-//                            loggedUser.getUserId());
-               admin =
-                    userService.getAdminProfile(
-                            1);
-               System.out.println(admin.getFullName());
+            // ── Total Officers ───────────────────────────
+            try {
+                Response rs = restClient.getAllOfficers(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalOfficers = (long) list.size();
+                } else {
+                    totalOfficers = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalOfficers error: " + e.getMessage());
+                totalOfficers = 0L;
+            }
+
+            // ── Total Complaints ─────────────────────────
+            try {
+                Response rs = restClient.getAllComplaints(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    totalComplaints = (long) list.size();
+                } else {
+                    totalComplaints = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] totalComplaints error: " + e.getMessage());
+                totalComplaints = 0L;
+            }
+
+            // ── Pending Complaints ───────────────────────
+            try {
+                Response rs = restClient.getPendingComplaints(Response.class,token);
+                if (rs.getStatus() == 200) {
+                    List<?> list = rs.readEntity(new GenericType<List<?>>() {});
+                    pendingComplaints = (long) list.size();
+                } else {
+                    pendingComplaints = 0L;
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] pendingComplaints error: " + e.getMessage());
+                pendingComplaints = 0L;
+            }
+
+            // ── Admin Profile ────────────────────────────
+            try {
+                // Use loggedInUser ID from session instead of static ID
+                String userId = String.valueOf(loggedInUser.getUserId());
+
+                Response rs = restClient.getUserById(Response.class, userId, token);
+                if (rs.getStatus() == 200) {
+                    admin = rs.readEntity(Users.class);
+                    System.out.println("[AdminDashboardCDI] admin = " + admin.getFullName());
+                } else {
+                    System.err.println("[AdminDashboardCDI] getAdminProfile failed. Status: "
+                            + rs.getStatus());
+                }
+            } catch (Exception e) {
+                System.err.println("[AdminDashboardCDI] getAdminProfile error: " + e.getMessage());
+                e.printStackTrace();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     public void updateAdminProfile() {
 
-    try {
+        try {
 
-        userService.updateUser(
-                admin.getUserId(),
-                admin.getFullName(),
-                admin.getEmail(),
-                admin.getMobile(),
-                admin.getUsername(),
-                admin.getRole(),
-                admin.getStatus(),
-                admin.getSocietyId() != null
-                        ? admin.getSocietyId().getSocietyId()
-                        : null
-        );
+            Map<String, Object> session = FacesContext.getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
 
-        FacesContext.getCurrentInstance().addMessage(
-                null,
-                new FacesMessage(
-                        FacesMessage.SEVERITY_INFO,
-                        "Success",
-                        "Profile updated successfully"
-                )
-        );
+            String token = (String) session.get("token");
 
-    } catch (Exception e) {
+            Response rs = restClient.updateUser(
+                    String.valueOf(admin.getUserId()),
+                    admin.getFullName(),
+                    admin.getEmail(),
+                    admin.getMobile(),
+                    admin.getUsername(),
+                    token);
 
-        FacesContext.getCurrentInstance().addMessage(
-                null,
-                new FacesMessage(
-                        FacesMessage.SEVERITY_ERROR,
-                        "Error",
-                        e.getMessage()
-                )
-        );
+            if (rs.getStatus() == 200) {
+                FacesContext.getCurrentInstance().addMessage(
+                        null,
+                        new FacesMessage(
+                                FacesMessage.SEVERITY_INFO,
+                                "Success",
+                                "Profile updated successfully"));
+            } else {
+                FacesContext.getCurrentInstance().addMessage(
+                        null,
+                        new FacesMessage(
+                                FacesMessage.SEVERITY_ERROR,
+                                "Error",
+                                "Failed to update profile. Status: "
+                                + rs.getStatus()));
+            }
 
-        e.printStackTrace();
+        } catch (Exception e) {
+
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(
+                            FacesMessage.SEVERITY_ERROR,
+                            "Error",
+                            e.getMessage()));
+            e.printStackTrace();
+        }
     }
-}
-      public String getInitials() {
 
-        if (admin == null || admin.getFullName() == null || admin.getFullName().trim().isEmpty()) {
+    public String getInitials() {
+
+        if (admin == null
+                || admin.getFullName() == null
+                || admin.getFullName().trim().isEmpty()) {
             return "A";
         }
 
@@ -146,90 +248,35 @@ public class AdminDashboardCDI implements Serializable {
                 + parts[parts.length - 1].substring(0, 1))
                 .toUpperCase();
     }
-    
 
-    // getters setters
+    // ═══════════════════════════════════════════════════════
+    //  Getters / Setters
+    // ═══════════════════════════════════════════════════════
 
-    public AdminBeanLocal getAdminService() {
-        return adminService;
-    }
+    public Long getTotalZones()                          { return totalZones; }
+    public void setTotalZones(Long totalZones)           { this.totalZones = totalZones; }
 
-    public void setAdminService(AdminBeanLocal adminService) {
-        this.adminService = adminService;
-    }
+    public Long getTotalWards()                          { return totalWards; }
+    public void setTotalWards(Long totalWards)           { this.totalWards = totalWards; }
 
-    public Long getTotalZones() {
-        return totalZones;
-    }
+    public Long getTotalSocieties()                      { return totalSocieties; }
+    public void setTotalSocieties(Long totalSocieties)   { this.totalSocieties = totalSocieties; }
 
-    public void setTotalZones(Long totalZones) {
-        this.totalZones = totalZones;
-    }
+    public Long getTotalDepartments()                    { return totalDepartments; }
+    public void setTotalDepartments(Long totalDepartments) { this.totalDepartments = totalDepartments; }
 
-    public Long getTotalWards() {
-        return totalWards;
-    }
+    public Long getTotalCategories()                     { return totalCategories; }
+    public void setTotalCategories(Long totalCategories) { this.totalCategories = totalCategories; }
 
-    public void setTotalWards(Long totalWards) {
-        this.totalWards = totalWards;
-    }
+    public Long getTotalOfficers()                       { return totalOfficers; }
+    public void setTotalOfficers(Long totalOfficers)     { this.totalOfficers = totalOfficers; }
 
-    public Long getTotalSocieties() {
-        return totalSocieties;
-    }
+    public Long getTotalComplaints()                     { return totalComplaints; }
+    public void setTotalComplaints(Long totalComplaints) { this.totalComplaints = totalComplaints; }
 
-    public void setTotalSocieties(Long totalSocieties) {
-        this.totalSocieties = totalSocieties;
-    }
+    public Long getPendingComplaints()                   { return pendingComplaints; }
+    public void setPendingComplaints(Long pendingComplaints) { this.pendingComplaints = pendingComplaints; }
 
-    public Long getTotalDepartments() {
-        return totalDepartments;
-    }
-
-    public void setTotalDepartments(Long totalDepartments) {
-        this.totalDepartments = totalDepartments;
-    }
-
-    public Long getTotalCategories() {
-        return totalCategories;
-    }
-
-    public void setTotalCategories(Long totalCategories) {
-        this.totalCategories = totalCategories;
-    }
-
-    public Long getTotalOfficers() {
-        return totalOfficers;
-    }
-
-    public void setTotalOfficers(Long totalOfficers) {
-        this.totalOfficers = totalOfficers;
-    }
-
-    public Long getTotalComplaints() {
-        return totalComplaints;
-    }
-
-    public void setTotalComplaints(Long totalComplaints) {
-        this.totalComplaints = totalComplaints;
-    }
-
-    public Long getPendingComplaints() {
-        return pendingComplaints;
-    }
-
-    public void setPendingComplaints(Long pendingComplaints) {
-        this.pendingComplaints = pendingComplaints;
-    }
-
-    public Users getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Users admin) {
-        this.admin = admin;
-    }
-    
-    
-    
+    public Users getAdmin()                              { return admin; }
+    public void setAdmin(Users admin)                    { this.admin = admin; }
 }

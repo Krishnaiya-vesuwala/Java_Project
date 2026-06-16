@@ -56,7 +56,7 @@ public class ProfileCDIBean implements Serializable {
         loadProfile();
     }
 
-    public void updateProfile() {
+     public void updateProfile() {
 
         try {
 
@@ -77,6 +77,7 @@ public class ProfileCDIBean implements Serializable {
             e.printStackTrace();
         }
     }
+
 
     public Users getUser() {
         return user;

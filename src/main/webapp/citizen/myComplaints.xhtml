@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
@@ -12,53 +13,569 @@
 
 <h:head>
     <title>My Grievances</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap"/>
+    <style>
 
-    <h:outputStylesheet library="css"
-                        name="myComplaints.css"/>
+        :root {
+            --gold:           #C9A84C;
+            --gold-hover:     #B8962E;
+            --gold-dim:       #9A7A28;
+            --gold-bg:        rgba(201,168,76,.07);
+            --gold-bg2:       rgba(201,168,76,.13);
+            --gold-border:    rgba(201,168,76,.28);
+            --sidebar-bg:     #161618;
+            --surface:        #FFFFFF;
+            --surface-2:      #F8F8FA;
+            --bg:             #F2F3F6;
+            --text-primary:   #16161A;
+            --text-secondary: #52525B;
+            --text-muted:     #8A8A96;
+            --border:         #E4E4E8;
+            --border-subtle:  #EFEFEF;
+            --success-bg:     #EEF6F1;
+            --success-text:   #1F6E3A;
+            --danger-bg:      #FDF1F1;
+            --danger-text:    #9B2424;
+            --warning-bg:     #FDF5E8;
+            --warning-text:   #7A5214;
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+            --transition: all .18s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 30px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        /* GOLD BACK BUTTON */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-bg);
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: .01em;
+        }
+
+        .back-btn:hover {
+            background: var(--gold-bg2);
+            border-color: rgba(201,168,76,.45);
+            color: var(--gold-hover);
+        }
+
+        .back-btn i { font-size: 12px; }
+
+        .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; }
+        .crumb-sep { font-size: 12px; color: var(--border); }
+
+        .crumb-current {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .icon-btn {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: var(--transition);
+            position: relative;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+
+        .notif-dot {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        .btn-logout-wrap .ui-button {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            padding: 7px 14px !important;
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            font-family: 'DM Sans', sans-serif !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-logout-wrap .ui-button:hover {
+            background: var(--danger-bg) !important;
+            border-color: rgba(155,36,36,.18) !important;
+            color: var(--danger-text) !important;
+        }
+
+        /* CONTENT */
+        .content { padding: 26px 30px; display: flex; flex-direction: column; gap: 22px; }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: var(--sidebar-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            gap: 24px;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            right: -40px; top: -40px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            left: -20px; bottom: -50px;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header-left { position: relative; z-index: 1; }
+
+        .page-header-eyebrow {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+
+        .page-header-eyebrow::before {
+            content: '';
+            display: block;
+            width: 18px; height: 1.5px;
+            background: var(--gold);
+            opacity: .6;
+        }
+
+        .page-header-eyebrow span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .page-header p {
+            font-size: 12.5px;
+            color: rgba(255,255,255,.42);
+            max-width: 540px;
+            line-height: 1.6;
+        }
+
+        .page-header-actions { position: relative; z-index: 1; }
+
+        .header-cta-wrap .ui-button {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            padding: 9px 18px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 10px rgba(201,168,76,.30) !important;
+        }
+
+        .header-cta-wrap .ui-button:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.38) !important;
+        }
+
+        /* TABLE CARD */
+        .table-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-card-head {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .table-card-title-group { display: flex; align-items: center; gap: 10px; }
+
+        .table-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .record-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--gold-bg);
+            border: 1px solid var(--gold-border);
+            color: var(--gold-dim);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .record-badge i { font-size: 10px; }
+
+        /* DATATABLE */
+        .custom-table .ui-datatable { border: none !important; }
+        .custom-table .ui-datatable-header { display: none !important; }
+
+        .custom-table .ui-datatable thead th {
+            background: var(--surface-2) !important;
+            border: none !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 11px 20px !important;
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            color: var(--text-muted) !important;
+            text-transform: uppercase !important;
+            letter-spacing: .09em !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        .custom-table .ui-datatable tbody td {
+            border: none !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            padding: 14px 20px !important;
+            font-size: 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            color: var(--text-primary) !important;
+            vertical-align: middle !important;
+        }
+
+        .custom-table .ui-datatable tbody tr:last-child td { border-bottom: none !important; }
+        .custom-table .ui-datatable tbody tr:hover td { background: #FAFAFA !important; }
+
+        .custom-table .ui-datatable .ui-datatable-empty-message {
+            padding: 50px 20px !important;
+            text-align: center !important;
+            color: var(--text-muted) !important;
+            font-style: italic !important;
+            font-size: 13px !important;
+        }
+
+        .complaint-title-cell {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .officer-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .officer-avatar {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold-dim);
+            flex-shrink: 0;
+        }
+
+        .officer-name {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .officer-empty {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 12.5px;
+        }
+
+        /* STATUS BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .03em;
+        }
+
+        .badge::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .badge-pending  { background: var(--warning-bg); color: var(--warning-text); border: 1px solid rgba(122,82,20,.18); }
+        .badge-resolved { background: var(--success-bg); color: var(--success-text); border: 1px solid rgba(31,110,58,.18); }
+        .badge-open     { background: var(--danger-bg);  color: var(--danger-text);  border: 1px solid rgba(155,36,36,.18); }
+        .badge-progress { background: #EAF2FF;           color: #1A5BA6;              border: 1px solid rgba(26,91,166,.18); }
+        .badge-rejected { background: var(--danger-bg);  color: var(--danger-text);   border: 1px solid rgba(155,36,36,.18); }
+        .badge-assigned { background: var(--gold-bg2);   color: var(--gold-dim);      border: 1px solid var(--gold-border); }
+        .badge-default  { background: #F1F1F1;           color: #555;                 border: 1px solid #E4E4E8; }
+
+        /* PAGINATOR */
+        .custom-table .ui-paginator {
+            border: none !important;
+            border-top: 1px solid var(--border-subtle) !important;
+            background: var(--surface) !important;
+            padding: 12px 20px !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page,
+        .custom-table .ui-paginator .ui-paginator-next,
+        .custom-table .ui-paginator .ui-paginator-prev,
+        .custom-table .ui-paginator .ui-paginator-first,
+        .custom-table .ui-paginator .ui-paginator-last {
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            min-width: 30px !important;
+            height: 30px !important;
+            margin: 0 1px !important;
+            transition: var(--transition) !important;
+        }
+
+        .custom-table .ui-paginator .ui-state-active {
+            background: var(--gold) !important;
+            border-color: var(--gold) !important;
+            color: #1A1400 !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.28) !important;
+        }
+
+        .custom-table .ui-paginator .ui-paginator-page:hover:not(.ui-state-active),
+        .custom-table .ui-paginator .ui-paginator-next:hover,
+        .custom-table .ui-paginator .ui-paginator-prev:hover {
+            background: var(--surface-2) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .topbar { padding: 0 16px; height: 58px; flex-wrap: wrap; }
+            .content { padding: 16px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .page-header-actions { width: 100%; }
+            .header-cta-wrap .ui-button { width: 100% !important; }
+
+            .custom-table .ui-datatable thead th,
+            .custom-table .ui-datatable tbody td {
+                padding: 11px 14px !important;
+                font-size: 12.5px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-right .icon-btn { display: none; }
+        }
+
+    </style>
 </h:head>
 
 <h:body>
 
-<div class="page-container">
+    <h:form>
 
-    <div class="page-header">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h:link outcome="/citizen/dashboard" styleClass="back-btn">
+                    <i class="fa fa-arrow-left"></i>
+                    Back to Dashboard
+                </h:link>
+                <div class="topbar-breadcrumb">
+                    <span class="crumb-sep">|</span>
+                    <span class="crumb-current">My Grievances</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a href="notifications.jsf" class="icon-btn" aria-label="Notifications" style="position:relative;">
+                    <i class="fa fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </a>
+                
+            </div>
+        </header>
 
-        <h1>My Grievances</h1>
+        <!-- CONTENT -->
+        <div class="content">
 
-        <h:link outcome="/citizen/dashboard"
-                styleClass="back-btn">
-            ← Back to Dashboard
-        </h:link>
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <div class="page-header-eyebrow">
+                        <span>Grievance Portal</span>
+                    </div>
+                    <h2>My Grievances</h2>
+                    <p>View and track the status of all complaints you have raised.
+                       Monitor officer assignments and resolution progress in one place.</p>
+                </div>
+                <div class="page-header-actions">
+                    <div class="header-cta-wrap">
+                        <p:button value="Raise New Complaint"
+                                  icon="pi pi-plus"
+                                  outcome="/citizen/raiseComplaint"/>
+                    </div>
+                </div>
+            </div>
 
-    </div>
+            <!-- TABLE CARD -->
+            <div class="table-card">
 
-    <div class="table-card">
+                <div class="table-card-head">
+                    <div class="table-card-title-group">
+                        <span class="table-card-title">All Grievances</span>
+                        <span class="record-badge">
+                            <i class="fa fa-file-alt"></i> Complaint Records
+                        </span>
+                    </div>
+                </div>
 
-        <p:dataTable value="#{citizenBean.recentComplaints}"
-                     var="c"
-                     paginator="true"
-                     rows="10"
-                     emptyMessage="No grievances found">
+                <div class="custom-table">
+                    <p:dataTable value="#{citizenBean.recentComplaints}"
+                                 var="c"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                 emptyMessage="No grievances found. Click 'Raise New Complaint' to submit your first grievance."
+                                 rowHover="true"
+                                 style="width:100%">
 
-            <p:column headerText="Complaint Title">
-                #{c[0]}
-            </p:column>
+                        <p:column headerText="Complaint Title">
+                            <div class="complaint-title-cell">
+                                #{c[0]}
+                            </div>
+                        </p:column>
 
-            <p:column headerText="Assigned Officer">
-                #{c[1]}
-            </p:column>
+                        <p:column headerText="Assigned Officer">
+                            <h:panelGroup rendered="#{not empty c[1]}">
+                                <div class="officer-cell">
+                                    <div class="officer-avatar">
+                                        #{c[1].substring(0,1).toUpperCase()}
+                                    </div>
+                                    <span class="officer-name">#{c[1]}</span>
+                                </div>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{empty c[1]}">
+                                <span class="officer-empty">Not assigned yet</span>
+                            </h:panelGroup>
+                        </p:column>
 
-            <p:column headerText="Status">
-                <span class="status-badge">
-                    #{c[2]}
-                </span>
-            </p:column>
+                        <p:column headerText="Status" width="140">
+                            <span class="badge
+                                #{c[2] == 'Pending'     ? 'badge-pending'  :
+                                  c[2] == 'Resolved'    ? 'badge-resolved' :
+                                  c[2] == 'Open'        ? 'badge-open'     :
+                                  c[2] == 'In Progress' ? 'badge-progress' :
+                                  c[2] == 'Assigned'    ? 'badge-assigned' :
+                                  c[2] == 'Rejected'    ? 'badge-rejected' :
+                                  'badge-default'}">
+                                #{c[2]}
+                            </span>
+                        </p:column>
 
-        </p:dataTable>
+                    </p:dataTable>
+                </div>
 
-    </div>
+            </div>
 
-</div>
+        </div>
+
+    </h:form>
 
 </h:body>
 </html>

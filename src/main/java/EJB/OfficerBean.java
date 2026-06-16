@@ -69,20 +69,29 @@ public class OfficerBean implements OfficerBeanLocal {
         }
     }
 
-    @Override
-    public Officers getOfficerProfile(int userId) {
-        Users user = em.find(Users.class, userId);
+   @Override
+public Officers getOfficerProfile(int userId) {
 
-        if (user == null) {
-            return null;
-        }
+    Users user = em.find(Users.class, userId);
 
-        return em.createQuery(
-                "SELECT o FROM Officers o WHERE o.userId = :user",
-                Officers.class)
-                .setParameter("user", user)
-                .getSingleResult();
+    if (user == null) {
+        System.out.println("User not found : " + userId);
+        return null;
     }
+
+    List<Officers> officers = em.createQuery(
+            "SELECT o FROM Officers o WHERE o.userId = :user",
+            Officers.class)
+            .setParameter("user", user)
+            .getResultList();
+
+    if (officers.isEmpty()) {
+        System.out.println("Officer not found for user : " + userId);
+        return null;
+    }
+
+    return officers.get(0);
+}
 
     @Override
     public List<Complaint> getComplaintByOfficer(int officerId) {

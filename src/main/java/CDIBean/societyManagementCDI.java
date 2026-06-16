@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Named(value = "societyManagementCDI")
@@ -38,6 +39,8 @@ public class societyManagementCDI implements Serializable {
     private String  editAddress;
     private String  editStatus;
     private Integer editWardId;
+    
+     private String token;
 
     // ── Validation rules ──────────────────────────────────
     private static final Pattern NAME_PATTERN =
@@ -57,17 +60,40 @@ public class societyManagementCDI implements Serializable {
 
     @PostConstruct
     public void init() {
+        
+         try {
+
+            // ── Get token from session ───────────────
+            Map<String, Object> session = FacesContext
+                    .getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
+
+            token = (String) session.get("token");
+
+            System.out.println("[WardManagementCDI] token = " + token);
+
+            if (token == null || token.isEmpty()) {
+                System.err.println("[WardManagementCDI] Token is NULL!");
+                return;
+            }
+        
         societies       = new ArrayList<>();
         wards           = new ArrayList<>();
         selectedSociety = new Society();
         newStatus       = "ACTIVE";
         loadData();
         loadWards();
+          } catch (Exception e) {
+            System.err.println("[WardManagementCDI] init error: "
+                    + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void loadData() {
         try {
-            Response rs = restClient.getAllSocieties(Response.class);
+            Response rs = restClient.getAllSocities(Response.class);
             if (rs.getStatus() == 200) {
                 societies = rs.readEntity(new GenericType<List<Society>>() {});
             } else {
@@ -83,7 +109,7 @@ public class societyManagementCDI implements Serializable {
 
     private void loadWards() {
         try {
-            Response rs = restClient.getAllWards(Response.class);
+            Response rs = restClient.getAllWards(Response.class,token);
             if (rs.getStatus() == 200) {
                 wards = rs.readEntity(new GenericType<List<Ward>>() {});
             } else {
@@ -253,7 +279,7 @@ public class societyManagementCDI implements Serializable {
                     String.valueOf(newWardId),
                     newSocietyName.trim(),
                     newAddress.trim(),
-                    newStatus);
+                    newStatus,token);
 
             loadData();
             addSuccess("Success",
@@ -305,7 +331,7 @@ public class societyManagementCDI implements Serializable {
                     editSocietyName.trim(),
                     editAddress.trim(),
                     editStatus,
-                    String.valueOf(editWardId));
+                    String.valueOf(editWardId),token);
 
             loadData();
             addSuccess("Updated", "Society updated successfully.");
@@ -333,7 +359,7 @@ public class societyManagementCDI implements Serializable {
                         s.getSocietyName(),
                         s.getAddress(),
                         "ACTIVE",
-                        String.valueOf(s.getWardId().getWardId()));
+                        String.valueOf(s.getWardId().getWardId()),token);
 
                 loadData();
                 addSuccess("Activated",
@@ -361,7 +387,7 @@ public class societyManagementCDI implements Serializable {
                         s.getSocietyName(),
                         s.getAddress(),
                         "INACTIVE",
-                        String.valueOf(s.getWardId().getWardId()));
+                        String.valueOf(s.getWardId().getWardId()),token);
 
                 loadData();
                 addSuccess("Deactivated",
@@ -379,7 +405,7 @@ public class societyManagementCDI implements Serializable {
     public void deleteSociety(Integer id) {
         System.out.println("DELETE Society ID: " + id);
         try {
-            restClient.deleteSociety(String.valueOf(id));
+            restClient.deleteSociety(String.valueOf(id),token);
             loadData();
             addSuccess("Deleted", "Society deleted successfully.");
         } catch (Exception e) {

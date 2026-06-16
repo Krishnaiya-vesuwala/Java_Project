@@ -37,7 +37,7 @@ public class RegisterBean implements Serializable {
    @PostConstruct
 public void init() {
     try {
-        Response rs = rl.getAllSocieties(Response.class);
+        Response rs = rl.getAllSocities(Response.class);
             System.out.println("...............Hello");
         if (rs.getStatus() == 200) {
             System.out.println("...............Hello");

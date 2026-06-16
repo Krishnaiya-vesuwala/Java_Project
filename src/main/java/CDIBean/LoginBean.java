@@ -121,16 +121,26 @@ public class LoginBean implements Serializable {
                             )
                     );
 
-            if ("Admin".equalsIgnoreCase(
+            if ("CORPORATE_ADMIN".equalsIgnoreCase(
                     loggedInUser.getRole())) {
 
-                return "/admin/dashboard.xhtml?faces-redirect=true";
+                return "/adminDashboard.jsf?faces-redirect=true";
             }
 
-            if ("Officer".equalsIgnoreCase(
+            if ("WARD_OFFICER".equalsIgnoreCase(
                     loggedInUser.getRole())) {
 
-                return "/officer/dashboard.xhtml?faces-redirect=true";
+                return "/ward_admin.jsf?faces-redirect=true";
+            }
+            if ("ZONE_OFFICER".equalsIgnoreCase(
+                    loggedInUser.getRole())) {
+
+                return "/zone_admin.jsf?faces-redirect=true";
+            }
+             if ("OFFICER".equalsIgnoreCase(
+                    loggedInUser.getRole())) {
+
+                return "/OfficerDashboard.jsf?faces-redirect=true";
             }
 
             if ("Citizen".equalsIgnoreCase(

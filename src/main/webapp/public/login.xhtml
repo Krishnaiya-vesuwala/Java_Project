@@ -1,89 +1,618 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="jakarta.faces.core">
 
 <h:head>
-    <title>Login</title>
+    <title>Citizen Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap"
+          rel="stylesheet"/>
 
-    <h:outputStylesheet library="css" name="style.css"/>
+    <style>
+        :root {
+            --gold:           #C9A84C;
+            --gold-hover:     #B8962E;
+            --gold-light:     #E2C46A;
+            --gold-dim:       #9A7A28;
+            --gold-bg:        rgba(201,168,76,.07);
+            --gold-bg2:       rgba(201,168,76,.13);
+            --gold-border:    rgba(201,168,76,.28);
+
+            --sidebar-bg:     #161618;
+            --sidebar-bg-2:   #0F0F11;
+            --surface:        #FFFFFF;
+            --surface-2:      #F8F8FA;
+            --bg:             #F2F3F6;
+
+            --text-primary:   #16161A;
+            --text-secondary: #52525B;
+            --text-muted:     #8A8A96;
+            --border:         #E4E4E8;
+            --border-subtle:  #EFEFEF;
+
+            --danger-bg:      #FDF1F1;
+            --danger-text:    #9B2424;
+            --danger-border:  rgba(155,36,36,.18);
+
+            --success-bg:     #EEF6F1;
+            --success-text:   #1F6E3A;
+
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --radius-xl:  20px;
+
+            --transition: all .18s ease;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html, body { height: 100%; width: 100%; }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════
+           FULL SCREEN SPLIT LAYOUT
+        ═══════════════════════════════════════ */
+        .auth-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg);
+        }
+
+        /* ───── LEFT BRAND PANEL ───── */
+        .brand-panel {
+            background: linear-gradient(135deg, var(--sidebar-bg) 0%, var(--sidebar-bg-2) 100%);
+            color: #fff;
+            padding: 60px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 420px; height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -160px; left: -100px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Top - brand logo */
+        .brand-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-logo {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--gold-bg2);
+            border: 1.5px solid var(--gold-border);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .brand-logo i { color: var(--gold); font-size: 20px; }
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .brand-sub {
+            font-size: 10px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* Center - hero text */
+        .brand-center {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+        }
+        .brand-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gold-bg2);
+            border: 1px solid var(--gold-border);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            margin-bottom: 24px;
+        }
+        .brand-eyebrow i { font-size: 11px; }
+
+        .brand-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            line-height: 1.15;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 18px;
+            letter-spacing: -.01em;
+        }
+        .brand-headline .accent {
+            color: var(--gold);
+            font-style: italic;
+        }
+        .brand-tagline {
+            font-size: 15px;
+            color: rgba(255,255,255,.55);
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        /* Stats row */
+        .brand-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 8px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: var(--radius-md);
+            padding: 14px 14px;
+            text-align: center;
+        }
+        .stat-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1.1;
+        }
+        .stat-lbl {
+            font-size: 10.5px;
+            color: rgba(255,255,255,.45);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Bottom */
+        .brand-bottom {
+            position: relative;
+            z-index: 1;
+            font-size: 12px;
+            color: rgba(255,255,255,.32);
+        }
+        .brand-bottom a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ───── RIGHT FORM PANEL ───── */
+        .form-panel {
+            background: var(--surface);
+            padding: 50px 60px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-inner {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+        .form-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .form-eyebrow::before {
+            content: '';
+            width: 18px; height: 1.5px;
+            background: var(--gold); opacity: .6;
+        }
+        .form-eyebrow span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            color: var(--text-primary);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            letter-spacing: -.01em;
+        }
+        .form-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+        .field-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        /* Input styling */
+        .form-inner .ui-inputtext,
+        .form-inner .ui-password-input {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 11px 14px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 14px !important;
+            color: var(--text-primary) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+        .form-inner .ui-password {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            display: block !important;
+            width: 100% !important;
+        }
+        .form-inner .ui-password input.ui-password-input {
+            padding-right: 40px !important;
+        }
+        .form-inner .ui-password .ui-password-mask-icon {
+            color: var(--text-muted) !important;
+            right: 12px !important;
+        }
+
+        .form-inner .ui-inputtext:focus,
+        .form-inner .ui-password-input:focus {
+            border-color: var(--gold) !important;
+            background: var(--surface) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        /* Invalid state */
+        .form-inner .ui-inputtext.ui-state-error,
+        .form-inner .ui-password-input.ui-state-error {
+            border-color: var(--danger-text) !important;
+            background: #FFF5F5 !important;
+            box-shadow: 0 0 0 3px rgba(155,36,36,.08) !important;
+        }
+
+        /* Inline messages */
+        .form-inner .ui-message-error,
+        .form-inner .ui-message {
+            display: inline-flex !important;
+            align-items: center; gap: 5px;
+            background: transparent !important;
+            border: none !important;
+            color: var(--danger-text) !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            padding: 2px 0 0 0 !important;
+            margin: 0 !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+        .form-inner .ui-message-error-icon,
+        .form-inner .ui-message-error-detail {
+            color: var(--danger-text) !important;
+        }
+
+        /* Growl styling */
+        .ui-growl-item-container.ui-state-highlight {
+            border-radius: var(--radius-md) !important;
+            box-shadow: 0 6px 22px rgba(0,0,0,.12) !important;
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        /* Remember + forgot row */
+        .row-extra {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: -4px 0 18px;
+            font-size: 13px;
+        }
+        .row-extra label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+        .row-extra input[type="checkbox"] {
+            width: 15px; height: 15px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+        .row-extra a {
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .row-extra a:hover {
+            color: var(--gold-hover);
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .auth-actions { margin-top: 8px; }
+
+        .gold-btn,
+        .gold-btn.ui-button.ui-widget {
+            width: 100% !important;
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            padding: 13px 22px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.30) !important;
+            letter-spacing: .02em !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+        }
+        .gold-btn:hover,
+        .gold-btn.ui-button.ui-widget:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 6px 22px rgba(201,168,76,.42) !important;
+            transform: translateY(-1px) !important;
+        }
+        .gold-btn .ui-button-icon-left { color: inherit !important; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 24px 0 18px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .auth-links {
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+        }
+        .auth-links a {
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            margin-left: 6px;
+        }
+        .auth-links a:hover {
+            color: var(--gold-hover);
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .brand-panel { padding: 40px 36px; }
+            .form-panel { padding: 40px 36px; }
+            .brand-headline { font-size: 34px; }
+        }
+
+        @media (max-width: 900px) {
+            .auth-wrapper { grid-template-columns: 1fr; }
+            .brand-panel {
+                min-height: auto;
+                padding: 32px 28px;
+                text-align: center;
+            }
+            .brand-top { justify-content: center; }
+            .brand-center { max-width: 100%; }
+            .brand-eyebrow { margin: 0 auto 18px; }
+            .brand-headline { font-size: 28px; }
+            .brand-tagline { font-size: 14px; margin-bottom: 22px; }
+            .brand-stats { display: none; }
+            .brand-bottom { display: none; }
+
+            .form-panel { padding: 32px 28px; }
+        }
+
+        @media (max-width: 560px) {
+            .brand-headline { font-size: 24px; }
+            .form-title { font-size: 25px; }
+            .form-panel { padding: 26px 20px; }
+            .brand-panel { padding: 26px 20px; }
+            .row-extra { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
 </h:head>
 
 <h:body>
 
-<div class="auth-container">
+<div class="auth-wrapper">
 
-    <div class="auth-card">
+    <!-- ════════════ LEFT — BRAND PANEL ════════════ -->
+    <div class="brand-panel">
 
-        <div class="auth-title">
-            Citizen Login
+        <div class="brand-top">
+            <div class="brand-logo">
+                <i class="fa fa-landmark"></i>
+            </div>
+            <div>
+                <div class="brand-title">Government Grievance</div>
+                <div class="brand-sub">Redressal System</div>
+            </div>
         </div>
 
-        <h:form>
-            <p:growl id="msg" showDetail="true"/>
-            
-            <span class="field-label">Username</span>
-
-            <p:inputText id="username"
-                         value="#{loginBean.username}"
-                         required="true"
-                         requiredMessage="Please enter your username."
-                         validatorMessage="Username must be at least 4 characters long.">
-
-                <f:validateLength minimum="4"/>
-
-                <p:ajax event="keyup"
-                        update="usernameMsg"/>
-
-            </p:inputText>
-
-            <p:message id="usernameMsg"
-                       for="username"
-                       display="text"/>
-
-            <span class="field-label">Password</span>
-
-            <p:password id="password"
-                        value="#{loginBean.password}"
-                        required="true"
-                        requiredMessage="Please enter your password."
-                        validatorMessage="Password must contain uppercase, lowercase, number and minimum 8 characters."
-                        toggleMask="true"
-                        feedback="false">
-
-                <f:validateRegex
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"/>
-
-                <p:ajax event="keyup"
-                        update="passwordMsg"/>
-
-            </p:password>
-
-            <p:message id="passwordMsg"
-                       for="password"
-                       display="text"/>
-
-            <br/><br/>            
-
-            <p:commandButton value="Login"
-                 action="#{loginBean.login}"
-                 update="@form msg"
-                 styleClass="gold-btn"/>
-
-            <div class="auth-links">
-
-                <h:link outcome="/public/forgotPassword.xhtml"
-                        value="Forgot Password?"/>
-
-                <br/>
-
-                <h:link outcome="/public/register.xhtml"
-                        value="Don't have an account?"/>
-
+        <div class="brand-center">
+            <div class="brand-eyebrow">
+                <i class="fa fa-shield-halved"></i>
+                <span>Secure Citizen Portal</span>
             </div>
-        </h:form>
+            <h1 class="brand-headline">
+                Welcome <span class="accent">Back</span>
+            </h1>
+            <p class="brand-tagline">
+                Sign in to track your grievances, view officer responses,
+                and continue your conversation with public services — all in one place.
+            </p>
+
+            
+        </div>
+
+        <div class="brand-bottom">
+            © 2026 Government Grievance Redressal System 
+        </div>
+
+    </div>
+
+
+    <!-- ════════════ RIGHT — LOGIN FORM ════════════ -->
+    <div class="form-panel">
+
+        <div class="form-inner">
+
+            <div class="form-header">
+                <div class="form-eyebrow">
+                    <span>Sign In</span>
+                </div>
+                <h2 class="form-title">Citizen Login</h2>
+                <p class="form-subtitle">
+                    Enter your credentials to access your dashboard.
+                </p>
+            </div>
+
+            <h:form id="loginForm">
+
+                <p:growl id="msg" showDetail="true" life="4000"/>
+
+                <!-- Username -->
+                <div class="form-row">
+                    <span class="field-label">Username</span>
+                    <p:inputText id="username"
+                                 value="#{loginBean.username}"
+                                 placeholder="Enter your username"
+                                 required="true"
+                                 requiredMessage="Please enter your username."
+                                 validatorMessage="Username must be at least 4 characters long.">
+                        <f:validateLength minimum="4"/>
+                        <p:ajax event="keyup" update="usernameMsg username"/>
+                    </p:inputText>
+                    <p:message id="usernameMsg" for="username" display="text"/>
+                </div>
+
+                <!-- Password -->
+                <div class="form-row">
+                    <span class="field-label">Password</span>
+                    <p:password id="password"
+                                value="#{loginBean.password}"
+                                placeholder="Enter your password"
+                                required="true"
+                                requiredMessage="Please enter your password."
+                                validatorMessage="Password must contain uppercase, lowercase, number and minimum 8 characters."
+                                redisplay="true"
+                                toggleMask="true"
+                                feedback="false">
+                        <f:validateRegex
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"/>
+                        <p:ajax event="keyup" update="passwordMsg password"/>
+                    </p:password>
+                    <p:message id="passwordMsg" for="password" display="text"/>
+                </div>
+
+                <!-- Remember + Forgot -->
+                <div class="row-extra">
+                    <h:link outcome="/public/forgotPassword" value="Forgot Password?"/>
+                </div>
+
+                <!-- Submit -->
+                <div class="auth-actions">
+                    <p:commandButton
+                        value="Sign In"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        action="#{loginBean.login}"
+                        update="@form msg"
+                        styleClass="gold-btn"/>
+                </div>
+
+                <div class="divider">or</div>
+
+                <div class="auth-links">
+                    Don't have an account?
+                    <h:link outcome="/public/register" value="Create one"/>
+                </div>
+
+            </h:form>
+
+        </div>
 
     </div>
 

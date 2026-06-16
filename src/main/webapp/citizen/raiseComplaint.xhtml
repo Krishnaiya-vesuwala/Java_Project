@@ -13,136 +13,663 @@
 
 <h:head>
     <title>Raise Complaint</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap"/>
+    <style>
 
-    <h:outputStylesheet library="css"
-                        name="raiseComplaint.css"/>
+        :root {
+            --gold:           #C9A84C;
+            --gold-hover:     #B8962E;
+            --gold-dim:       #9A7A28;
+            --gold-bg:        rgba(201,168,76,.07);
+            --gold-bg2:       rgba(201,168,76,.13);
+            --gold-border:    rgba(201,168,76,.28);
+            --sidebar-bg:     #161618;
+            --surface:        #FFFFFF;
+            --surface-2:      #F8F8FA;
+            --bg:             #F2F3F6;
+            --text-primary:   #16161A;
+            --text-secondary: #52525B;
+            --text-muted:     #8A8A96;
+            --border:         #E4E4E8;
+            --border-subtle:  #EFEFEF;
+            --success-bg:     #EEF6F1;
+            --success-text:   #1F6E3A;
+            --danger-bg:      #FDF1F1;
+            --danger-text:    #9B2424;
+            --warning-bg:     #FDF5E8;
+            --warning-text:   #7A5214;
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            --shadow-xs:  0 1px 3px rgba(0,0,0,.06);
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+            --transition: all .18s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 30px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        /* GOLD-STYLE BACK BUTTON */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold-border);
+            background: var(--gold-bg);
+            color: var(--gold-dim);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: .01em;
+        }
+
+        .back-btn:hover {
+            background: var(--gold-bg2);
+            border-color: rgba(201,168,76,.45);
+            color: var(--gold-hover);
+        }
+
+        .back-btn i { font-size: 12px; }
+
+        .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; }
+        .crumb-sep { font-size: 12px; color: var(--border); }
+
+        .crumb-current {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .icon-btn {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: var(--transition);
+            position: relative;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+
+        .notif-dot {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 1.5px solid var(--surface);
+        }
+
+        .btn-logout-wrap .ui-button {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            padding: 7px 14px !important;
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            font-family: 'DM Sans', sans-serif !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-logout-wrap .ui-button:hover {
+            background: var(--danger-bg) !important;
+            border-color: rgba(155,36,36,.18) !important;
+            color: var(--danger-text) !important;
+        }
+
+        /* ── CONTENT ── */
+        .content { padding: 26px 30px; display: flex; flex-direction: column; gap: 22px; }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: var(--sidebar-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            gap: 24px;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            right: -40px; top: -40px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            left: -20px; bottom: -50px;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-header-left { position: relative; z-index: 1; }
+
+        .page-header-eyebrow {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+
+        .page-header-eyebrow::before {
+            content: '';
+            display: block;
+            width: 18px; height: 1.5px;
+            background: var(--gold);
+            opacity: .6;
+        }
+
+        .page-header-eyebrow span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .page-header p {
+            font-size: 12.5px;
+            color: rgba(255,255,255,.42);
+            max-width: 540px;
+            line-height: 1.6;
+        }
+
+        .page-header-actions { position: relative; z-index: 1; }
+
+        .header-cta-wrap .ui-button {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            padding: 9px 18px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 10px rgba(201,168,76,.30) !important;
+        }
+
+        .header-cta-wrap .ui-button:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 16px rgba(201,168,76,.38) !important;
+        }
+
+        /* ── FORM CARD ── */
+        .form-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-card-head {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .record-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--gold-bg);
+            border: 1px solid var(--gold-border);
+            color: var(--gold-dim);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .record-badge i { font-size: 10px; }
+
+        .form-card-body { padding: 26px 28px; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 22px;
+        }
+
+        .full-width { grid-column: 1 / -1; }
+
+        .form-row { display: flex; flex-direction: column; gap: 6px; }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .09em;
+        }
+
+        .form-row .ui-message-error-detail,
+        .form-row .ui-message-error {
+            font-size: 11.5px !important;
+            color: var(--danger-text) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            margin-top: 2px !important;
+        }
+
+        /* INPUTS */
+        .input-field.ui-inputfield,
+        .input-field.ui-inputtextarea {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 10px 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .input-field.ui-inputtextarea {
+            resize: vertical !important;
+            min-height: 130px !important;
+            line-height: 1.6 !important;
+        }
+
+        .input-field.ui-inputfield:focus,
+        .input-field.ui-inputtextarea:focus {
+            border-color: var(--gold) !important;
+            background: var(--surface) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .input-field.ui-selectonemenu {
+            width: 100% !important;
+            border: 1.5px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            background: var(--surface-2) !important;
+            transition: var(--transition) !important;
+        }
+
+        .input-field.ui-selectonemenu .ui-selectonemenu-label {
+            background: transparent !important;
+            border: none !important;
+            padding: 10px 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            color: var(--text-primary) !important;
+        }
+
+        .input-field.ui-selectonemenu .ui-selectonemenu-trigger {
+            background: transparent !important;
+            border: none !important;
+            color: var(--text-muted) !important;
+            width: 32px !important;
+        }
+
+        .input-field.ui-selectonemenu:hover,
+        .input-field.ui-selectonemenu.ui-state-focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,.10) !important;
+        }
+
+        .ui-selectonemenu-panel {
+            border-radius: var(--radius-sm) !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: var(--shadow-sm) !important;
+            overflow: hidden !important;
+        }
+
+        .ui-selectonemenu-panel .ui-selectonemenu-items { padding: 4px !important; }
+
+        .ui-selectonemenu-panel .ui-selectonemenu-item {
+            padding: 9px 13px !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 13px !important;
+            border-radius: 6px !important;
+            color: var(--text-primary) !important;
+            margin: 1px 0 !important;
+            transition: var(--transition) !important;
+        }
+
+        .ui-selectonemenu-panel .ui-selectonemenu-item.ui-state-highlight {
+            background: var(--gold) !important;
+            color: #1A1400 !important;
+            font-weight: 600 !important;
+        }
+
+        .ui-selectonemenu-panel .ui-selectonemenu-item:hover:not(.ui-state-highlight) {
+            background: var(--gold-bg) !important;
+            color: var(--gold-dim) !important;
+        }
+
+        /* Priority chips */
+        .priority-hint {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .priority-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 14px;
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: .03em;
+        }
+
+        .priority-chip.low      { background: var(--success-bg); color: var(--success-text); }
+        .priority-chip.medium   { background: var(--warning-bg); color: var(--warning-text); }
+        .priority-chip.high     { background: var(--danger-bg);  color: var(--danger-text);  }
+
+        .priority-chip .dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Footer / Actions */
+        .form-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-subtle);
+            background: var(--surface-2);
+        }
+
+        .btn-cancel-wrap .ui-button {
+            background: transparent !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-secondary) !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            padding: 8px 18px !important;
+            transition: var(--transition) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-cancel-wrap .ui-button:hover {
+            background: var(--surface) !important;
+            border-color: #C8C8D0 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .btn-submit-wrap .ui-button {
+            background: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+            color: #1A1400 !important;
+            border-radius: var(--radius-sm) !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            padding: 8px 20px !important;
+            transition: var(--transition) !important;
+            box-shadow: 0 2px 8px rgba(201,168,76,.28) !important;
+            letter-spacing: .01em !important;
+        }
+
+        .btn-submit-wrap .ui-button:hover {
+            background: var(--gold-hover) !important;
+            border-color: var(--gold-hover) !important;
+            box-shadow: 0 4px 14px rgba(201,168,76,.36) !important;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .topbar { padding: 0 16px; height: 58px; flex-wrap: wrap; }
+            .content { padding: 16px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .page-header-actions { width: 100%; }
+            .header-cta-wrap .ui-button { width: 100% !important; }
+            .form-grid { grid-template-columns: 1fr; gap: 16px; }
+            .form-card-body { padding: 20px 18px; }
+            .form-card-footer { flex-direction: column-reverse; }
+            .btn-cancel-wrap .ui-button,
+            .btn-submit-wrap .ui-button { width: 100% !important; text-align: center !important; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-right .icon-btn { display: none; }
+        }
+
+    </style>
 </h:head>
 
 <h:body>
 
-<div class="page-container">
+    <h:form>
 
-    <div class="page-header">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h:link outcome="/citizen/dashboard" styleClass="back-btn">
+                    <i class="fa fa-arrow-left"></i>
+                    Back to Dashboard
+                </h:link>
+                <div class="topbar-breadcrumb">
+                    <span class="crumb-sep">|</span>
+                    <span class="crumb-current">Raise Complaint</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a href="notifications.jsf" class="icon-btn" aria-label="Notifications" style="position:relative;">
+                    <i class="fa fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </a>
+                
+            </div>
+        </header>
 
-        <div>
-            <h1>Raise Complaint</h1>
-            <p>Submit your grievance for quick resolution.</p>
+        <!-- CONTENT -->
+        <div class="content">
+
+            <p:growl id="growl" showDetail="true" life="4000"/>
+
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <div class="page-header-eyebrow">
+                        <span>Grievance Portal</span>
+                    </div>
+                    <h2>Raise Complaint</h2>
+                    <p>Submit your grievance for quick resolution. Your complaint will be assigned to the
+                       appropriate department based on category and priority.</p>
+                </div>
+                <div class="page-header-actions">
+                    <div class="header-cta-wrap">
+                        <p:button value="View My Complaints"
+                                  icon="pi pi-list"
+                                  outcome="/citizen/myComplaints"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM CARD -->
+            <div class="form-card">
+
+                <div class="form-card-head">
+                    <span class="form-card-title">Complaint Details</span>
+                    <span class="record-badge">
+                        <i class="fa fa-info-circle"></i> All fields required
+                    </span>
+                </div>
+
+                <div class="form-card-body">
+
+                    <div class="form-grid">
+
+                        <!-- Title -->
+                        <div class="form-row full-width">
+                            <label class="form-label">Complaint Title</label>
+                            <p:inputText id="title"
+                                         value="#{raiseComplaintBean.title}"
+                                         required="true"
+                                         requiredMessage="Please enter complaint title"
+                                         placeholder="e.g. Streetlight not working in my area"
+                                         styleClass="input-field">
+                                <p:ajax event="keyup" update="titleMsg"/>
+                            </p:inputText>
+                            <p:message id="titleMsg" for="title" display="text"/>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="form-row">
+                            <label class="form-label">Category</label>
+                            <p:selectOneMenu id="category"
+                                             value="#{raiseComplaintBean.categoryId}"
+                                             required="true"
+                                             requiredMessage="Please select a category"
+                                             styleClass="input-field">
+                                <f:selectItem itemLabel="Select Category"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{raiseComplaintBean.categories}"
+                                               var="c"
+                                               itemLabel="#{c.categoryName}"
+                                               itemValue="#{c.categoryId}"/>
+                                <p:ajax event="change" update="categoryMsg"/>
+                            </p:selectOneMenu>
+                            <p:message id="categoryMsg" for="category" display="text"/>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="form-row">
+                            <label class="form-label">Priority</label>
+                            <p:selectOneMenu id="priority"
+                                             value="#{raiseComplaintBean.priority}"
+                                             required="true"
+                                             requiredMessage="Please select priority"
+                                             styleClass="input-field">
+                                <f:selectItem itemLabel="Select Priority"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItem itemLabel="Low"    itemValue="LOW"/>
+                                <f:selectItem itemLabel="Medium" itemValue="MEDIUM"/>
+                                <f:selectItem itemLabel="High"   itemValue="HIGH"/>
+                                <p:ajax event="change" update="priorityMsg"/>
+                            </p:selectOneMenu>
+                            <p:message id="priorityMsg" for="priority" display="text"/>
+
+                            <div class="priority-hint">
+                                <span class="priority-chip low">    <span class="dot"></span> Low </span>
+                                <span class="priority-chip medium"> <span class="dot"></span> Medium </span>
+                                <span class="priority-chip high">   <span class="dot"></span> High </span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-row full-width">
+                            <label class="form-label">Description</label>
+                            <p:inputTextarea id="description"
+                                             value="#{raiseComplaintBean.description}"
+                                             rows="8"
+                                             required="true"
+                                             requiredMessage="Please enter complaint description"
+                                             placeholder="Describe your grievance in detail — include location, time, and any other relevant information that will help officers resolve it faster."
+                                             styleClass="input-field">
+                                <p:ajax event="keyup" update="descriptionMsg"/>
+                            </p:inputTextarea>
+                            <p:message id="descriptionMsg" for="description" display="text"/>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="form-card-footer">
+                    <div class="btn-cancel-wrap">
+                        <p:button value="Cancel" outcome="/citizen/dashboard"/>
+                    </div>
+                    <div class="btn-submit-wrap">
+                        <p:commandButton value="Submit Complaint"
+                                         icon="pi pi-check"
+                                         action="#{raiseComplaintBean.submitComplaint}"
+                                         update="@form"/>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-        
-            <h:button value="← Back to Dashboard"
-                      outcome="/citizen/dashboard"
-                      styleClass="back-dashboard-btn"/>
 
-    </div>
+    </h:form>
 
-
-    <div class="form-card">
-
-        <h:form>
-
-            <div>
-
-                <div class="field">
-                    <label>Complaint Title</label>
-
-                    <p:inputText id="title"
-                            value="#{raiseComplaintBean.title}"
-                            required="true"
-                            requiredMessage="Please enter complaint title"
-                            styleClass="input-field">
-
-                   <p:ajax event="keyup" update="titleMsg"/>
-               </p:inputText>
-
-               <p:message id="titleMsg"
-                          for="title"
-                          display="text"/>
-                </div>
-                <div class="field">
-                    <label>Category</label>
-
-                    <p:selectOneMenu id="category"
-                                    value="#{raiseComplaintBean.categoryId}"
-                                    required="true"
-                                    requiredMessage="Please select a category"
-                                    styleClass="input-field">
-
-                       <f:selectItem itemLabel="Select Category"
-                                     itemValue="#{null}"
-                                     noSelectionOption="true"/>
-
-                       <f:selectItems value="#{raiseComplaintBean.categories}"
-                                      var="c"
-                                      itemLabel="#{c.categoryName}"
-                                      itemValue="#{c.categoryId}" />
-
-                       <p:ajax event="change" update="categoryMsg"/>
-                    </p:selectOneMenu>
-
-                    <p:message id="categoryMsg"
-                               for="category"
-                               display="text"/>
-                                    </div>
-
-               <div class="field">
-                    <label>Priority</label>
-
-                    <p:selectOneMenu id="priority"
-                                    value="#{raiseComplaintBean.priority}"
-                                    required="true"
-                                    requiredMessage="Please select priority"
-                                    styleClass="input-field">
-
-                       <f:selectItem itemLabel="Select Priority"
-                                     itemValue="#{null}"
-                                     noSelectionOption="true"/>
-
-                       <f:selectItem itemLabel="Low" itemValue="LOW"/>
-                       <f:selectItem itemLabel="Medium" itemValue="MEDIUM"/>
-                       <f:selectItem itemLabel="High" itemValue="HIGH"/>
-
-                       <p:ajax event="change" update="priorityMsg"/>
-                   </p:selectOneMenu>
-
-                   <p:message id="priorityMsg"
-                              for="priority"
-                              display="text"/>
-                </div>
-
-            </div>
-
-            <div class="field full-width">
-
-                <label>Description</label>
-
-                <p:inputTextarea id="description"
-                                value="#{raiseComplaintBean.description}"
-                                rows="8"
-                                required="true"
-                                requiredMessage="Please enter complaint description"
-                                styleClass="input-field">
-
-                   <p:ajax event="keyup" update="descriptionMsg"/>
-               </p:inputTextarea>
-
-               <p:message id="descriptionMsg"
-                          for="description"
-                          display="text"/>
-                           </div>
-            
-            <div class="btn-section">
-
-                <p:commandButton value="Submit Complaint"
-                                 action="#{raiseComplaintBean.submitComplaint}"
-                                 update="@form"
-                                 styleClass="submit-btn"/>
-
-            </div>
-
-        </h:form>
-
-    </div>
-
-</div>
 </h:body>
 </html>

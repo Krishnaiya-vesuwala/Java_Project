@@ -1,24 +1,26 @@
 package CDIBean;
 
-import EJB.AdminBeanLocal;
+import Client.RestClient;
 import Entity.Departments;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Named
 @ViewScoped
 public class DepartmentManagementCDI implements Serializable {
 
-    @EJB
-    private AdminBeanLocal adminService;
+    private RestClient restClient = new RestClient();
 
     private List<Departments> departments;
     private Departments       selectedDepartment;
@@ -32,6 +34,9 @@ public class DepartmentManagementCDI implements Serializable {
     private String editDepartmentName;
     private String editDescription;
     private String editStatus;
+
+    // Token
+    private String token;
 
     // ── Validation constants ───────────────────────────────
     private static final Pattern NAME_PATTERN =
@@ -50,16 +55,80 @@ public class DepartmentManagementCDI implements Serializable {
 
     @PostConstruct
     public void init() {
-        loadData();
-        selectedDepartment = new Departments();
-        newStatus = "ACTIVE";
+
+        try {
+
+            // ── Get token from session ───────────────
+            Map<String, Object> session = FacesContext
+                    .getCurrentInstance()
+                    .getExternalContext()
+                    .getSessionMap();
+
+            token = (String) session.get("token");
+
+            System.out.println("[DepartmentManagementCDI] token = "
+                    + token);
+
+            if (token == null || token.isEmpty()) {
+                System.err.println(
+                        "[DepartmentManagementCDI] Token is NULL!");
+                return;
+            }
+
+            loadData();
+
+            selectedDepartment = new Departments();
+            newStatus          = "ACTIVE";
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] init error: "
+                    + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
+    // ═══════════════════════════════════════════════════════
+    //  LOAD DATA
+    // ═══════════════════════════════════════════════════════
 
     public void loadData() {
-        departments = adminService.getAllDepartments();
+
+        try {
+
+            Response rs = restClient.getAllDepartments(
+                    Response.class, token);
+
+            System.out.println(
+                    "[DepartmentManagementCDI] getAllDepartments status: "
+                    + rs.getStatus());
+
+            if (rs.getStatus() == 200) {
+                departments = rs.readEntity(
+                        new GenericType<List<Departments>>() {});
+                System.out.println(
+                        "[DepartmentManagementCDI] departments loaded: "
+                        + (departments != null
+                                ? departments.size() : 0));
+            } else {
+                departments = new ArrayList<>();
+                System.err.println(
+                        "[DepartmentManagementCDI] getAllDepartments"
+                        + " failed. Status: " + rs.getStatus());
+            }
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] loadData error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            departments = new ArrayList<>();
+        }
     }
 
-    // ── Prepare create ─────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    //  PREPARE
+    // ═══════════════════════════════════════════════════════
 
     /** Called by "Add Department" button — resets create-dialog fields. */
     public void prepareCreate() {
@@ -73,18 +142,14 @@ public class DepartmentManagementCDI implements Serializable {
     // ═══════════════════════════════════════════════════════
 
     /**
-     * Validates Department Name, Description and Status.
-     *
      * isEdit = false → component prefix "departmentForm:add"
      * isEdit = true  → component prefix "departmentForm:edit"
-     *
-     * excludeDeptId — the ID to skip during duplicate check (edit mode).
      */
     private boolean validateDepartment(String  deptName,
-                                       String  description,
-                                       String  status,
-                                       Integer excludeDeptId,
-                                       boolean isEdit) {
+                                        String  description,
+                                        String  status,
+                                        Integer excludeDeptId,
+                                        boolean isEdit) {
 
         boolean      ok = true;
         FacesContext fc = FacesContext.getCurrentInstance();
@@ -99,6 +164,7 @@ public class DepartmentManagementCDI implements Serializable {
             ok = false;
 
         } else {
+
             String trimmed = deptName.trim();
 
             if (trimmed.length() < NAME_MIN) {
@@ -123,12 +189,12 @@ public class DepartmentManagementCDI implements Serializable {
             }
 
             // Duplicate name check (case-insensitive)
-            if (ok) {
+            if (ok && departments != null) {
                 for (Departments d : departments) {
                     if (excludeDeptId != null
                             && d.getDepartmentId()
                                 .equals(excludeDeptId)) {
-                        continue; // skip the record being edited
+                        continue;
                     }
                     if (d.getDepartmentName() != null
                             && d.getDepartmentName().trim()
@@ -145,6 +211,7 @@ public class DepartmentManagementCDI implements Serializable {
 
         // ── 2. Description (optional but validated if filled) ──
         if (description != null && !description.trim().isEmpty()) {
+
             String trimmedDesc = description.trim();
 
             if (trimmedDesc.length() > DESC_MAX) {
@@ -179,14 +246,14 @@ public class DepartmentManagementCDI implements Serializable {
     // ── Message helpers ────────────────────────────────────
 
     private void addError(FacesContext fc,
-                          String clientId,
-                          String detail) {
+                           String clientId,
+                           String detail) {
         fc.addMessage(clientId,
                 new FacesMessage(
                         FacesMessage.SEVERITY_ERROR,
                         "Validation Error",
                         detail));
-        fc.validationFailed(); // keeps dialog open
+        fc.validationFailed();
     }
 
     private void addSuccess(String summary, String detail) {
@@ -204,10 +271,13 @@ public class DepartmentManagementCDI implements Serializable {
     /** Called by "Save Department" in the Add dialog. */
     public void createDepartment() {
 
-        System.out.println("CREATE DEPARTMENT CLICKED");
-        System.out.println("Name   = " + newDepartmentName);
-        System.out.println("Desc   = " + newDescription);
-        System.out.println("Status = " + newStatus);
+        System.out.println("[DepartmentManagementCDI] CREATE CLICKED");
+        System.out.println("[DepartmentManagementCDI] Name   = "
+                + newDepartmentName);
+        System.out.println("[DepartmentManagementCDI] Desc   = "
+                + newDescription);
+        System.out.println("[DepartmentManagementCDI] Status = "
+                + newStatus);
 
         if (!validateDepartment(
                 newDepartmentName,
@@ -215,28 +285,46 @@ public class DepartmentManagementCDI implements Serializable {
                 newStatus,
                 null,
                 false)) {
-            return; // validationFailed() set → dialog stays open
+            return;
         }
 
-        adminService.createDepartment(
-                newDepartmentName.trim(),
-                newDescription  != null
-                        ? newDescription.trim() : "",
-                newStatus);
+        try {
 
-        loadData();
+            restClient.createDepartment(
+                    newDepartmentName.trim(),
+                    newDescription != null
+                            ? newDescription.trim() : "",
+                    newStatus,token);
 
-        addSuccess("Success",
-                "Department '" + newDepartmentName.trim()
-                + "' created successfully.");
+            System.out.println(
+                    "[DepartmentManagementCDI] createDepartment"
+                    + " REST called.");
 
-        prepareCreate(); // reset fields
+            loadData();
+
+            addSuccess("Success",
+                    "Department '" + newDepartmentName.trim()
+                    + "' created successfully.");
+
+            prepareCreate();
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] createDepartment error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "departmentForm:addDepartmentName",
+                    "Failed to create department: "
+                    + e.getMessage());
+        }
     }
 
     /** Called by "Edit" row button — populates edit-dialog fields. */
     public void editDepartment(Departments dept) {
 
-        System.out.println("EDIT DEPT = " + dept.getDepartmentId());
+        System.out.println("[DepartmentManagementCDI] EDIT DEPT = "
+                + dept.getDepartmentId());
 
         selectedDepartment = dept;
         editDepartmentName = dept.getDepartmentName();
@@ -264,73 +352,167 @@ public class DepartmentManagementCDI implements Serializable {
             return;
         }
 
-        adminService.updateDepartment(
-                selectedDepartment.getDepartmentId(),
-                editDepartmentName.trim(),
-                editDescription != null
-                        ? editDescription.trim() : "",
-                editStatus);
+        try {
 
-        loadData();
+            restClient.updateDepartment(
+                    String.valueOf(
+                            selectedDepartment.getDepartmentId()),
+                    editDepartmentName.trim(),
+                    editDescription != null
+                            ? editDescription.trim() : "",
+                    editStatus,token);
 
-        addSuccess("Updated",
-                "Department updated successfully.");
+            System.out.println(
+                    "[DepartmentManagementCDI] updateDepartment"
+                    + " REST called.");
+
+            loadData();
+
+            addSuccess("Updated",
+                    "Department updated successfully.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] updateDepartment error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    "departmentForm:editDepartmentName",
+                    "Failed to update department: "
+                    + e.getMessage());
+        }
     }
 
     /** Hard-delete a department. */
     public void deleteDepartment(Integer id) {
 
-        System.out.println("Deleting Department: " + id);
+        System.out.println(
+                "[DepartmentManagementCDI] Deleting Department: " + id);
 
-        adminService.deleteDepartment(id);
+        try {
 
-        loadData();
+            restClient.deleteDepartment(String.valueOf(id),token);
 
-        addSuccess("Deleted",
-                "Department deleted successfully.");
+            System.out.println(
+                    "[DepartmentManagementCDI] deleteDepartment"
+                    + " REST called. id=" + id);
+
+            loadData();
+
+            addSuccess("Deleted",
+                    "Department deleted successfully.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] deleteDepartment error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to delete department: "
+                    + e.getMessage());
+        }
     }
 
     /** Set department status → ACTIVE. */
     public void activate(Integer id) {
 
-        Departments dept = departments.stream()
-                .filter(d -> d.getDepartmentId().equals(id))
-                .findFirst()
-                .orElse(null);
+        try {
 
-        if (dept != null) {
-            adminService.updateDepartment(
-                    id,
+            // Find dept in list to get current values
+            Departments dept = null;
+            if (departments != null) {
+                dept = departments.stream()
+                        .filter(d -> d.getDepartmentId().equals(id))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (dept == null) {
+                addError(FacesContext.getCurrentInstance(),
+                        null,
+                        "Department not found.");
+                return;
+            }
+
+            restClient.updateDepartment(
+                    String.valueOf(id),
                     dept.getDepartmentName(),
-                    dept.getDescription(),
-                    "ACTIVE");
+                    dept.getDescription() != null
+                            ? dept.getDescription() : "",
+                    "ACTIVE",token);
+
+            System.out.println(
+                    "[DepartmentManagementCDI] activate REST called."
+                    + " id=" + id);
+
             loadData();
+
             addSuccess("Activated",
                     "Department '"
                     + dept.getDepartmentName()
                     + "' has been activated.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] activate error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to activate department: "
+                    + e.getMessage());
         }
     }
 
     /** Set department status → INACTIVE. */
     public void deactivate(Integer id) {
 
-        Departments dept = departments.stream()
-                .filter(d -> d.getDepartmentId().equals(id))
-                .findFirst()
-                .orElse(null);
+        try {
 
-        if (dept != null) {
-            adminService.updateDepartment(
-                    id,
+            // Find dept in list to get current values
+            Departments dept = null;
+            if (departments != null) {
+                dept = departments.stream()
+                        .filter(d -> d.getDepartmentId().equals(id))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (dept == null) {
+                addError(FacesContext.getCurrentInstance(),
+                        null,
+                        "Department not found.");
+                return;
+            }
+
+            restClient.updateDepartment(
+                    String.valueOf(id),
                     dept.getDepartmentName(),
-                    dept.getDescription(),
-                    "INACTIVE");
+                    dept.getDescription() != null
+                            ? dept.getDescription() : "",
+                    "INACTIVE",token);
+
+            System.out.println(
+                    "[DepartmentManagementCDI] deactivate REST called."
+                    + " id=" + id);
+
             loadData();
+
             addSuccess("Deactivated",
                     "Department '"
                     + dept.getDepartmentName()
                     + "' has been deactivated.");
+
+        } catch (Exception e) {
+            System.err.println(
+                    "[DepartmentManagementCDI] deactivate error: "
+                    + e.getMessage());
+            e.printStackTrace();
+            addError(FacesContext.getCurrentInstance(),
+                    null,
+                    "Failed to deactivate department: "
+                    + e.getMessage());
         }
     }
 
@@ -338,75 +520,30 @@ public class DepartmentManagementCDI implements Serializable {
     //  Getters / Setters
     // ═══════════════════════════════════════════════════════
 
-    public AdminBeanLocal getAdminService() {
-        return adminService;
-    }
+    public List<Departments> getDepartments()               { return departments; }
+    public void setDepartments(List<Departments> d)         { this.departments = d; }
 
-    public void setAdminService(AdminBeanLocal adminService) {
-        this.adminService = adminService;
-    }
+    public Departments getSelectedDepartment()              { return selectedDepartment; }
+    public void setSelectedDepartment(Departments d)        { this.selectedDepartment = d; }
 
-    public List<Departments> getDepartments() {
-        return departments;
-    }
+    public String getNewDepartmentName()                    { return newDepartmentName; }
+    public void setNewDepartmentName(String n)              { this.newDepartmentName = n; }
 
-    public void setDepartments(List<Departments> departments) {
-        this.departments = departments;
-    }
+    public String getNewDescription()                       { return newDescription; }
+    public void setNewDescription(String d)                 { this.newDescription = d; }
 
-    public Departments getSelectedDepartment() {
-        return selectedDepartment;
-    }
+    public String getNewStatus()                            { return newStatus; }
+    public void setNewStatus(String s)                      { this.newStatus = s; }
 
-    public void setSelectedDepartment(Departments selectedDepartment) {
-        this.selectedDepartment = selectedDepartment;
-    }
+    public String getEditDepartmentName()                   { return editDepartmentName; }
+    public void setEditDepartmentName(String n)             { this.editDepartmentName = n; }
 
-    public String getNewDepartmentName() {
-        return newDepartmentName;
-    }
+    public String getEditDescription()                      { return editDescription; }
+    public void setEditDescription(String d)                { this.editDescription = d; }
 
-    public void setNewDepartmentName(String newDepartmentName) {
-        this.newDepartmentName = newDepartmentName;
-    }
+    public String getEditStatus()                           { return editStatus; }
+    public void setEditStatus(String s)                     { this.editStatus = s; }
 
-    public String getNewDescription() {
-        return newDescription;
-    }
-
-    public void setNewDescription(String newDescription) {
-        this.newDescription = newDescription;
-    }
-
-    public String getNewStatus() {
-        return newStatus;
-    }
-
-    public void setNewStatus(String newStatus) {
-        this.newStatus = newStatus;
-    }
-
-    public String getEditDepartmentName() {
-        return editDepartmentName;
-    }
-
-    public void setEditDepartmentName(String editDepartmentName) {
-        this.editDepartmentName = editDepartmentName;
-    }
-
-    public String getEditDescription() {
-        return editDescription;
-    }
-
-    public void setEditDescription(String editDescription) {
-        this.editDescription = editDescription;
-    }
-
-    public String getEditStatus() {
-        return editStatus;
-    }
-
-    public void setEditStatus(String editStatus) {
-        this.editStatus = editStatus;
-    }
+    public String getToken()                                { return token; }
+    public void setToken(String t)                          { this.token = t; }
 }
